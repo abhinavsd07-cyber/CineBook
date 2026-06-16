@@ -87,7 +87,7 @@ export default function EventTicketSelection() {
         <div className="container">
           <h1 className="event-title-sm">{event.title}</h1>
           <p className="event-meta-sm">
-            {event.genre?.join(" | ")} • {event.language?.join(", ")} • Live Event
+            {Array.isArray(event.genre) ? event.genre.join(" | ") : event.genre} • {Array.isArray(event.language) ? event.language.join(", ") : event.language} • Live Event
           </p>
         </div>
       </div>

@@ -53,7 +53,7 @@ export default function Stream() {
                     <div className="stream-premiere-badge">PREMIERE</div>
                   </div>
                   <h4 className="stream-movie-title">{m.title}</h4>
-                  <p className="stream-movie-lang">{m.language?.join(", ")}</p>
+                  <p className="stream-movie-lang">{Array.isArray(m.language) ? m.language.join(", ") : m.language}</p>
                 </div>
               ))
             ) : (

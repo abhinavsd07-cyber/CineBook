@@ -89,7 +89,7 @@ export default function EventDetails() {
 
                 <div className="info-row">
                   <FaLanguage className="info-icon" />
-                  <div className="info-content">{event.language?.join(", ") || "Language TBA"}</div>
+                  <div className="info-content">{Array.isArray(event.language) ? event.language.join(", ") : event.language || "Language TBA"}</div>
                 </div>
 
                 <div className="info-row">

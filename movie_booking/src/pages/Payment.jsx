@@ -256,7 +256,7 @@ export default function Payment() {
               ) : (
                 <div className="pay-movie-card">
                   <h3 className="pay-movie-name">{show.movie?.title}</h3>
-                  <p className="pay-detail text-dim">{show.movie?.language} • {show.format}</p>
+                  <p className="pay-detail text-dim">{Array.isArray(show.movie?.language) ? show.movie?.language.join(", ") : show.movie?.language} • {show.format}</p>
                   <p className="pay-detail">{show.theatre?.name}: {show.theatre?.location}</p>
                 </div>
               )}

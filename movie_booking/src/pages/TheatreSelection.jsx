@@ -72,7 +72,7 @@ export default function TheatreSelection() {
             <h1 className="ts-movie-title">{movie.title}</h1>
             <div className="ts-movie-tags">
               <span className="ts-tag">{movie.genre?.join(", ")}</span>
-              <span className="ts-tag tag-lang">{movie.language}</span>
+              <span className="ts-tag tag-lang">{Array.isArray(movie.language) ? movie.language.join(", ") : movie.language}</span>
               <span className="ts-tag tag-format">2D, 3D</span>
             </div>
           </div>

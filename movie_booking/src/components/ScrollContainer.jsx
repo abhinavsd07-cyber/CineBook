@@ -1,0 +1,78 @@
+import React, { useRef, useState, useEffect } from "react";
+import "./ScrollContainer.css";
+
+export default function ScrollContainer({ children, className = "", style = {} }) {
+  const scrollRef = useRef(null);
+  const [showLeftBtn, setShowLeftBtn] = useState(false);
+  const [showRightBtn, setShowRightBtn] = useState(false);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setShowLeftBtn(scrollLeft > 10);
+      setShowRightBtn(scrollLeft + clientWidth < scrollWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      checkScroll();
+      el.addEventListener("scroll", checkScroll, { passive: true });
+      
+      const resizeObserver = new ResizeObserver(() => {
+        checkScroll();
+      });
+      resizeObserver.observe(el);
+
+      return () => {
+        el.removeEventListener("scroll", checkScroll);
+        resizeObserver.disconnect();
+      };
+    }
+  }, [children]);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      // Scroll by 80% of the visible container width for standard, natural navigation
+      const scrollAmount = clientWidth * 0.8;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  return (
+    <div className="scroll-container-wrapper" style={style}>
+      {showLeftBtn && (
+        <button 
+          className="scroll-nav-btn left-btn" 
+          onClick={() => scroll("left")} 
+          aria-label="Scroll left"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+      )}
+      
+      <div className={`scroll-content-inner ${className}`} ref={scrollRef}>
+        {children}
+      </div>
+
+      {showRightBtn && (
+        <button 
+          className="scroll-nav-btn right-btn" 
+          onClick={() => scroll("right")} 
+          aria-label="Scroll right"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}

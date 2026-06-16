@@ -7,6 +7,7 @@ import "./Home.css";
 
 import AdCarousel from "../components/AdCarousel";
 import { MovieCardSkeleton } from "../components/Skeleton";
+import ScrollContainer from "../components/ScrollContainer";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
@@ -61,15 +62,15 @@ export default function Home() {
             <button className="see-all-btn">See All &rsaquo;</button>
           </div>
           {loading ? (
-            <div className="movie-grid h-scroll">
+            <ScrollContainer className="movie-grid h-scroll">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} style={{ width: "220px", flexShrink: 0 }}>
                   <MovieCardSkeleton />
                 </div>
               ))}
-            </div>
+            </ScrollContainer>
           ) : (
-            <div className="movie-grid h-scroll">
+            <ScrollContainer className="movie-grid h-scroll">
               {movies.length > 0 ? movies.map((m) => (
                 <div key={m._id} className="bms-movie-card" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
                   <div className="poster-wrapper">
@@ -88,7 +89,7 @@ export default function Home() {
                   <p>No movies currently playing in your region.</p>
                 </div>
               )}
-            </div>
+            </ScrollContainer>
           )}
         </section>
 
@@ -103,13 +104,13 @@ export default function Home() {
             <div className="section-header">
               <h2 className="section-title">The Best Of Live Events</h2>
             </div>
-            <div className="movie-grid h-scroll" style={{ gap: "24px" }}>
+            <ScrollContainer className="movie-grid h-scroll" style={{ gap: "24px" }}>
               {middleBanners.map((b, idx) => (
                 <div key={idx} style={{ minWidth: "224px", width: "224px", flexShrink: 0, cursor: "pointer" }} onClick={() => b.link && window.open(b.link, "_blank")}>
                   <img src={b.bg} alt={`Event Category ${idx}`} style={{ width: "100%", height: "224px", borderRadius: "10px", objectFit: "cover", boxShadow: "0 4px 8px rgba(0,0,0,0.1)", display: "block" }} />
                 </div>
               ))}
-            </div>
+            </ScrollContainer>
           </section>
         )}
       </div>
@@ -122,7 +123,7 @@ export default function Home() {
               <h2 className="section-title" style={{ color: "white" }}>Premieres</h2>
               <p className="section-subtitle" style={{ color: "#aaa" }}>Brand new releases every Friday</p>
             </div>
-            <div className="movie-grid h-scroll">
+            <ScrollContainer className="movie-grid h-scroll">
               {premieres.map((m) => (
                 <div key={m._id} className="bms-movie-card" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
                   <div className="poster-wrapper">
@@ -130,10 +131,10 @@ export default function Home() {
                     <div className="premiere-badge">PREMIERE</div>
                   </div>
                   <h4 className="title" style={{ color: "white" }}>{m.title}</h4>
-                  <p className="genre" style={{ color: "#aaa" }}>{m.language?.join(", ")}</p>
+                  <p className="genre" style={{ color: "#aaa" }}>{Array.isArray(m.language) ? m.language.join(", ") : m.language}</p>
                 </div>
               ))}
-            </div>
+            </ScrollContainer>
           </div>
         </section>
       )}
@@ -147,7 +148,7 @@ export default function Home() {
               <h2 className="section-title">Upcoming Events & Activities</h2>
               <button className="see-all-btn">See All &rsaquo;</button>
             </div>
-            <div className="movie-grid h-scroll">
+            <ScrollContainer className="movie-grid h-scroll">
               {events.map((m) => (
                 <div key={m._id} className="bms-movie-card" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
                   <div className="poster-wrapper">
@@ -157,7 +158,7 @@ export default function Home() {
                   <p className="genre">{m.genre?.join("/")}</p>
                 </div>
               ))}
-            </div>
+            </ScrollContainer>
           </section>
         )}
       </div>

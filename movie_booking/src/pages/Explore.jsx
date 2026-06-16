@@ -208,7 +208,7 @@ export default function Explore() {
                   <div className="card-body">
                     <h3 className="card-title">{m.title}</h3>
                     <p className="card-meta">
-                      {m.language || "English"} • {m.genre?.slice(0, 2).join(", ")}
+                      {Array.isArray(m.language) ? m.language.join(", ") : (m.language || "English")} • {m.genre?.slice(0, 2).join(", ")}
                     </p>
                   </div>
                 </div>

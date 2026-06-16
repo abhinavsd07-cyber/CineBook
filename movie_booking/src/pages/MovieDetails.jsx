@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { getMovieById, getMovieReviews, createReview, voteReview, getMovieRecommendations } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
+import ScrollContainer from "../components/ScrollContainer";
 import "./MovieDetails.css";
 
 const getYoutubeVideoId = (url) => {
@@ -376,7 +377,10 @@ export default function MovieDetails() {
             <div className="md-divider" />
             <section className="md-section">
               <h3>You Might Also Like</h3>
-              <div style={{ display: "flex", gap: "20px", overflowX: "auto", paddingBottom: "15px", scrollbarWidth: "thin" }}>
+              <ScrollContainer 
+                className="h-scroll" 
+                style={{ display: "flex", gap: "20px", overflowX: "auto", paddingBottom: "15px", scrollbarWidth: "thin" }}
+              >
                 {recommendations.map(rec => (
                   <Link 
                     to={`/movie/${rec._id}`} 
@@ -391,7 +395,7 @@ export default function MovieDetails() {
                     <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>{rec.genre?.join(", ")}</p>
                   </Link>
                 ))}
-              </div>
+              </ScrollContainer>
             </section>
           </>
         )}
