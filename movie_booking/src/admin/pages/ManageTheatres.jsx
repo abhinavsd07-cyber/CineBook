@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllTheatres, createTheatre, updateTheatre, deleteTheatre } from "../../config/allApis";
 import { FaBuilding, FaLocationDot } from "react-icons/fa6";
+import { POPULAR_CITIES } from "../../components/Header";
 import "../AdminLayout.css";
 
 const EMPTY = { name: "", location: "", address: "", phone: "", totalScreens: 1, amenities: "" };
@@ -11,12 +12,14 @@ export default function ManageTheatres() {
   const [form, setForm] = useState(EMPTY);
   const [editId, setEditId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
 
   const fetch = () => getAllTheatres().then((r) => setTheatres(r.data.data)).catch(console.error);
   useEffect(() => { fetch(); }, []);
 
   const openAdd = () => { setForm(EMPTY); setEditId(null); setModal("add"); };
-  const openEdit = (t) => { setForm({ ...t, amenities: t.amenities?.join(", ") || "" }); setEditId(t._id); setModal("edit"); };
+  const openEdit = (t) => { setForm({ ...EMPTY, ...t, amenities: t.amenities?.join(", ") || "" }); setEditId(t._id); setModal("edit"); };
   const close = () => setModal(null);
 
   const handleSubmit = async (e) => {
@@ -35,6 +38,13 @@ export default function ManageTheatres() {
     await deleteTheatre(id); fetch();
   };
 
+  const filteredTheatres = theatres.filter(t => 
+    (locationFilter === "" || (t.location || "").trim().toLowerCase() === locationFilter.trim().toLowerCase()) &&
+    (t.name?.toLowerCase().includes(search.toLowerCase()) || 
+    t.location?.toLowerCase().includes(search.toLowerCase()) ||
+    t.address?.toLowerCase().includes(search.toLowerCase()))
+  );
+
   return (
     <div>
       <div className="admin-page-header">
@@ -45,6 +55,26 @@ export default function ManageTheatres() {
         <button className="btn btn-primary" onClick={openAdd} id="add-theatre-btn">+ Add Theatre</button>
       </div>
 
+      <div className="admin-filter-bar">
+        <div className="admin-search">
+          <span className="admin-search-icon">🔍</span>
+          <input 
+            type="text" 
+            placeholder="Search theatres..." 
+            className="form-input" 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ paddingLeft: "32px" }}
+          />
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <select className="form-input btn-sm" style={{ width: "auto" }} value={locationFilter} onChange={e => setLocationFilter(e.target.value)}>
+            <option value="">All Cities</option>
+            {POPULAR_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+          </select>
+        </div>
+      </div>
+
       <div className="admin-table-wrap">
         <div style={{ overflowX: "auto" }}>
           <table className="admin-table">
@@ -52,7 +82,7 @@ export default function ManageTheatres() {
               <tr><th>Theatre</th><th>Location</th><th>Phone</th><th>Screens</th><th>Amenities</th><th>Actions</th></tr>
             </thead>
             <tbody>
-              {theatres.map((t) => (
+              {filteredTheatres.map((t) => (
                 <tr key={t._id}>
                   <td><p style={{ fontWeight: 600 }}>{t.name}</p><p style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>{t.address}</p></td>
                   <td><FaLocationDot style={{ verticalAlign: 'text-bottom', color: 'var(--clr-accent)' }} /> {t.location}</td>
@@ -67,7 +97,7 @@ export default function ManageTheatres() {
                   </td>
                 </tr>
               ))}
-              {theatres.length === 0 && <tr><td colSpan="6" style={{ textAlign: "center", color: "var(--clr-text-muted)", padding: "40px" }}>No theatres yet</td></tr>}
+              {filteredTheatres.length === 0 && <tr><td colSpan="6" style={{ textAlign: "center", color: "var(--clr-text-muted)", padding: "40px" }}>No theatres found</td></tr>}
             </tbody>
           </table>
         </div>
@@ -80,7 +110,13 @@ export default function ManageTheatres() {
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group"><label className="form-label">Theatre Name *</label><input className="form-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
               <div className="admin-grid-2">
-                <div className="form-group"><label className="form-label">City / Location *</label><input className="form-input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required /></div>
+                <div className="form-group">
+                  <label className="form-label">City / Location *</label>
+                  <select className="form-input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required>
+                    <option value="">Select City</option>
+                    {POPULAR_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                  </select>
+                </div>
                 <div className="form-group"><label className="form-label">Phone</label><input className="form-input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
               </div>
               <div className="form-group"><label className="form-label">Full Address *</label><input className="form-input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>

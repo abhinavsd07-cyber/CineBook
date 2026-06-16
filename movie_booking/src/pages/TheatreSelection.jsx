@@ -15,6 +15,19 @@ const formatDate = (d) => {
   return local.toISOString().split("T")[0];
 };
 
+const format12Hour = (timeStr) => {
+  if (!timeStr) return "";
+  if (timeStr.toLowerCase().includes("am") || timeStr.toLowerCase().includes("pm")) return timeStr;
+  const [hourStr, minStr] = timeStr.split(":");
+  if (!hourStr || !minStr) return timeStr;
+  let h = parseInt(hourStr, 10);
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  const padH = h < 10 ? "0" + h : h;
+  return `${padH}:${minStr} ${ampm}`;
+};
+
 export default function TheatreSelection() {
   const { movieId } = useParams();
   const navigate = useNavigate();
@@ -132,7 +145,7 @@ export default function TheatreSelection() {
                         setShowModal(true);
                       }}
                     >
-                      <div className="time">{show.time}</div>
+                      <div className="time">{format12Hour(show.time)}</div>
                       <div className="format">{show.format}</div>
                     </button>
                   ))}

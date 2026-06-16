@@ -17,6 +17,19 @@ const generateGrid = (rows, seatsPerRow, rowOffset = 0) => {
   );
 };
 
+const format12Hour = (timeStr) => {
+  if (!timeStr) return "";
+  if (timeStr.toLowerCase().includes("am") || timeStr.toLowerCase().includes("pm")) return timeStr;
+  const [hourStr, minStr] = timeStr.split(":");
+  if (!hourStr || !minStr) return timeStr;
+  let h = parseInt(hourStr, 10);
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  const padH = h < 10 ? "0" + h : h;
+  return `${padH}:${minStr} ${ampm}`;
+};
+
 export default function SeatSelection() {
   const { showId } = useParams();
   const navigate = useNavigate();
@@ -170,7 +183,7 @@ export default function SeatSelection() {
             <button className="back-btn" onClick={() => navigate(-1)}>‹</button>
             <div>
               <h2 className="movie-title">{show.movie?.title}</h2>
-              <p className="theatre-info">{show.theatre?.name} | {new Date(show.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}, {show.time}</p>
+              <p className="theatre-info">{show.theatre?.name} | {new Date(show.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}, {format12Hour(show.time)}</p>
             </div>
           </div>
           <div className="ss-tickets-qty">

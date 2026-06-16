@@ -20,8 +20,10 @@ const getShowsByMovie = async (req, res) => {
     // Group by theatre
     const theatreMap = {};
     shows.forEach((show) => {
+      if (!show.theatre) return;
+      
       // If a location query parameter was provided, only include shows whose theatre location matches
-      if (location && show.theatre.location.toLowerCase() !== location.toLowerCase()) {
+      if (location && show.theatre.location?.trim().toLowerCase() !== location.trim().toLowerCase()) {
         return;
       }
 
@@ -55,8 +57,8 @@ const getShowById = async (req, res) => {
 const getAllShows = async (req, res) => {
   try {
     const shows = await Show.find({ isActive: true })
-      .populate({ path: "movie", match: { isActive: true }, select: "title poster" })
-      .populate({ path: "theatre", match: { isActive: true }, select: "name location" })
+      .populate({ path: "movie", match: { isActive: true }, select: "title poster duration" })
+      .populate({ path: "theatre", match: { isActive: true }, select: "name location address" })
       .sort({ date: -1 });
 
     const validShows = shows.filter(s => s.movie && s.theatre);

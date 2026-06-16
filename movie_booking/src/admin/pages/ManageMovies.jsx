@@ -34,8 +34,8 @@ export default function ManageMovies() {
   const openEdit = (m) => {
     setForm({ 
       ...m, 
-      genre: Array.isArray(m.genre) ? m.genre.join(", ") : m.genre,
-      language: Array.isArray(m.language) ? m.language.join(", ") : m.language,
+      genre: Array.isArray(m.genre) ? m.genre.join(", ") : (m.genre || ""),
+      language: Array.isArray(m.language) ? m.language.join(", ") : (m.language || ""),
       trailer: m.trailer || "",
       cast: m.cast || [],
       crew: m.crew || [],
@@ -57,8 +57,8 @@ export default function ManageMovies() {
     try {
       const payload = { 
         ...form, 
-        genre: form.genre.split(",").map((g) => g.trim()).filter(Boolean),
-        language: form.language.split(",").map((g) => g.trim()).filter(Boolean),
+        genre: (form.genre || "").split(",").map((g) => g.trim()).filter(Boolean),
+        language: (form.language || "").split(",").map((g) => g.trim()).filter(Boolean),
         cast: form.cast.filter(c => c.name), // filter out empty rows
         crew: form.crew.filter(c => c.name),
         basePrice: Number(form.basePrice)

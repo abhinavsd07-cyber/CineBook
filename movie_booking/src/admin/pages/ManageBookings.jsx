@@ -27,11 +27,12 @@ export default function ManageBookings() {
     } catch (err) { alert(err.response?.data?.message || "Error cancelling"); }
   };
 
-  const filtered = bookings.filter((b) =>
-    !search || b.bookingId?.toLowerCase().includes(search.toLowerCase()) ||
+  const filtered = bookings.filter((b) => {
+    const title = b.show?.movie?.title || b.item?.title || "";
+    return !search || b.bookingId?.toLowerCase().includes(search.toLowerCase()) ||
     b.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    b.show?.movie?.title?.toLowerCase().includes(search.toLowerCase())
-  );
+    title.toLowerCase().includes(search.toLowerCase());
+  });
 
   return (
     <div>

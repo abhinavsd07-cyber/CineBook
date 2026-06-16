@@ -8,7 +8,7 @@ import { FaLandmark, FaBuilding, FaCity, FaIndustry, FaTree, FaMonument, FaArchw
 import { FaLocationCrosshairs } from "react-icons/fa6";
 import "./Header.css";
 
-const POPULAR_CITIES = [
+export const POPULAR_CITIES = [
   { name: "Mumbai", icon: <FaLandmark size={32} color="#F84464" /> },
   { name: "Delhi-NCR", icon: <FaMonument size={32} color="#F84464" /> },
   { name: "Bengaluru", icon: <FaBuilding size={32} color="#F84464" /> },
