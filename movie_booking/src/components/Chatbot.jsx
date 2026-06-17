@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaComment, FaXmark, FaPaperPlane, FaRobot } from 'react-icons/fa6';
-import './Chatbot.css';
+import { LuMessageSquare, LuX, LuSend, LuBot } from 'react-icons/lu';
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +37,7 @@ export default function Chatbot() {
       return 'Hello there! Enjoying Book My Show? Let me know if you need help finding a movie or managing your tickets.';
     }
 
-    return "I'm still learning! For complex issues, please reach out to our human support team at support@bookmyshow.com.";
+    return "I'm still learning! For complex issues, please reach out to our support team at support@bookmyshow.com.";
   };
 
   const handleSend = (e) => {
@@ -49,7 +48,6 @@ export default function Chatbot() {
     setMessages(prev => [...prev, { sender: 'user', text: userText }]);
     setInput('');
 
-    // Simulate typing delay
     setTimeout(() => {
       const botResponse = getBotResponse(userText);
       setMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
@@ -57,48 +55,60 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="chatbot-container">
+    <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end">
       {isOpen && (
-        <div className="chatbot-window">
-          <div className="chatbot-header">
-            <div className="chatbot-avatar">
-              <FaRobot />
+        <div className="w-[320px] md:w-[360px] h-[450px] bg-bms-surface border border-bms-border rounded-xl shadow-2xl flex flex-col overflow-hidden animate-slide-up mb-4">
+          <div className="flex items-center gap-3 bg-bms-header text-white px-4 py-3">
+            <div className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center text-lg">
+              <LuBot />
             </div>
-            <div className="chatbot-title">
-              <h4>CineBot Support</h4>
-              <span>Online</span>
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold">CineBot Support</h4>
+              <span className="text-[10px] text-green-400 font-medium block">Online</span>
             </div>
-            <button className="btn btn-ghost" style={{ padding: 5 }} onClick={() => setIsOpen(false)}>
-              <FaXmark size={20} color="#fff" />
+            <button className="p-1.5 rounded-full hover:bg-white/15 text-white transition-colors duration-200 border-none cursor-pointer" onClick={() => setIsOpen(false)}>
+              <LuX size={18} />
             </button>
           </div>
 
-          <div className="chatbot-messages">
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-bms-bg/50">
             {messages.map((m, idx) => (
-              <div key={idx} className={`chat-bubble ${m.sender}`}>
+              <div 
+                key={idx} 
+                className={`max-w-[80%] p-3 rounded-lg text-sm leading-relaxed ${
+                  m.sender === 'bot' 
+                    ? 'self-start bg-bms-surface border border-bms-border text-bms-text rounded-tl-none' 
+                    : 'self-end bg-bms-accent text-white rounded-tr-none'
+                }`}
+              >
                 {m.text}
               </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
 
-          <form className="chatbot-input-area" onSubmit={handleSend}>
+          <form className="flex items-center gap-2 p-3 border-t border-bms-border bg-bms-surface" onSubmit={handleSend}>
             <input 
               type="text" 
               placeholder="Type your question..." 
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              className="flex-1 px-3 py-2 text-sm bg-bms-bg border border-bms-border rounded-md text-bms-text placeholder-bms-text-dim outline-none focus:border-bms-accent transition-colors duration-150"
             />
-            <button type="submit" disabled={!input.trim()}>
-              <FaPaperPlane size={18} />
+            <button 
+              type="submit" 
+              disabled={!input.trim()}
+              className="w-9 h-9 rounded-md bg-bms-accent/10 hover:bg-bms-accent text-bms-accent hover:text-white flex items-center justify-center border-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:hover:bg-bms-accent/10 disabled:hover:text-bms-accent"
+            >
+              <LuSend size={14} />
             </button>
           </form>
         </div>
       )}
 
       {!isOpen && (
-        <button className="chatbot-toggle-btn" onClick={() => setIsOpen(true)}>
-          <FaComment size={28} />
+        <button className="w-14 h-14 rounded-full bg-bms-accent hover:bg-bms-accent-hover text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 duration-200 border-none cursor-pointer focus:outline-none" onClick={() => setIsOpen(true)}>
+          <LuMessageSquare size={24} />
         </button>
       )}
     </div>

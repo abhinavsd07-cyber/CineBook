@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { FaArrowTrendUp, FaTicket, FaUsers, FaIndianRupeeSign } from "react-icons/fa6";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
+import { LuTrendingUp, LuTicket, LuUsers, LuIndianRupee } from "react-icons/lu";
 import axios from "axios";
-import "./AdminDashboard.css";
+import SEO from "../components/SEO";
 
-const COLORS = ['#E50914', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6'];
 
 export default function AdminDashboard() {
   const [data, setData] = useState(null);
@@ -54,93 +54,154 @@ export default function AdminDashboard() {
     fetchAnalytics();
   }, []);
 
-  if (loading) return <div className="page-loader" style={{ paddingTop: "80px" }}><div className="spinner" /></div>;
+  if (loading) {
+    return (
+      <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text flex items-center justify-center">
+        <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-dashboard-page page-wrapper">
-      <div className="container">
-        <div className="admin-header">
-          <h1>Admin Analytics</h1>
-          <p className="text-muted">Business Performance Dashboard</p>
+    <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
+      <SEO 
+        title="Admin Analytics Dashboard" 
+        description="Monitor system analytics, revenues, ticket sales and demographics."
+        url="/admin-dashboard"
+      />
+      <div className="container px-4 mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold text-bms-text tracking-tight">Admin Analytics</h1>
+          <p className="text-bms-text-muted text-sm mt-1">Business Performance Dashboard</p>
         </div>
 
         {/* KPI Grid */}
-        <div className="kpi-grid">
-          <div className="kpi-card glass">
-            <div className="kpi-icon"><FaIndianRupeeSign /></div>
-            <div className="kpi-info">
-              <p>Total Revenue</p>
-              <h3>₹{data.kpis.totalRevenue.toLocaleString("en-IN")}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
+            <div className="w-12 h-12 rounded-xl bg-bms-accent/10 text-bms-accent flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
+              <LuIndianRupee />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Total Revenue</p>
+              <h3 className="text-2xl font-bold text-bms-text">₹{data.kpis.totalRevenue.toLocaleString("en-IN")}</h3>
             </div>
           </div>
-          <div className="kpi-card glass">
-            <div className="kpi-icon"><FaTicket /></div>
-            <div className="kpi-info">
-              <p>Tickets Sold</p>
-              <h3>{data.kpis.totalTickets}</h3>
+
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
+            <div className="w-12 h-12 rounded-xl bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
+              <LuTicket />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Tickets Sold</p>
+              <h3 className="text-2xl font-bold text-bms-text">{data.kpis.totalTickets}</h3>
             </div>
           </div>
-          <div className="kpi-card glass">
-            <div className="kpi-icon"><FaArrowTrendUp /></div>
-            <div className="kpi-info">
-              <p>Total Bookings</p>
-              <h3>{data.kpis.totalBookings}</h3>
+
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
+            <div className="w-12 h-12 rounded-xl bg-[#10b981]/10 text-[#10b981] flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
+              <LuTrendingUp />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Total Bookings</p>
+              <h3 className="text-2xl font-bold text-bms-text">{data.kpis.totalBookings}</h3>
             </div>
           </div>
-          <div className="kpi-card glass">
-            <div className="kpi-icon"><FaUsers /></div>
-            <div className="kpi-info">
-              <p>Active Users</p>
-              <h3>{data.kpis.totalUsers}</h3>
+
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
+            <div className="w-12 h-12 rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6] flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
+              <LuUsers />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Active Users</p>
+              <h3 className="text-2xl font-bold text-bms-text">{data.kpis.totalUsers}</h3>
             </div>
           </div>
         </div>
 
         {/* Charts Grid */}
-        <div className="charts-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Line Chart */}
-          <div className="chart-card glass span-2">
-            <h3>Revenue (Last 7 Days)</h3>
-            <div className="chart-wrapper">
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-bms-text mb-6">Revenue (Last 7 Days)</h3>
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data.dailyRevenue}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="_id" stroke="var(--clr-text-muted)" />
-                  <YAxis stroke="var(--clr-text-muted)" />
-                  <RechartsTooltip contentStyle={{ backgroundColor: 'var(--clr-bg-alt)', borderColor: 'var(--clr-border)', borderRadius: '8px' }} />
-                  <Line type="monotone" dataKey="revenue" stroke="#E50914" strokeWidth={3} dot={{ r: 6, fill: '#E50914' }} activeDot={{ r: 8 }} />
-                </LineChart>
+                <AreaChart data={data.dailyRevenue} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorDailyRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F84464" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#F84464" stopOpacity={0.0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-bms-border)" opacity={0.15} vertical={false} />
+                  <XAxis dataKey="_id" stroke="var(--color-bms-text-dim)" fontSize={11} tickLine={false} dy={8} />
+                  <YAxis stroke="var(--color-bms-text-dim)" fontSize={11} tickLine={false} tickFormatter={(val) => `₹${val/1000}k`} dx={-8} />
+                  <RechartsTooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--color-bms-surface)', 
+                      borderColor: 'var(--color-bms-border)', 
+                      borderRadius: '12px',
+                      color: 'var(--color-bms-text)',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                    }} 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#F84464" 
+                    strokeWidth={2} 
+                    fillOpacity={1} 
+                    fill="url(#colorDailyRevenue)" 
+                    dot={false} 
+                    activeDot={{ r: 5, fill: '#F84464', strokeWidth: 2, stroke: 'var(--color-bms-surface)' }} 
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
           {/* Pie Chart */}
-          <div className="chart-card glass">
-            <h3>Popular Genres</h3>
-            <div className="chart-wrapper">
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <h3 className="text-lg font-bold text-bms-text mb-4">Popular Genres</h3>
+            <div className="h-[220px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={data.popularGenres}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
+                    innerRadius={64}
+                    outerRadius={84}
+                    paddingAngle={4}
+                    cornerRadius={6}
                     dataKey="value"
+                    stroke="none"
                   >
                     {data.popularGenres.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <RechartsTooltip contentStyle={{ backgroundColor: 'var(--clr-bg-alt)', borderColor: 'var(--clr-border)', borderRadius: '8px' }} />
+                  <RechartsTooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--color-bms-surface)', 
+                      borderColor: 'var(--color-bms-border)', 
+                      borderRadius: '12px',
+                      color: 'var(--color-bms-text)',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                    }} 
+                  />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-center pointer-events-none">
+                <span className="text-2xl font-bold text-bms-text leading-none">
+                  {data.popularGenres.reduce((sum, item) => sum + item.value, 0)}
+                </span>
+                <span className="text-[10px] font-bold text-bms-text-dim uppercase tracking-wider mt-1.5">Tickets</span>
+              </div>
             </div>
-            <div className="chart-legend">
+            <div className="flex flex-wrap gap-4 justify-center mt-4">
               {data.popularGenres.map((g, i) => (
-                <div key={i} className="legend-item">
-                  <span className="color-dot" style={{ backgroundColor: COLORS[i % COLORS.length] }}></span>
+                <div key={i} className="flex items-center text-xs text-bms-text-muted">
+                  <span className="w-2.5 h-2.5 rounded-full mr-2" style={{ backgroundColor: COLORS[i % COLORS.length] }}></span>
                   {g.name}
                 </div>
               ))}
@@ -148,22 +209,35 @@ export default function AdminDashboard() {
           </div>
 
           {/* Bar Chart */}
-          <div className="chart-card glass span-2">
-            <h3>Top Performing Movies (Revenue)</h3>
-            <div className="chart-wrapper">
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm lg:col-span-2">
+            <h3 className="text-lg font-bold text-bms-text mb-6">Top Performing Movies (Revenue)</h3>
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.popularMovies} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" horizontal={false} />
-                  <XAxis type="number" stroke="var(--clr-text-muted)" />
-                  <YAxis dataKey="name" type="category" stroke="var(--clr-text-muted)" width={150} />
-                  <RechartsTooltip contentStyle={{ backgroundColor: 'var(--clr-bg-alt)', borderColor: 'var(--clr-border)', borderRadius: '8px' }} />
-                  <Bar dataKey="revenue" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.85}/>
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-bms-border)" opacity={0.15} horizontal={false} />
+                  <XAxis type="number" stroke="var(--color-bms-text-dim)" fontSize={11} tickLine={false} />
+                  <YAxis dataKey="name" type="category" stroke="var(--color-bms-text-dim)" fontSize={11} tickLine={false} width={120} />
+                  <RechartsTooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--color-bms-surface)', 
+                      borderColor: 'var(--color-bms-border)', 
+                      borderRadius: '12px',
+                      color: 'var(--color-bms-text)',
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                    }} 
+                  />
+                  <Bar dataKey="revenue" fill="url(#barGradient)" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

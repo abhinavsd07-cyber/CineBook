@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import "./Auth.css";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -32,77 +31,71 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page page-wrapper">
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="auth-header">
-            <h2>Get Started</h2>
-            <p>Login to book your favorite shows</p>
+    <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-[#f2f5f9] text-[#333333] transition-colors duration-300">
+      <div className="w-full max-w-[440px] px-4">
+        <div className="bg-white border border-slate-200 p-8 rounded-[8px] shadow-sm flex flex-col gap-6">
+          <div className="text-center flex flex-col gap-1.5">
+            <h2 className="text-[22px] font-bold text-[#333333]">Get Started</h2>
+            <p className="text-[14px] text-[#666666] font-normal">Login to book your favorite shows</p>
           </div>
 
-          {error && <div className="auth-error">{error}</div>}
+          {error && (
+            <div className="text-[12px] text-red-600 bg-red-50 p-2.5 rounded-[4px] border border-red-200">
+              {error}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="auth-form">
-            <div className="form-group">
-              <label className="form-label" htmlFor="login-email">Email Address</label>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-[13px] font-medium text-[#666666]" htmlFor="login-email">Email Address</label>
               <input
                 id="login-email"
                 type="email"
-                className="form-input"
+                className="w-full px-3 py-2.5 text-[14px] bg-white border border-slate-300 rounded-[4px] text-[#333333] placeholder-slate-400 outline-none focus:border-[#F84464] transition-colors duration-150"
                 placeholder="Continue with Email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
               />
             </div>
-            <div className="form-group">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
-                <label className="form-label" style={{ margin: 0 }}>Password</label>
-                <Link to="/forgot-password" style={{ fontSize: "0.85rem", color: "var(--clr-accent)", textDecoration: "none" }}>Forgot Password?</Link>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-[13px] font-medium text-[#666666]">Password</label>
+                <Link to="/forgot-password" className="text-[12px] text-[#F84464] hover:underline transition-colors">Forgot Password?</Link>
               </div>
-              <div style={{ position: "relative" }}>
+              <div className="relative">
                 <input
                   id="login-password"
                   type={showPassword ? "text" : "password"}
-                  className="form-input"
+                  className="w-full px-3 py-2.5 pr-10 text-[14px] bg-white border border-slate-300 rounded-[4px] text-[#333333] placeholder-slate-400 outline-none focus:border-[#F84464] transition-colors duration-150"
                   placeholder="Enter your password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
-                  style={{ paddingRight: "40px" }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    color: "var(--clr-text-muted)",
-                    cursor: "pointer",
-                    padding: 0,
-                    display: "flex"
-                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-slate-400 hover:text-[#333333] cursor-pointer flex p-0"
                   title={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                  {showPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
                 </button>
               </div>
             </div>
-            <button type="submit" className="btn btn-primary w-full btn-lg mt-4" disabled={loading}>
-              {loading ? <span className="spinner" style={{ width: 20, height: 20, borderWidth: 2 }} /> : "Login"}
+            <button type="submit" className="bg-[#F84464] hover:bg-[#e03a58] text-white py-3.5 rounded-[8px] font-semibold text-[15px] w-full shadow-md shadow-[#F84464]/30 transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-2 mt-2 disabled:opacity-60" disabled={loading}>
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : "Login"}
             </button>
           </form>
 
-          <p className="auth-switch">
-            New to BookMyShow? <Link to="/register">Register here</Link>
+          <p className="text-[13px] text-[#666666] text-center mt-2">
+            New to BookMyShow? <Link to="/register" className="text-[#F84464] hover:underline font-medium transition-colors">Register here</Link>
           </p>
 
-          <div className="auth-demo">
-            <p className="text-dim text-center mt-4">Demo Admin: admin@example.com / admin123</p>
+          <div className="text-[11px] text-[#999999] text-center border-t border-slate-200 pt-4 mt-2">
+            <p>Demo Admin: admin@example.com / admin123</p>
           </div>
         </div>
       </div>

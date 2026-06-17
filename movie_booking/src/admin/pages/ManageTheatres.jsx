@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllTheatres, createTheatre, updateTheatre, deleteTheatre } from "../../config/allApis";
-import { FaBuilding, FaLocationDot } from "react-icons/fa6";
+import { LuBuilding2, LuMapPin, LuSearch, LuPlus, LuX } from "react-icons/lu";
 import { POPULAR_CITIES } from "../../components/Header";
-import "../AdminLayout.css";
 
 const EMPTY = { name: "", location: "", address: "", phone: "", totalScreens: 1, amenities: "" };
 
@@ -46,87 +45,212 @@ export default function ManageTheatres() {
   );
 
   return (
-    <div>
-      <div className="admin-page-header">
+    <div className="flex flex-col gap-6 animate-fade-in text-bms-text">
+      {/* Header */}
+      <div className="flex justify-between items-center flex-wrap gap-4 border-b border-bms-border pb-5">
         <div>
-          <h1 className="admin-page-title"><FaBuilding style={{ verticalAlign: "middle", marginRight: 8 }} /> Manage Theatres</h1>
-          <p className="admin-page-sub">{theatres.length} theatres registered</p>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <LuBuilding2 className="text-bms-accent" />
+            <span>Manage Theatres</span>
+          </h1>
+          <p className="text-bms-text-muted text-sm mt-1">{theatres.length} theatres registered</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd} id="add-theatre-btn">+ Add Theatre</button>
+        <button 
+          className="btn bg-bms-accent hover:bg-bms-accent-hover text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-xs hover:shadow-md cursor-pointer flex items-center gap-1.5" 
+          onClick={openAdd} 
+          id="add-theatre-btn"
+        >
+          <LuPlus size={14} />
+          <span>Add Theatre</span>
+        </button>
       </div>
 
-      <div className="admin-filter-bar">
-        <div className="admin-search">
-          <span className="admin-search-icon">🔍</span>
+      {/* Filter Bar */}
+      <div className="flex gap-4 items-center flex-wrap">
+        <div className="flex items-center gap-2.5 bg-bms-surface border border-bms-border rounded-xl px-3.5 h-11 w-full max-w-[320px] focus-within:ring-2 focus-within:ring-bms-accent/10 focus-within:border-bms-accent transition-all duration-200">
+          <LuSearch className="text-bms-text-dim" size={14} />
           <input 
             type="text" 
             placeholder="Search theatres..." 
-            className="form-input" 
+            className="flex-1 bg-transparent border-none outline-none text-sm text-bms-text placeholder-bms-text-dim w-full" 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ paddingLeft: "32px" }}
           />
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <select className="form-input btn-sm" style={{ width: "auto" }} value={locationFilter} onChange={e => setLocationFilter(e.target.value)}>
+        <div>
+          <select 
+            className="bg-bms-surface border border-bms-border rounded-xl px-4 h-11 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent cursor-pointer transition-all" 
+            value={locationFilter} 
+            onChange={e => setLocationFilter(e.target.value)}
+          >
             <option value="">All Cities</option>
             {POPULAR_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
           </select>
         </div>
       </div>
 
-      <div className="admin-table-wrap">
-        <div style={{ overflowX: "auto" }}>
-          <table className="admin-table">
+      {/* Table Card */}
+      <div className="bg-bms-surface border border-bms-border rounded-3xl shadow-xs overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left text-sm min-w-[800px]">
             <thead>
-              <tr><th>Theatre</th><th>Location</th><th>Phone</th><th>Screens</th><th>Amenities</th><th>Actions</th></tr>
+              <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
+                <th className="px-6 py-4">Theatre Name & Address</th>
+                <th className="px-6 py-4">Location</th>
+                <th className="px-6 py-4">Phone</th>
+                <th className="px-6 py-4">Screens</th>
+                <th className="px-6 py-4">Amenities</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-bms-border/50">
               {filteredTheatres.map((t) => (
-                <tr key={t._id}>
-                  <td><p style={{ fontWeight: 600 }}>{t.name}</p><p style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>{t.address}</p></td>
-                  <td><FaLocationDot style={{ verticalAlign: 'text-bottom', color: 'var(--clr-accent)' }} /> {t.location}</td>
-                  <td>{t.phone || "—"}</td>
-                  <td>{t.totalScreens}</td>
-                  <td>{t.amenities?.map((a) => <span key={a} className="ts-amenity-tag" style={{ marginRight: 4 }}>{a}</span>)}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button className="btn btn-outline btn-sm" onClick={() => openEdit(t)} id={`edit-theatre-${t._id}`}>Edit</button>
-                      <button className="btn btn-sm" style={{ background: "rgba(239,68,68,0.1)", color: "var(--clr-error)", border: "1px solid rgba(239,68,68,0.3)" }} onClick={() => handleDelete(t._id, t.name)}>Delete</button>
+                <tr key={t._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
+                  <td className="px-6 py-4">
+                    <p className="font-bold text-sm text-bms-text leading-tight">{t.name}</p>
+                    <p className="text-xs text-bms-text-dim mt-1.5">{t.address}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="flex items-center gap-1 text-bms-text-muted">
+                      <LuMapPin size={12} className="text-bms-accent" />
+                      <span>{t.location}</span>
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-bms-text-muted">{t.phone || "—"}</td>
+                  <td className="px-6 py-4 font-semibold text-bms-text-muted">{t.totalScreens}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {t.amenities?.map((a) => (
+                        <span key={a} className="bg-bms-accent/10 text-bms-accent text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-xs">
+                          {a}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button 
+                        className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer" 
+                        onClick={() => openEdit(t)} 
+                        id={`edit-theatre-${t._id}`}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer" 
+                        onClick={() => handleDelete(t._id, t.name)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {filteredTheatres.length === 0 && <tr><td colSpan="6" style={{ textAlign: "center", color: "var(--clr-text-muted)", padding: "40px" }}>No theatres found</td></tr>}
+              {filteredTheatres.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="text-center text-bms-text-dim py-12">
+                    No theatres found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
+      {/* Modal */}
       {modal && (
-        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && close()}>
-          <div className="modal-box">
-            <h3 className="modal-title">{modal === "add" ? "Add Theatre" : "Edit Theatre"}</h3>
-            <form onSubmit={handleSubmit} className="modal-form">
-              <div className="form-group"><label className="form-label">Theatre Name *</label><input className="form-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-              <div className="admin-grid-2">
-                <div className="form-group">
-                  <label className="form-label">City / Location *</label>
-                  <select className="form-input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-[9999] flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && close()}>
+          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 md:p-8 w-full max-w-[560px] max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-bms-border">
+              <h3 className="text-xl font-semibold text-bms-text">{modal === "add" ? "Add Theatre" : "Edit Theatre"}</h3>
+              <button onClick={close} className="text-bms-text-dim hover:text-bms-text transition-colors cursor-pointer">
+                <LuX size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Theatre Name *</label>
+                <input 
+                  className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                  value={form.name} 
+                  onChange={(e) => setForm({ ...form, name: e.target.value })} 
+                  required 
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">City / Location *</label>
+                  <select 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent cursor-pointer transition-all" 
+                    value={form.location} 
+                    onChange={(e) => setForm({ ...form, location: e.target.value })} 
+                    required
+                  >
                     <option value="">Select City</option>
                     {POPULAR_CITIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                   </select>
                 </div>
-                <div className="form-group"><label className="form-label">Phone</label><input className="form-input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Phone</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    value={form.phone} 
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })} 
+                  />
+                </div>
               </div>
-              <div className="form-group"><label className="form-label">Full Address *</label><input className="form-input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required /></div>
-              <div className="admin-grid-2">
-                <div className="form-group"><label className="form-label">Total Screens</label><input className="form-input" type="number" min={1} value={form.totalScreens} onChange={(e) => setForm({ ...form, totalScreens: e.target.value })} /></div>
-                <div className="form-group"><label className="form-label">Amenities (comma-separated)</label><input className="form-input" value={form.amenities} onChange={(e) => setForm({ ...form, amenities: e.target.value })} placeholder="Dolby, IMAX, Parking" /></div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Full Address *</label>
+                <input 
+                  className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                  value={form.address} 
+                  onChange={(e) => setForm({ ...form, address: e.target.value })} 
+                  required 
+                />
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-ghost" onClick={close}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={submitting} id="save-theatre-btn">{submitting ? "Saving..." : "Save Theatre"}</button>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Total Screens</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    type="number" 
+                    min={1} 
+                    value={form.totalScreens} 
+                    onChange={(e) => setForm({ ...form, totalScreens: e.target.value })} 
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Amenities (comma-separated)</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    value={form.amenities} 
+                    onChange={(e) => setForm({ ...form, amenities: e.target.value })} 
+                    placeholder="Dolby, IMAX, Parking" 
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-bms-border">
+                <button 
+                  type="button" 
+                  className="px-5 py-2.5 rounded-xl border border-bms-border text-bms-text hover:bg-bms-surface-hover text-sm font-semibold transition-all cursor-pointer" 
+                  onClick={close}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-5 py-2.5 rounded-xl bg-bms-accent hover:bg-bms-accent-hover text-white text-sm font-bold transition-all disabled:opacity-50 cursor-pointer shadow-xs" 
+                  disabled={submitting} 
+                  id="save-theatre-btn"
+                >
+                  {submitting ? "Saving..." : "Save Theatre"}
+                </button>
               </div>
             </form>
           </div>

@@ -2,9 +2,8 @@ import React, { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import { FaCircleCheck, FaFilm, FaDownload, FaTicket, FaHouse, FaCalendar } from "react-icons/fa6";
+import { LuCircleCheck, LuFilm, LuDownload, LuTicket, LuHouse, LuCalendar } from "react-icons/lu";
 import { QRCodeCanvas } from 'qrcode.react';
-import "./PaymentSuccess.css";
 
 export default function PaymentSuccess() {
   const location = useLocation();
@@ -34,7 +33,6 @@ export default function PaymentSuccess() {
   const addToCalendar = () => {
     if (!show || !movie) return;
     
-    // Parse Date and Time safely handling both 24-hour and AM/PM formats
     const dateObj = new Date(show.date);
     const [timePart, modifier] = show.time.split(" ");
     let [hours, minutes] = timePart.split(":");
@@ -43,7 +41,7 @@ export default function PaymentSuccess() {
     if (modifier && modifier.toUpperCase() === "AM" && h === 12) h = 0;
     dateObj.setHours(h, parseInt(minutes, 10), 0);
     
-    const endDateObj = new Date(dateObj.getTime() + (2.5 * 60 * 60 * 1000)); // Assume 2.5 hours duration
+    const endDateObj = new Date(dateObj.getTime() + (2.5 * 60 * 60 * 1000)); 
     
     const formatDate = (date) => {
       return date.toISOString().replace(/-|:|\.\d+/g, '');
@@ -79,131 +77,122 @@ END:VCALENDAR`;
     document.body.removeChild(link);
   };
 
-  const isFromHistory = location.state?.fromHistory;
-
   return (
-    <div className="success-page page-wrapper">
-      <div className="success-container">
+    <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
+      <div className="container max-w-[650px] mx-auto py-10 px-4 flex flex-col items-center">
         {/* Success Header */}
-        <div className="success-header animate-slide-up">
-          <div className="success-icon"><FaCircleCheck color="#2DC492" size={64} /></div>
-          <h1>{isFromHistory ? "Your Ticket" : "Booking Confirmed!"}</h1>
-          <p>{isFromHistory ? "Here is your ticket." : "Your tickets are ready. Enjoy the show!"} <FaFilm style={{ verticalAlign: "middle" }}/></p>
-          <div className="booking-id-badge">Booking ID: <strong>{booking.bookingId}</strong></div>
+        <div className="text-center flex flex-col items-center gap-2.5 mb-8 animate-fade-in">
+          <div className="mb-2"><LuCircleCheck color="#2DC492" size={64} /></div>
+          <h1 className="text-2xl md:text-3xl font-bold text-bms-text">Booking Confirmed!</h1>
+          <p className="text-sm text-bms-text-muted flex items-center gap-1.5">Your tickets are ready. Enjoy the show! <LuFilm /></p>
+          <div className="bg-bms-accent-glow text-bms-accent border border-bms-accent/20 px-3.5 py-1 rounded-full text-xs font-bold mt-2">Booking ID: <strong>{booking.bookingId}</strong></div>
         </div>
 
         {/* Ticket */}
-        <div className="ticket-wrap animate-slide-up" style={{ animationDelay: "0.1s" }} ref={ticketRef}>
-          <div className="ticket">
+        <div className="w-full max-w-[500px] mb-8 animate-slide-up" ref={ticketRef}>
+          <div className="flex bg-[#12121E] text-white rounded-2xl overflow-hidden shadow-2xl border border-white/5">
             {/* Ticket Left (Movie Info) */}
-            <div className="ticket-left">
-              <div className="ticket-logo"><FaFilm style={{ verticalAlign: "middle" }}/> BookMyShow</div>
+            <div className="w-[45%] p-5 border-r border-dashed border-white/10 flex flex-col gap-4 relative">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-bms-accent flex items-center gap-1"><LuFilm /> BookMyShow</div>
 
-              <img src={movie?.poster} alt={movie?.title} className="ticket-poster" />
+              <img src={movie?.poster} alt={movie?.title} className="w-full aspect-[2/3] object-cover rounded-lg shadow-md" />
 
-              <div className="ticket-movie-info">
-                <h2 className="ticket-movie-name">{movie?.title}</h2>
-                <div className="ticket-badges">
+              <div className="flex flex-col gap-1.5">
+                <h2 className="text-xs md:text-sm font-semibold line-clamp-2 leading-snug">{movie?.title}</h2>
+                <div className="flex flex-wrap gap-1">
                   {movie?.genre?.slice(0, 2).map((g) => (
-                    <span key={g} className="badge badge-accent" style={{ fontSize: "0.65rem" }}>{g}</span>
+                    <span key={g} className="bg-white/10 border border-white/20 text-white px-2 py-0.5 text-[8px] font-semibold uppercase rounded-md tracking-wider">{g}</span>
                   ))}
-                  {show?.format && <span className="badge badge-platinum" style={{ fontSize: "0.65rem" }}>{show.format}</span>}
+                  {show?.format && <span className="bg-[#4F46E5]/20 border border-[#4F46E5]/40 text-[#818CF8] px-2 py-0.5 text-[8px] font-semibold uppercase rounded-md tracking-wider">{show.format}</span>}
                 </div>
               </div>
             </div>
 
-            {/* Ticket Perforation */}
-            <div className="ticket-perf">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="perf-dot" />
-              ))}
-            </div>
-
             {/* Ticket Right (Details) */}
-            <div className="ticket-right">
+            <div className="flex-1 p-5 flex flex-col justify-between gap-4">
               {isPremiere ? (
-                <>
-                  <div className="ticket-detail-row">
-                    <div className="ticket-detail">
-                      <span className="td-label">Access</span>
-                      <span className="td-value">Lifetime Rental</span>
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between gap-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Access</span>
+                      <span className="text-xs font-bold text-white">Lifetime Rental</span>
                     </div>
                   </div>
-                  <div className="ticket-detail-row">
-                    <div className="ticket-detail">
-                      <span className="td-label">Date Purchased</span>
-                      <span className="td-value">{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  <div className="flex justify-between gap-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date Purchased</span>
+                      <span className="text-xs font-bold text-white">{new Date(booking.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
                     </div>
                   </div>
-                </>
+                </div>
               ) : (
-                <>
-                  <div className="ticket-detail-row">
-                    <div className="ticket-detail">
-                      <span className="td-label">Theatre</span>
-                      <span className="td-value">{theatre?.name}</span>
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between gap-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Theatre</span>
+                      <span className="text-xs font-bold text-white truncate max-w-[120px]">{theatre?.name}</span>
                     </div>
-                    <div className="ticket-detail">
-                      <span className="td-label">Screen</span>
-                      <span className="td-value">{show?.screen || "1"}</span>
-                    </div>
-                  </div>
-
-                  <div className="ticket-detail-row">
-                    <div className="ticket-detail">
-                      <span className="td-label">Date</span>
-                      <span className="td-value">{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-                    </div>
-                    <div className="ticket-detail">
-                      <span className="td-label">Time</span>
-                      <span className="td-value">{show?.time}</span>
+                    <div className="flex flex-col gap-0.5 text-right">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Screen</span>
+                      <span className="text-xs font-bold text-white">{show?.screen || "1"}</span>
                     </div>
                   </div>
 
-                  <div className="ticket-seats-section">
-                    <span className="td-label">Seats</span>
-                    <div className="ticket-seat-list">
+                  <div className="flex justify-between gap-4">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Date</span>
+                      <span className="text-xs font-bold text-white">{new Date(show?.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                    </div>
+                    <div className="flex flex-col gap-0.5 text-right">
+                      <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Time</span>
+                      <span className="text-xs font-bold text-white">{show?.time}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Seats</span>
+                    <div className="flex flex-wrap gap-1.5">
                       {booking.seats?.map((s) => (
-                        <span key={s.seatNumber} className={`seat-tag ${s.type}`} style={{ fontSize: "0.75rem" }}>
+                        <span key={s.seatNumber} className="px-2 py-0.5 bg-white/10 rounded text-[9px] font-bold border border-white/10 uppercase">
                           {s.seatNumber}
                         </span>
                       ))}
                     </div>
                   </div>
-                </>
+                </div>
               )}
 
-              <div className="ticket-amount">
-                <span className="td-label">Amount Paid</span>
-                <span className="ticket-total">₹{booking.grandTotal}</span>
+              <div className="flex justify-between items-end border-t border-white/10 pt-3">
+                <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Amount Paid</span>
+                <span className="text-base font-bold text-bms-accent">₹{booking.grandTotal}</span>
               </div>
 
               {/* QR Code */}
-              <div className="ticket-qr" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", marginTop: "16px" }}>
-                <div style={{ background: "#FFF", padding: "8px", borderRadius: "8px" }}>
+              <div className="flex flex-col items-center gap-1.5 mt-2">
+                <div className="bg-white p-2 rounded-lg border border-white/10">
                   <QRCodeCanvas value={booking.bookingId} size={80} level="H" />
                 </div>
-                <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>{booking.bookingId}</span>
+                <span className="text-[9px] text-white/50 font-mono select-all">{booking.bookingId}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="success-actions animate-slide-up" style={{ animationDelay: "0.2s" }}>
-          <button className="btn btn-primary btn-lg" onClick={downloadTicket} id="download-ticket-btn">
-            <FaDownload style={{ marginRight: 8, fontSize: "1.2rem" }}/> Download Ticket PDF
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3.5 w-full justify-center mt-2 animate-fade-in">
+          <button className="bg-bms-accent hover:bg-bms-accent-hover text-white px-6 py-2.5 text-xs font-bold rounded-lg shadow-md transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-1.5" onClick={downloadTicket} id="download-ticket-btn">
+            <LuDownload /> Download Ticket PDF
           </button>
           {!isPremiere && (
-            <button className="btn btn-outline btn-lg" onClick={addToCalendar} id="add-calendar-btn">
-              <FaCalendar style={{ marginRight: 8, fontSize: "1.2rem" }}/> Add to Calendar
+            <button className="border border-bms-border hover:bg-bms-surface-hover text-bms-text px-6 py-2.5 text-xs font-bold rounded-lg transition-colors duration-150 bg-transparent cursor-pointer flex items-center justify-center gap-1.5" onClick={addToCalendar} id="add-calendar-btn">
+              <LuCalendar /> Add to Calendar
             </button>
           )}
-          <button className="btn btn-outline btn-lg" onClick={() => navigate("/my-bookings")} id="my-bookings-btn">
-            <FaTicket style={{ marginRight: 8, fontSize: "1.2rem" }}/> My Bookings
+          <button className="border border-bms-border hover:bg-bms-surface-hover text-bms-text px-6 py-2.5 text-xs font-bold rounded-lg transition-colors duration-150 bg-transparent cursor-pointer flex items-center justify-center gap-1.5" onClick={() => navigate("/my-bookings")} id="my-bookings-btn">
+            <LuTicket /> My Bookings
           </button>
-          <button className="btn btn-ghost btn-lg" onClick={() => navigate("/")} id="home-btn">
-            <FaHouse style={{ marginRight: 8, fontSize: "1.2rem" }}/> Back to Home
+          <button className="bg-transparent hover:bg-bms-surface-hover text-bms-text-muted hover:text-bms-text px-6 py-2.5 text-xs font-bold rounded-lg transition-colors duration-150 cursor-pointer border-none flex items-center justify-center gap-1.5" onClick={() => navigate("/")} id="home-btn">
+            <LuHouse /> Back to Home
           </button>
         </div>
       </div>

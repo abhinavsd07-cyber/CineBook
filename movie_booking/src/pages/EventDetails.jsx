@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMovieById } from "../config/allApis";
-import { FaShareAlt, FaCalendarAlt, FaRegClock, FaHourglassHalf, FaUsers, FaLanguage, FaMusic } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaShareAlt, FaCalendarAlt, FaRegClock, FaHourglassHalf, FaLanguage, FaMusic } from "react-icons/fa";
+import { LuMapPin, LuUsers } from "react-icons/lu";
 import SEO from "../components/SEO";
-import "./EventDetails.css";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -17,7 +16,6 @@ export default function EventDetails() {
       .then((res) => {
         const data = res.data.data;
         if (data.itemType !== "event") {
-          // If it's somehow not an event, send back to movies page
           navigate(`/movie/${data._id}`);
           return;
         }
@@ -30,10 +28,13 @@ export default function EventDetails() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  if (loading) return <div className="page-loader"><div className="spinner" /></div>;
+  if (loading) return (
+    <div className="flex justify-center items-center py-48 bg-bms-bg min-h-[80vh]">
+      <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
+    </div>
+  );
   if (!event) return null;
 
-  // Use real event data from database, with fallbacks if not yet entered
   const formattedDate = event.releaseDate 
     ? new Date(event.releaseDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) 
     : "Date TBA";
@@ -44,77 +45,75 @@ export default function EventDetails() {
   const displayLocation = event.eventLocation || "Venue TBA";
   const priceDisplay = event.basePrice ? `₹${event.basePrice} onwards` : "Free / TBA";
 
-  // Prefer backdrop for wide landscape, fallback to poster
   const displayImage = event.backdrop || event.poster;
 
   return (
-    <div className="event-details-page page-wrapper">
+    <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
       <SEO title={`${event.title} Tickets | Book My Show`} />
 
-      <div className="event-details-header">
+      <div className="bg-[#1A202C] dark:bg-[#0E121A] text-white py-10 mb-8 border-b border-white/5">
         <div className="container">
           
-          <h1 className="event-details-title">
+          <h1 className="text-2xl md:text-3xl font-semibold flex items-center justify-between gap-4 mb-8 text-white px-2">
             {event.title}
-            <button className="share-btn"><FaShareAlt /></button>
+            <button className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center border-none cursor-pointer text-sm transition-colors duration-150"><FaShareAlt /></button>
           </h1>
 
-          <div className="event-hero-grid">
-            <div className="event-hero-img-col">
-              <img src={displayImage} alt={event.title} className="event-landscape-img" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div className="lg:col-span-2 w-full aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl bg-slate-800">
+              <img src={displayImage} alt={event.title} className="w-full h-full object-cover" />
             </div>
             
-            <div className="event-hero-info-col">
-              <div className="event-info-card">
+            <div className="w-full">
+              <div className="bg-bms-surface border border-bms-border text-bms-text p-6 rounded-2xl shadow-lg flex flex-col gap-4">
                 
-                <div className="info-row">
-                  <FaCalendarAlt className="info-icon" />
-                  <div className="info-content">{formattedDate}</div>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <FaCalendarAlt className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-text-muted">{formattedDate}</div>
                 </div>
 
-                <div className="info-row">
-                  <FaRegClock className="info-icon" />
-                  <div className="info-content">{displayTime}</div>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <FaRegClock className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-text-muted">{displayTime}</div>
                 </div>
 
-                <div className="info-row">
-                  <FaHourglassHalf className="info-icon" />
-                  <div className="info-content">{event.duration || "Duration TBA"}</div>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <FaHourglassHalf className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-text-muted">{event.duration || "Duration TBA"}</div>
                 </div>
 
-                <div className="info-row">
-                  <FaUsers className="info-icon" />
-                  <div className="info-content">{displayAgeGroups}</div>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <LuUsers className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-text-muted">{displayAgeGroups}</div>
                 </div>
 
-                <div className="info-row">
-                  <FaLanguage className="info-icon" />
-                  <div className="info-content">{Array.isArray(event.language) ? event.language.join(", ") : event.language || "Language TBA"}</div>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <FaLanguage className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-text-muted">{Array.isArray(event.language) ? event.language.join(", ") : event.language || "Language TBA"}</div>
                 </div>
 
-                <div className="info-row">
-                  <FaMusic className="info-icon" />
-                  <div className="info-content">{displayCategories}</div>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <FaMusic className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-text-muted">{displayCategories}</div>
                 </div>
 
-                <div className="info-row">
-                  <FaLocationDot className="info-icon" />
-                  <div className="info-content" style={{ color: "var(--clr-primary)", cursor: "pointer" }}>
+                <div className="flex items-center gap-3.5 text-xs md:text-sm font-semibold">
+                  <LuMapPin className="text-bms-accent w-4 h-4 flex-shrink-0" />
+                  <div className="text-bms-accent cursor-pointer flex items-center hover:text-bms-accent-hover transition-colors duration-150">
                     {displayLocation} 
-                    <span style={{ fontSize: "0.8rem", marginLeft: "5px" }}>↗</span>
+                    <span className="text-[10px] ml-1">↗</span>
                   </div>
                 </div>
 
-                <div className="event-card-divider" />
+                <div className="h-[1px] bg-bms-border/50" />
 
-                <div className="event-price-booking">
-                  <div className="event-price">
-                    <h3>{priceDisplay}</h3>
-                    <p>Filling Fast</p>
+                <div className="flex justify-between items-center mt-2">
+                  <div className="flex flex-col">
+                    <h3 className="text-base md:text-lg font-bold text-bms-text">{priceDisplay}</h3>
+                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-0.5">Filling Fast</p>
                   </div>
                   <button 
-                    className="btn btn-primary btn-lg" 
-                    style={{ padding: "12px 30px" }}
+                    className="bg-bms-accent hover:bg-bms-accent-hover text-white px-6 py-2.5 text-sm font-bold rounded-lg shadow-md transition-all duration-200 cursor-pointer border-none" 
                     onClick={() => navigate(`/event-tickets/${event._id}`)}
                   >
                     Book Now
@@ -128,9 +127,9 @@ export default function EventDetails() {
       </div>
 
       <div className="container">
-        <section className="event-desc-section">
-          <h2>About</h2>
-          <p>{event.description}</p>
+        <section className="max-w-[800px] mb-8 px-2">
+          <h2 className="text-xl md:text-2xl font-bold text-bms-text mb-4">About</h2>
+          <p className="text-sm md:text-base leading-relaxed text-bms-text-muted">{event.description}</p>
         </section>
       </div>
       

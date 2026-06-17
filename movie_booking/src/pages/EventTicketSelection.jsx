@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getMovieById } from "../config/allApis";
 import SEO from "../components/SEO";
-import "./EventTicketSelection.css";
 
 export default function EventTicketSelection() {
   const { id } = useParams();
@@ -24,7 +23,6 @@ export default function EventTicketSelection() {
         if (data.itemType !== "event") navigate("/");
         setEvent(data);
         
-        // Dynamically adjust prices based on basePrice if it exists
         if (data.basePrice) {
           setTiers([
             { id: "t1", name: "General Admission", price: data.basePrice, desc: "Entry to the main standing area.", count: 0 },
@@ -54,7 +52,6 @@ export default function EventTicketSelection() {
   const handleProceed = () => {
     if (totalTickets === 0) return;
     
-    // Construct mock selectedSeats payload for Payment compatibility
     const selectedSeats = [];
     selectedTiers.forEach(t => {
       for(let i = 0; i < t.count; i++) {
@@ -62,7 +59,6 @@ export default function EventTicketSelection() {
       }
     });
 
-    // We pass itemId so Payment.jsx handles it as an event item
     navigate("/payment", {
       state: {
         bookingDetails: {
@@ -76,66 +72,69 @@ export default function EventTicketSelection() {
     });
   };
 
-  if (loading) return <div className="page-loader"><div className="spinner" /></div>;
+  if (loading) return (
+    <div className="flex justify-center items-center py-48 bg-bms-bg min-h-[80vh]">
+      <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
+    </div>
+  );
   if (!event) return null;
 
   return (
-    <div className="event-tickets-page">
+    <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
       <SEO title={`Tickets for ${event.title} | Book My Show`} />
       
-      <div className="event-header-banner">
+      <div className="bg-[#1A202C] dark:bg-[#0E121A] text-white py-6 mb-8 border-b border-white/5">
         <div className="container">
-          <h1 className="event-title-sm">{event.title}</h1>
-          <p className="event-meta-sm">
+          <h1 className="text-xl md:text-2xl font-bold text-white px-2">{event.title}</h1>
+          <p className="text-xs text-slate-300 mt-1 px-2">
             {Array.isArray(event.genre) ? event.genre.join(" | ") : event.genre} • {Array.isArray(event.language) ? event.language.join(", ") : event.language} • Live Event
           </p>
         </div>
       </div>
 
-      <div className="container event-content">
-        <div className="event-tiers-section">
-          <h2 style={{ fontSize: "1.3rem", fontWeight: 600, marginBottom: "20px" }}>Select Tickets</h2>
+      <div className="container flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex-1 w-full flex flex-col gap-4">
+          <h2 className="text-base md:text-lg font-bold text-bms-text mb-2 px-2">Select Tickets</h2>
           
           {tiers.map(tier => (
-            <div className="tier-card" key={tier.id}>
-              <div className="tier-info">
-                <h4>{tier.name}</h4>
-                <div className="tier-price">Rs. {tier.price}</div>
-                <div className="tier-desc">{tier.desc}</div>
+            <div className="bg-bms-surface border border-bms-border rounded-xl p-5 shadow-sm flex items-center justify-between gap-6 hover:shadow-md transition-shadow duration-200" key={tier.id}>
+              <div className="flex-grow">
+                <h4 className="text-base font-bold text-bms-text">{tier.name}</h4>
+                <div className="text-sm font-semibold text-bms-text mt-1">Rs. {tier.price}</div>
+                <div className="text-xs text-bms-text-muted mt-0.5">{tier.desc}</div>
               </div>
-              <div className="tier-controls">
-                <button className="tier-btn" onClick={() => updateCount(tier.id, -1)} disabled={tier.count === 0}>-</button>
-                <span className="tier-count">{tier.count}</span>
-                <button className="tier-btn" onClick={() => updateCount(tier.id, 1)} disabled={tier.count >= 10}>+</button>
+              <div className="flex items-center gap-3">
+                <button className="w-8 h-8 rounded-full border border-bms-border hover:border-bms-accent text-bms-text font-bold flex items-center justify-center cursor-pointer transition-colors duration-150" onClick={() => updateCount(tier.id, -1)} disabled={tier.count === 0}>-</button>
+                <span className="font-bold text-sm text-bms-text w-5 text-center">{tier.count}</span>
+                <button className="w-8 h-8 rounded-full border border-bms-border hover:border-bms-accent text-bms-text font-bold flex items-center justify-center cursor-pointer transition-colors duration-150" onClick={() => updateCount(tier.id, 1)} disabled={tier.count >= 10}>+</button>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="event-summary-section">
-          <div className="summary-card">
-            <h3 className="summary-title">Booking Summary</h3>
+        <div className="w-full lg:w-[360px] flex-shrink-0 lg:sticky lg:top-[130px]">
+          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm">
+            <h3 className="text-base md:text-lg font-bold text-bms-text mb-4">Booking Summary</h3>
             
             {selectedTiers.length === 0 ? (
-              <p style={{ color: "#888", textAlign: "center", padding: "20px 0" }}>No tickets selected</p>
+              <p className="text-bms-text-dim text-center py-6 text-sm">No tickets selected</p>
             ) : (
               <>
                 {selectedTiers.map(t => (
-                  <div className="summary-row" key={t.id}>
+                  <div className="flex justify-between items-center text-sm font-semibold text-bms-text mb-2.5 last:mb-0" key={t.id}>
                     <span>{t.count}x {t.name}</span>
                     <span>Rs. {t.price * t.count}</span>
                   </div>
                 ))}
                 
-                <div className="summary-total">
+                <div className="flex justify-between items-center text-base md:text-lg font-bold text-bms-text border-t border-bms-border/50 pt-4 mt-4">
                   <span>Total Payable</span>
                   <span>Rs. {totalAmount}</span>
                 </div>
 
                 <button 
-                  className="btn btn-primary w-full mt-6" 
+                  className="bg-bms-accent hover:bg-bms-accent-hover text-white py-3 rounded-lg font-bold w-full shadow-lg transition-all duration-200 cursor-pointer border-none mt-6" 
                   onClick={handleProceed}
-                  style={{ padding: "12px", fontSize: "1.1rem" }}
                 >
                   Proceed
                 </button>

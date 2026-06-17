@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllMovies, createMovie, updateMovie, deleteMovie, uploadImage } from "../../config/allApis";
-import { FaClapperboard, FaMagnifyingGlass, FaStar } from "react-icons/fa6";
-import "../AdminLayout.css";
+import { LuClapperboard, LuSearch, LuStar, LuTrash2, LuPlus, LuX } from "react-icons/lu";
 
 const EMPTY = { 
   title: "", description: "", genre: "", language: "", duration: "", rating: 7, 
@@ -121,61 +120,128 @@ export default function ManageMovies() {
   };
 
   return (
-    <div>
-      <div className="admin-page-header">
+    <div className="flex flex-col gap-6 animate-fade-in text-bms-text">
+      {/* Header */}
+      <div className="flex justify-between items-center flex-wrap gap-4 border-b border-bms-border pb-5">
         <div>
-          <h1 className="admin-page-title"><FaClapperboard style={{ verticalAlign: "middle", marginRight: 8 }} /> Manage Movies</h1>
-          <p className="admin-page-sub">{movies.length} movies in database</p>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <LuClapperboard className="text-bms-accent" />
+            <span>Manage Items</span>
+          </h1>
+          <p className="text-bms-text-muted text-sm mt-1">{movies.length} items in database (Movies, Events, Premieres)</p>
         </div>
-        <button className="btn btn-primary" onClick={openAdd} id="add-movie-btn">+ Add Movie</button>
+        <button 
+          className="btn bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm cursor-pointer flex items-center gap-1.5" 
+          onClick={openAdd} 
+          id="add-movie-btn"
+        >
+          <LuPlus size={12} />
+          <span>Add New Item</span>
+        </button>
       </div>
 
-      <div className="admin-filter-bar">
-        <div className="admin-search">
-          <span className="admin-search-icon"><FaMagnifyingGlass /></span>
-          <input type="text" className="form-input" placeholder="Search items..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ paddingLeft: "32px" }} />
+      {/* Filter/Search Bar */}
+      <div className="flex justify-between items-center flex-wrap gap-4">
+        <div className="flex items-center gap-2.5 bg-bms-surface border border-bms-border rounded-xl px-3.5 h-11 w-full max-w-[320px] focus-within:ring-2 focus-within:ring-bms-accent/10 focus-within:border-bms-accent transition-all duration-200">
+          <LuSearch className="text-bms-text-dim" size={14} />
+          <input 
+            type="text" 
+            className="flex-1 bg-transparent border-none outline-none text-sm text-bms-text placeholder-bms-text-dim w-full" 
+            placeholder="Search by title, genre..." 
+            value={search} 
+            onChange={(e) => setSearch(e.target.value)} 
+          />
         </div>
       </div>
 
-      <div className="admin-table-wrap">
+      {/* Items Table Card */}
+      <div className="bg-bms-surface border border-bms-border rounded-3xl shadow-xs overflow-hidden">
         {loading ? (
-          <div className="page-loader"><div className="spinner" /></div>
+          <div className="flex items-center justify-center py-20">
+            <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
+          </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table className="admin-table">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm min-w-[800px]">
               <thead>
-                <tr><th>Title</th><th>Type</th><th>Language</th><th>Duration</th><th>Rating</th><th>Status</th><th>Actions</th></tr>
+                <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
+                  <th className="px-4 py-3">Title Details</th>
+                  <th className="px-4 py-3">Type</th>
+                  <th className="px-4 py-3">Language</th>
+                  <th className="px-4 py-3">Duration</th>
+                  <th className="px-4 py-3">Rating</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-bms-border/50">
                 {movies.map((m) => (
-                  <tr key={m._id}>
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <img src={m.poster} alt={m.title} style={{ width: 40, height: 56, objectFit: "cover", borderRadius: 6 }} />
-                        <div>
-                          <p style={{ fontWeight: 600, fontSize: "0.875rem" }}>{m.title}</p>
-                          <p style={{ fontSize: "0.75rem", color: "var(--clr-text-muted)" }}>{m.genre?.join(", ")}</p>
+                  <tr key={m._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={m.poster} 
+                          alt={m.title} 
+                          className="w-8 h-11 object-cover rounded-md shadow-xs bg-slate-800 flex-shrink-0" 
+                        />
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm text-bms-text leading-tight truncate">{m.title}</p>
+                          <p className="text-xs text-bms-text-dim mt-0.5 truncate">{m.genre?.join(", ")}</p>
                         </div>
                       </div>
                     </td>
-                    <td><span className="badge" style={{ background: "#eee", color: "#333", textTransform: "capitalize" }}>{m.itemType || 'movie'}</span></td>
-                    <td>{m.language?.join(", ")}</td>
-                    <td>{m.duration}</td>
-                    <td><span className="text-gold"><FaStar style={{ verticalAlign: 'text-bottom' }} /> {m.rating?.toFixed(1) || m.rating}</span></td>
-                    <td>
-                      {m.isNowShowing && <span className="badge badge-success" style={{ marginRight: 4 }}>Now Showing</span>}
-                      {m.isUpcoming && <span className="badge badge-warning">Upcoming</span>}
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 border border-bms-border bg-bms-surface-hover rounded text-[10px] font-semibold uppercase tracking-wider text-bms-text-muted">
+                        {m.itemType || 'movie'}
+                      </span>
                     </td>
-                    <td>
-                      <div className="table-actions">
-                        <button className="btn btn-outline btn-sm" onClick={() => openEdit(m)} id={`edit-movie-${m._id}`}>Edit</button>
-                        <button className="btn btn-sm" style={{ background: "rgba(239,68,68,0.1)", color: "var(--clr-error)", border: "1px solid rgba(239,68,68,0.3)" }} onClick={() => handleDelete(m._id, m.title)}>Delete</button>
+                    <td className="px-4 py-3 text-xs text-bms-text-muted">{m.language?.join(", ")}</td>
+                    <td className="px-4 py-3 text-xs text-bms-text-muted">{m.duration || "N/A"}</td>
+                    <td className="px-4 py-3 font-bold text-amber-500 text-xs">
+                      <div className="flex items-center gap-1">
+                        <LuStar size={12} className="fill-current" />
+                        <span>{m.rating?.toFixed(1) || m.rating}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {m.isNowShowing && (
+                          <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            Now Showing
+                          </span>
+                        )}
+                        {m.isUpcoming && (
+                          <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                            Upcoming
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          className="px-2.5 py-1 rounded-md border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer" 
+                          onClick={() => openEdit(m)} 
+                          id={`edit-movie-${m._id}`}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-semibold transition-all cursor-pointer" 
+                          onClick={() => handleDelete(m._id, m.title)}
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))}
                 {movies.length === 0 && (
-                  <tr><td colSpan="7" style={{ textAlign: "center", color: "var(--clr-text-muted)", padding: "40px" }}>No items found</td></tr>
+                  <tr>
+                    <td colSpan="7" className="text-center text-bms-text-dim py-12">
+                      No items found
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
@@ -185,151 +251,340 @@ export default function ManageMovies() {
 
       {/* Modal */}
       {modal && (
-        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && closeModal()}>
-          <div className="modal-box" style={{ maxWidth: 800, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 className="modal-title">{modal === "add" ? "Add New Item" : "Edit Item"}</h3>
-            <form onSubmit={handleSubmit} className="modal-form">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-[9999] flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && closeModal()}>
+          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 md:p-8 w-full max-w-[800px] max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-bms-border">
+              <h3 className="text-xl font-semibold text-bms-text">{modal === "add" ? "Add New Item" : "Edit Item"}</h3>
+              <button onClick={closeModal} className="text-bms-text-dim hover:text-bms-text transition-colors cursor-pointer">
+                <LuX size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               
-              <div className="admin-grid-2">
-                <div className="form-group">
-                  <label className="form-label">Item Type *</label>
-                  <select className="form-input" value={form.itemType} onChange={(e) => setForm({ ...form, itemType: e.target.value })}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Item Type *</label>
+                  <select 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent transition-all cursor-pointer" 
+                    value={form.itemType} 
+                    onChange={(e) => setForm({ ...form, itemType: e.target.value })}
+                  >
                     <option value="movie">Movie</option>
                     <option value="event">Ticketed Live Event</option>
                     <option value="premiere">Premiere (Stream)</option>
                   </select>
                 </div>
                 {["premiere", "event"].includes(form.itemType) && (
-                  <div className="form-group">
-                    <label className="form-label">Base Price / Ticket Price (Rs.) *</label>
-                    <input type="number" className="form-input" value={form.basePrice} onChange={(e) => setForm({ ...form, basePrice: e.target.value })} required />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Base Price / Ticket Price (Rs.) *</label>
+                    <input 
+                      type="number" 
+                      className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                      value={form.basePrice} 
+                      onChange={(e) => setForm({ ...form, basePrice: e.target.value })} 
+                      required 
+                    />
                   </div>
                 )}
               </div>
 
               {form.itemType === "event" && (
-                <div className="admin-grid-2" style={{ marginBottom: "18px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Event Date</label>
-                    <input type="date" className="form-input" value={form.releaseDate} onChange={(e) => setForm({ ...form, releaseDate: e.target.value })} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 border border-dashed border-bms-border p-4 rounded-2xl bg-bms-surface-hover/20">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Event Date</label>
+                    <input 
+                      type="date" 
+                      className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent transition-all" 
+                      value={form.releaseDate} 
+                      onChange={(e) => setForm({ ...form, releaseDate: e.target.value })} 
+                    />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Event Time</label>
-                    <input className="form-input" value={form.eventTime} onChange={(e) => setForm({ ...form, eventTime: e.target.value })} placeholder="e.g. 4:00 PM" />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Event Time</label>
+                    <input 
+                      className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                      value={form.eventTime} 
+                      onChange={(e) => setForm({ ...form, eventTime: e.target.value })} 
+                      placeholder="e.g. 4:00 PM" 
+                    />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Location</label>
-                    <input className="form-input" value={form.eventLocation} onChange={(e) => setForm({ ...form, eventLocation: e.target.value })} placeholder="e.g. Crowne Plaza" />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Location</label>
+                    <input 
+                      className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                      value={form.eventLocation} 
+                      onChange={(e) => setForm({ ...form, eventLocation: e.target.value })} 
+                      placeholder="e.g. Crowne Plaza" 
+                    />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Age Groups</label>
-                    <input className="form-input" value={form.eventAgeGroups} onChange={(e) => setForm({ ...form, eventAgeGroups: e.target.value })} placeholder="e.g. All age groups" />
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Age Groups</label>
+                    <input 
+                      className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                      value={form.eventAgeGroups} 
+                      onChange={(e) => setForm({ ...form, eventAgeGroups: e.target.value })} 
+                      placeholder="e.g. All age groups" 
+                    />
                   </div>
                 </div>
               )}
 
-              <div className="form-group"><label className="form-label">Title *</label><input className="form-input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required /></div>
-              <div className="form-group"><label className="form-label">Description *</label><textarea className="form-input" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required style={{ resize: "vertical" }} /></div>
-              
-              <div className="admin-grid-2">
-                <div className="form-group"><label className="form-label">Genre (comma-separated)</label><input className="form-input" value={form.genre} onChange={(e) => setForm({ ...form, genre: e.target.value })} placeholder="Action, Thriller" /></div>
-                <div className="form-group"><label className="form-label">Language (comma-separated)</label><input className="form-input" value={form.language} onChange={(e) => setForm({ ...form, language: e.target.value })} placeholder="English, Hindi" /></div>
-              </div>
-              
-              <div className="admin-grid-2">
-                <div className="form-group"><label className="form-label">Duration</label><input className="form-input" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} placeholder="2h 30m" /></div>
-                <div className="form-group"><label className="form-label">Base Rating (0-10)</label><input className="form-input" type="number" min={0} max={10} step={0.1} value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} /></div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Title *</label>
+                <input 
+                  className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                  value={form.title} 
+                  onChange={(e) => setForm({ ...form, title: e.target.value })} 
+                  required 
+                />
               </div>
 
-              <div className="admin-grid-2">
-                <div className="form-group">
-                  <label className="form-label">
-                    {form.itemType === "event" ? "Portrait Poster URL (Home/Grid) *" : "Poster URL *"} 
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Description *</label>
+                <textarea 
+                  className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all min-h-[80px] resize-y" 
+                  rows={3} 
+                  value={form.description} 
+                  onChange={(e) => setForm({ ...form, description: e.target.value })} 
+                  required 
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Genre (comma-separated)</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    value={form.genre} 
+                    onChange={(e) => setForm({ ...form, genre: e.target.value })} 
+                    placeholder="Action, Thriller" 
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Language (comma-separated)</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    value={form.language} 
+                    onChange={(e) => setForm({ ...form, language: e.target.value })} 
+                    placeholder="English, Hindi" 
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Duration</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    value={form.duration} 
+                    onChange={(e) => setForm({ ...form, duration: e.target.value })} 
+                    placeholder="2h 30m" 
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Base Rating (0-10)</label>
+                  <input 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                    type="number" 
+                    min={0} 
+                    max={10} 
+                    step={0.1} 
+                    value={form.rating} 
+                    onChange={(e) => setForm({ ...form, rating: e.target.value })} 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">
+                    {form.itemType === "event" ? "Portrait Poster URL *" : "Poster URL *"} 
                     {uploading.poster && " (Uploading...)"}
                   </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input className="form-input" value={form.poster} onChange={(e) => setForm({ ...form, poster: e.target.value })} required />
+                  <div className="flex gap-2">
+                    <input 
+                      className="flex-1 bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                      value={form.poster} 
+                      onChange={(e) => setForm({ ...form, poster: e.target.value })} 
+                      required 
+                    />
                     <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "poster")} style={{ display: "none" }} id="poster-upload" />
-                    <label htmlFor="poster-upload" className="btn btn-outline" style={{ cursor: "pointer", whiteSpace: "nowrap" }}>Upload</label>
+                    <label htmlFor="poster-upload" className="px-4 py-2.5 rounded-xl border border-bms-border hover:bg-bms-surface-hover text-sm font-semibold transition-all cursor-pointer flex items-center justify-center whitespace-nowrap bg-bms-surface text-bms-text">Upload</label>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">
-                    {form.itemType === "event" ? "Landscape Banner URL (Tickets/Details)" : "Backdrop URL"} 
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">
+                    {form.itemType === "event" ? "Landscape Banner URL" : "Backdrop URL"} 
                     {uploading.backdrop && " (Uploading...)"}
                   </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input className="form-input" value={form.backdrop} onChange={(e) => setForm({ ...form, backdrop: e.target.value })} />
+                  <div className="flex gap-2">
+                    <input 
+                      className="flex-1 bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                      value={form.backdrop} 
+                      onChange={(e) => setForm({ ...form, backdrop: e.target.value })} 
+                    />
                     <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "backdrop")} style={{ display: "none" }} id="backdrop-upload" />
-                    <label htmlFor="backdrop-upload" className="btn btn-outline" style={{ cursor: "pointer", whiteSpace: "nowrap" }}>Upload</label>
+                    <label htmlFor="backdrop-upload" className="px-4 py-2.5 rounded-xl border border-bms-border hover:bg-bms-surface-hover text-sm font-semibold transition-all cursor-pointer flex items-center justify-center whitespace-nowrap bg-bms-surface text-bms-text">Upload</label>
                   </div>
                 </div>
               </div>
               
-              <div className="form-group">
-                <label className="form-label">Trailer URL (YouTube Link)</label>
-                <input className="form-input" value={form.trailer} onChange={(e) => setForm({ ...form, trailer: e.target.value })} placeholder="https://www.youtube.com/embed/..." />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Trailer URL (YouTube Link)</label>
+                <input 
+                  className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                  value={form.trailer} 
+                  onChange={(e) => setForm({ ...form, trailer: e.target.value })} 
+                  placeholder="https://www.youtube.com/embed/..." 
+                />
               </div>
               
-              <div className="form-group"><label className="form-label">Director</label><input className="form-input" value={form.director} onChange={(e) => setForm({ ...form, director: e.target.value })} /></div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Director</label>
+                <input 
+                  className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                  value={form.director} 
+                  onChange={(e) => setForm({ ...form, director: e.target.value })} 
+                />
+              </div>
               
               {/* Cast & Crew Arrays */}
-              <div style={{ marginTop: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <label className="form-label" style={{ margin: 0 }}>Cast Members</label>
-                  <button type="button" className="btn btn-sm btn-outline" onClick={() => addArrayRow("cast")}>+ Add Cast</button>
+              <div className="border border-bms-border p-4 rounded-2xl bg-bms-surface-hover/10">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="text-xs font-semibold text-bms-text uppercase tracking-wider">Cast Members</label>
+                  <button 
+                    type="button" 
+                    className="px-3.5 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer bg-bms-surface text-bms-text" 
+                    onClick={() => addArrayRow("cast")}
+                  >
+                    + Add Cast
+                  </button>
                 </div>
-                {form.cast.map((c, i) => (
-                  <div key={i} className="admin-grid-cast">
-                    <input className="form-input" placeholder="Name" value={c.name} onChange={e => updateArrayRow("cast", i, "name", e.target.value)} />
-                    <input className="form-input" placeholder="Role/Character" value={c.role} onChange={e => updateArrayRow("cast", i, "role", e.target.value)} />
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <input className="form-input" placeholder="Image URL" value={c.image} onChange={e => updateArrayRow("cast", i, "image", e.target.value)} />
-                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "cast", i)} style={{ display: "none" }} id={`cast-upload-${i}`} />
-                      <label htmlFor={`cast-upload-${i}`} className="btn btn-outline btn-sm" style={{ cursor: "pointer", whiteSpace: "nowrap" }}>
-                        {uploading[`cast-${i}`] ? "..." : "Upload"}
-                      </label>
+                <div className="flex flex-col gap-3.5">
+                  {form.cast.map((c, i) => (
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-center border border-bms-border/50 rounded-xl p-3 bg-bms-surface/50 relative">
+                      <input 
+                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        placeholder="Name" 
+                        value={c.name} 
+                        onChange={e => updateArrayRow("cast", i, "name", e.target.value)} 
+                      />
+                      <input 
+                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        placeholder="Role/Character" 
+                        value={c.role} 
+                        onChange={e => updateArrayRow("cast", i, "role", e.target.value)} 
+                      />
+                      <div className="flex gap-2">
+                        <input 
+                          className="flex-1 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                          placeholder="Image URL" 
+                          value={c.image} 
+                          onChange={e => updateArrayRow("cast", i, "image", e.target.value)} 
+                        />
+                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "cast", i)} style={{ display: "none" }} id={`cast-upload-${i}`} />
+                        <label htmlFor={`cast-upload-${i}`} className="px-3 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer bg-bms-surface text-bms-text">
+                          {uploading[`cast-${i}`] ? "..." : "Upload"}
+                        </label>
+                      </div>
+                      <button 
+                        type="button" 
+                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-dashed border-red-500/10 text-center text-xs font-bold w-full sm:w-auto flex items-center justify-center" 
+                        onClick={() => removeArrayRow("cast", i)}
+                      >
+                        <LuTrash2 size={12} />
+                      </button>
                     </div>
-                    <button type="button" className="btn btn-sm" style={{ color: "red" }} onClick={() => removeArrayRow("cast", i)}>X</button>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ marginTop: 20 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <label className="form-label" style={{ margin: 0 }}>Crew Members</label>
-                  <button type="button" className="btn btn-sm btn-outline" onClick={() => addArrayRow("crew")}>+ Add Crew</button>
+                  ))}
                 </div>
-                {form.crew.map((c, i) => (
-                  <div key={i} className="admin-grid-cast">
-                    <input className="form-input" placeholder="Name" value={c.name} onChange={e => updateArrayRow("crew", i, "name", e.target.value)} />
-                    <input className="form-input" placeholder="Department/Role" value={c.role} onChange={e => updateArrayRow("crew", i, "role", e.target.value)} />
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <input className="form-input" placeholder="Image URL" value={c.image} onChange={e => updateArrayRow("crew", i, "image", e.target.value)} />
-                      <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "crew", i)} style={{ display: "none" }} id={`crew-upload-${i}`} />
-                      <label htmlFor={`crew-upload-${i}`} className="btn btn-outline btn-sm" style={{ cursor: "pointer", whiteSpace: "nowrap" }}>
-                        {uploading[`crew-${i}`] ? "..." : "Upload"}
-                      </label>
+              </div>
+
+              <div className="border border-bms-border p-4 rounded-2xl bg-bms-surface-hover/10">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="text-xs font-semibold text-bms-text uppercase tracking-wider">Crew Members</label>
+                  <button 
+                    type="button" 
+                    className="px-3.5 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer bg-bms-surface text-bms-text" 
+                    onClick={() => addArrayRow("crew")}
+                  >
+                    + Add Crew
+                  </button>
+                </div>
+                <div className="flex flex-col gap-3.5">
+                  {form.crew.map((c, i) => (
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-center border border-bms-border/50 rounded-xl p-3 bg-bms-surface/50 relative">
+                      <input 
+                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        placeholder="Name" 
+                        value={c.name} 
+                        onChange={e => updateArrayRow("crew", i, "name", e.target.value)} 
+                      />
+                      <input 
+                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        placeholder="Department/Role" 
+                        value={c.role} 
+                        onChange={e => updateArrayRow("crew", i, "role", e.target.value)} 
+                      />
+                      <div className="flex gap-2">
+                        <input 
+                          className="flex-1 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                          placeholder="Image URL" 
+                          value={c.image} 
+                          onChange={e => updateArrayRow("crew", i, "image", e.target.value)} 
+                        />
+                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "crew", i)} style={{ display: "none" }} id={`crew-upload-${i}`} />
+                        <label htmlFor={`crew-upload-${i}`} className="px-3 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer bg-bms-surface text-bms-text">
+                          {uploading[`crew-${i}`] ? "..." : "Upload"}
+                        </label>
+                      </div>
+                      <button 
+                        type="button" 
+                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-dashed border-red-500/10 text-center text-xs font-bold w-full sm:w-auto flex items-center justify-center" 
+                        onClick={() => removeArrayRow("crew", i)}
+                      >
+                        <LuTrash2 size={12} />
+                      </button>
                     </div>
-                    <button type="button" className="btn btn-sm" style={{ color: "red" }} onClick={() => removeArrayRow("crew", i)}>X</button>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
-              <div style={{ display: "flex", gap: 20, marginTop: 20 }}>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.875rem", cursor: "pointer" }}>
-                  <input type="checkbox" checked={form.isNowShowing} onChange={(e) => setForm({ ...form, isNowShowing: e.target.checked })} />
-                  Now Showing
+              <div className="flex gap-6 mt-2.5">
+                <label className="flex items-center gap-2.5 text-sm font-bold text-bms-text cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 text-bms-accent border-bms-border rounded-sm focus:ring-bms-accent" 
+                    checked={form.isNowShowing} 
+                    onChange={(e) => setForm({ ...form, isNowShowing: e.target.checked })} 
+                  />
+                  <span>Now Showing</span>
                 </label>
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.875rem", cursor: "pointer" }}>
-                  <input type="checkbox" checked={form.isUpcoming} onChange={(e) => setForm({ ...form, isUpcoming: e.target.checked })} />
-                  Upcoming
+                <label className="flex items-center gap-2.5 text-sm font-bold text-bms-text cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 text-bms-accent border-bms-border rounded-sm focus:ring-bms-accent" 
+                    checked={form.isUpcoming} 
+                    onChange={(e) => setForm({ ...form, isUpcoming: e.target.checked })} 
+                  />
+                  <span>Upcoming</span>
                 </label>
               </div>
 
-              <div className="modal-footer" style={{ marginTop: 30 }}>
-                <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={submitting} id="save-movie-btn">
+              <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-bms-border">
+                <button 
+                  type="button" 
+                  className="px-5 py-2.5 rounded-xl border border-bms-border text-bms-text hover:bg-bms-surface-hover text-sm font-semibold transition-all cursor-pointer" 
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-5 py-2.5 rounded-xl bg-bms-accent hover:bg-bms-accent-hover text-white text-sm font-bold transition-all disabled:opacity-50 cursor-pointer shadow-xs" 
+                  disabled={submitting} 
+                  id="save-movie-btn"
+                >
                   {submitting ? "Saving..." : "Save Movie"}
                 </button>
               </div>

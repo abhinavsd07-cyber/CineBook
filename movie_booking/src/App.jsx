@@ -77,6 +77,10 @@ function App() {
             element={<UserLayout><SeatSelection /></UserLayout>}
           />
           <Route
+            path="/food"
+            element={<ProtectedRoute><UserLayout><FoodSelection /></UserLayout></ProtectedRoute>}
+          />
+          <Route
             path="/payment"
             element={<ProtectedRoute><UserLayout><Payment /></UserLayout></ProtectedRoute>}
           />

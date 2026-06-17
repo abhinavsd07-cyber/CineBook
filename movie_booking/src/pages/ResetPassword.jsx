@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { resetPassword } from "../config/allApis";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import "./Auth.css";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -35,94 +34,82 @@ export default function ResetPassword() {
 
   if (success) {
     return (
-      <div className="auth-page">
-        <div className="auth-card" style={{ textAlign: "center" }}>
-          <h2 className="auth-title">Password Reset Successful! 🎉</h2>
-          <p className="text-dim mb-6">Your password has been securely updated. Redirecting you to login...</p>
-          <Link to="/login" className="btn btn-primary w-full">Go to Login</Link>
+      <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-bms-bg text-bms-text transition-colors duration-300">
+        <div className="w-full max-w-[440px] px-4">
+          <div className="bg-bms-surface border border-bms-border p-8 rounded-2xl shadow-xl flex flex-col gap-6 text-center">
+            <h2 className="text-2xl font-bold text-bms-text">Password Reset Successful! 🎉</h2>
+            <p className="text-xs text-bms-text-muted mb-4">Your password has been securely updated. Redirecting you to login...</p>
+            <Link to="/login" className="bg-bms-accent hover:bg-bms-accent-hover text-white py-3 rounded-lg font-bold w-full shadow-lg transition-all duration-200 text-center text-sm">Go to Login</Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h2 className="auth-title">Create New Password</h2>
-        <p className="text-dim text-center mb-6">Please enter a new strong password below.</p>
-        
-        {error && <div className="auth-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>New Password</label>
-            <div style={{ position: "relative" }}>
-              <input 
-                type={showPassword ? "text" : "password"} 
-                className="form-input" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
-                minLength="6"
-                style={{ paddingRight: "40px" }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  color: "var(--clr-text-muted)",
-                  cursor: "pointer",
-                  padding: 0,
-                  display: "flex"
-                }}
-              >
-                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
-              </button>
-            </div>
-          </div>
-          <div className="form-group">
-            <label>Confirm New Password</label>
-            <div style={{ position: "relative" }}>
-              <input 
-                type={showConfirmPassword ? "text" : "password"} 
-                className="form-input" 
-                value={confirmPassword} 
-                onChange={(e) => setConfirmPassword(e.target.value)} 
-                required 
-                minLength="6"
-                style={{ paddingRight: "40px" }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  color: "var(--clr-text-muted)",
-                  cursor: "pointer",
-                  padding: 0,
-                  display: "flex"
-                }}
-              >
-                {showConfirmPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
-              </button>
-            </div>
+    <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-bms-bg text-bms-text transition-colors duration-300">
+      <div className="w-full max-w-[440px] px-4">
+        <div className="bg-bms-surface border border-bms-border p-8 rounded-2xl shadow-xl flex flex-col gap-6">
+          <div className="text-center flex flex-col gap-1.5">
+            <h2 className="text-2xl font-bold text-bms-text">Create New Password</h2>
+            <p className="text-xs text-bms-text-muted">Please enter a new strong password below.</p>
           </div>
           
-          <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-            {loading ? "Updating..." : "Reset Password"}
-          </button>
-        </form>
+          {error && (
+            <div className="text-xs text-red-600 bg-red-100 dark:bg-red-950/20 p-2.5 rounded border border-red-200 dark:border-red-900">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-bms-text-muted">New Password</label>
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  className="w-full px-3 py-2.5 pr-10 text-sm bg-bms-bg border border-bms-border rounded-lg text-bms-text placeholder-bms-text-dim outline-none focus:border-bms-accent transition-colors duration-150" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required 
+                  minLength="6"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-bms-text-muted hover:text-bms-text cursor-pointer flex p-0"
+                >
+                  {showPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-bms-text-muted">Confirm New Password</label>
+              <div className="relative">
+                <input 
+                  type={showConfirmPassword ? "text" : "password"} 
+                  className="w-full px-3 py-2.5 pr-10 text-sm bg-bms-bg border border-bms-border rounded-lg text-bms-text placeholder-bms-text-dim outline-none focus:border-bms-accent transition-colors duration-150" 
+                  value={confirmPassword} 
+                  onChange={(e) => setConfirmPassword(e.target.value)} 
+                  required 
+                  minLength="6"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-bms-text-muted hover:text-bms-text cursor-pointer flex p-0"
+                >
+                  {showConfirmPassword ? <LuEyeOff size={16} /> : <LuEye size={16} />}
+                </button>
+              </div>
+            </div>
+            
+            <button type="submit" className="bg-bms-accent hover:bg-bms-accent-hover text-white py-3 rounded-lg font-bold w-full shadow-lg transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-2 mt-2 disabled:opacity-50" disabled={loading}>
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : "Reset Password"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
