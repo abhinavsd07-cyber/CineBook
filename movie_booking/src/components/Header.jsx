@@ -73,7 +73,7 @@ const Header = () => {
   ];
 
   const navLinksSecondary = [
-    { label: "ListYourShow", path: "/#list" },
+    { label: "ListYourShow", path: "/list-your-show" },
     { label: "Corporates", path: "/#corporates" },
     { label: "Offers", path: "/offers" },
     { label: "Gift Cards", path: "/giftcards" },

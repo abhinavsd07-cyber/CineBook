@@ -75,7 +75,7 @@ export default function FoodSelection() {
     <div style={{ background: "#f0f2f5", minHeight: "100vh", fontFamily: "sans-serif" }}>
 
       {/* ── Top bar ── */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e2e2e2", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ background: "#fff", borderBottom: "1px solid #e2e2e2", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }} className="mt-5">
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button onClick={() => navigate(-1)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#333", padding: 0, lineHeight: 1 }}>‹</button>
           <div>
@@ -203,8 +203,8 @@ export default function FoodSelection() {
           </div>
 
           {/* Cart panel */}
-          <div style={{ background: "#fff", border: "1px solid #e2e2e2", borderRadius: 8, padding: "20px", minHeight: 280 }}>
-            <div style={{ fontWeight: 700, fontSize: 16, color: "#111", marginBottom: 16 }}>Your Cart</div>
+          <div style={{ background: "#fff", border: "1px solid #e2e2e2", borderRadius: 8, padding: "20px", minHeight: 280 }} className="pt-5">
+            <div style={{ fontWeight: 700, fontSize: 16, color: "#111", marginBottom: 16 }}className="pt-5">Your Cart</div>
 
             {cartItems.length === 0 ? (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 16 }}>

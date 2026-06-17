@@ -2,6 +2,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const crypto = require("crypto");
 const { sendEmail } = require("../utils/sendEmail");
+const { OAuth2Client } = require("google-auth-library");
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
@@ -61,6 +64,56 @@ const login = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @POST /api/auth/google
+const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ success: false, message: "No token provided" });
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const { name, email, picture } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create a secure random password since schema requires one
+      const randomPassword = crypto.randomBytes(16).toString("hex");
+      user = await User.create({
+        name,
+        email,
+        password: randomPassword,
+        avatar: picture,
+      });
+    } else if (!user.avatar && picture) {
+      // Update avatar if they didn't have one
+      user.avatar = picture;
+      await user.save();
+    }
+
+    res.json({
+      success: true,
+      message: "Google Login successful",
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        avatar: user.avatar,
+        token: generateToken(user._id),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Google Authentication failed" });
   }
 };
 
@@ -156,4 +209,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getProfile, updateProfile, forgotPassword, resetPassword };
+module.exports = { register, login, googleLogin, getProfile, updateProfile, forgotPassword, resetPassword };

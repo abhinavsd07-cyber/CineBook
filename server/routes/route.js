@@ -5,7 +5,7 @@ const { protect } = require("../middleware/authMiddleware");
 const { adminOnly } = require("../middleware/adminMiddleware");
 
 // Controllers
-const { register, login, getProfile, updateProfile, forgotPassword, resetPassword } = require("../controllers/authController");
+const { register, login, googleLogin, getProfile, updateProfile, forgotPassword, resetPassword } = require("../controllers/authController");
 const { getAllMovies, getNowShowing, getUpcoming, getPremieres, getEvents, getMovieById, getMovieRecommendations, createMovie, updateMovie, deleteMovie } = require("../controllers/movieController");
 const { getAllTheatres, getTheatreById, createTheatre, updateTheatre, deleteTheatre } = require("../controllers/theatreController");
 const { getShowsByMovie, getShowById, getAllShows, createShow, updateShow, deleteShow } = require("../controllers/showController");
@@ -28,6 +28,7 @@ router.post("/upload", protect, adminOnly, upload.single("image"), uploadImage);
 // ─────────────────────────────────────────────
 router.post("/auth/register", register);
 router.post("/auth/login", login);
+router.post("/auth/google", googleLogin);
 router.get("/auth/profile", protect, getProfile);
 router.put("/auth/profile", protect, updateProfile);
 router.post("/auth/forgotpassword", forgotPassword);

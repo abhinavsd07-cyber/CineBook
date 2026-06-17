@@ -28,6 +28,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TicketScanner from "./pages/TicketScanner";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import MyBookings from "./pages/MyBookings";
+import ListYourShow from "./pages/ListYourShow";
 
 // Admin Pages
 import AdminLayout from "./admin/AdminLayout";
@@ -61,6 +62,7 @@ function App() {
           <Route path="/stream" element={<UserLayout><Stream /></UserLayout>} />
           <Route path="/offers" element={<UserLayout><Offers /></UserLayout>} />
           <Route path="/giftcards" element={<UserLayout><GiftCards /></UserLayout>} />
+          <Route path="/list-your-show" element={<UserLayout><ListYourShow /></UserLayout>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

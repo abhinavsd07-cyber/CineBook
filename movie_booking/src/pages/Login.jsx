@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { loginUser } from "../config/allApis";
+import { loginUser, googleLoginUser } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
 import { LuEye, LuEyeOff } from "react-icons/lu";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -25,6 +26,21 @@ export default function Login() {
       navigate(res.data.data.role === "admin" ? "/admin/dashboard" : from, { replace: true, state: dataState });
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError("");
+    setLoading(true);
+    try {
+      const res = await googleLoginUser({ token: credentialResponse.credential });
+      login(res.data.data);
+      const dataState = location.state?.data || {};
+      navigate(res.data.data.role === "admin" ? "/admin/dashboard" : from, { replace: true, state: dataState });
+    } catch (err) {
+      setError(err.response?.data?.message || "Google Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -89,6 +105,24 @@ export default function Login() {
               ) : "Login"}
             </button>
           </form>
+
+          <div className="flex items-center gap-4 my-2">
+            <div className="h-[1px] bg-slate-200 flex-1"></div>
+            <span className="text-[12px] text-slate-400 font-medium">OR</span>
+            <div className="h-[1px] bg-slate-200 flex-1"></div>
+          </div>
+
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google Login Failed")}
+              useOneTap
+              theme="outline"
+              size="large"
+              shape="rectangular"
+              text="continue_with"
+            />
+          </div>
 
           <p className="text-[13px] text-[#666666] text-center mt-2">
             New to BookMyShow? <Link to="/register" className="text-[#F84464] hover:underline font-medium transition-colors">Register here</Link>

@@ -5,6 +5,7 @@ import axiosInstance from "./axiosConfig";
 // ─────────────────────────────────────────────
 export const registerUser = (data) => axiosInstance.post("/auth/register", data);
 export const loginUser = (data) => axiosInstance.post("/auth/login", data);
+export const googleLoginUser = (data) => axiosInstance.post("/auth/google", data);
 export const getProfile = () => axiosInstance.get("/auth/profile");
 export const updateProfile = (data) => axiosInstance.put("/auth/profile", data);
 export const forgotPassword = (data) => axiosInstance.post("/auth/forgotpassword", data);
