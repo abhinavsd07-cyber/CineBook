@@ -1,34 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { getAllFoodItems } from "../config/allApis";
 
-const FOOD_MENU = [
-  // Bestsellers
-  { id: "b1", name: "Samosa 2N", description: "Samosa 2N (249 kcal)", price: 99, image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=300", category: "Bestsellers", veg: true },
-  { id: "b2", name: "Small Popcorn Combo", description: "Salted Popcorn 50g + Pepsi 300ml", price: 279, image: "https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&q=80&w=300", category: "Bestsellers", veg: true },
-  { id: "b3", name: "Veg Sandwich Combo", description: "Veg Sandwich 100g + Pepsi 300ml", price: 209, image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&q=80&w=300", category: "Bestsellers", veg: true },
-
-  // Popcorn
-  { id: "p1", name: "Regular Salted Popcorn 80g", description: "Regular Salted Popcorn 80g (425 Kcal | Allergens: Milk)", price: 435, image: "https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&q=80&w=300", category: "Popcorn", veg: true },
-  { id: "p2", name: "Regular Cheese Popcorn 80g", description: "Regular Cheese Popcorn 80g (423 Kcal | Allergens: Milk)", price: 485, image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&q=80&w=300", category: "Popcorn", veg: true },
-  { id: "p3", name: "Medium Cheese Popcorn 170g", description: "Medium Cheese Popcorn 170g (846 Kcal | Allergens: Milk)", price: 735, image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&q=80&w=300", category: "Popcorn", veg: true },
-  { id: "p4", name: "Combo 1 (Caramel)", description: "Caramel Popcorn 80g + Pepsi 450ml (595 Kcal | Allergens: Soybean, Caffeine)", price: 830, image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&q=80&w=300", category: "Popcorn", veg: true },
-
-  // Beverages
-  { id: "bv1", name: "Regular Pepsi 540ml", description: "Regular Pepsi 540ml (232 Kcal | Allergens: Caffeine)", price: 390, image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=300", category: "Beverages", veg: true },
-  { id: "bv2", name: "Mineral Water", description: "Packaged drinking water (0 Kcal)", price: 50, image: "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?auto=format&fit=crop&q=80&w=300", category: "Beverages", veg: true },
-  { id: "bv3", name: "Lemon Iced Tea", description: "Refreshing lemon iced tea (120 Kcal | Allergens: None)", price: 170, image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&q=80&w=300", category: "Beverages", veg: true },
-
-  // Snacks
-  { id: "s1", name: "Nachos With Cheese & Salsa 90g", description: "Nachos With Cheese & Salsa 90g (665 Kcal | Allergens: Milk, Wheat)", price: 420, image: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&q=80&w=300", category: "Snacks", veg: true },
-  { id: "s2", name: "Veggie Mint Chutney Burger 170g", description: "Veggie Mint Chutney Burger 170g (577 Kcal | Allergens: Milk, Wheat, Soybeans, Gluten)", price: 370, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=300", category: "Snacks", veg: true },
-  { id: "s3", name: "Crispy Paneer Burger 170g", description: "Crispy Paneer Burger 170g (653 Kcal | Allergens: Milk, Wheat, Soybean, Gluten)", price: 370, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=300", category: "Snacks", veg: true },
-  { id: "s4", name: "Spicy Grilled Chicken Burger 170g", description: "Spicy Grilled Chicken Burger 170g (669 Kcal | Allergens: Milk, Gluten)", price: 420, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=300", category: "Snacks", veg: false },
-
-  // Combos
-  { id: "c1", name: "Popcorn & Coke Combo", description: "Medium Salted Popcorn + Regular Fountain Coke (560 Kcal | Allergens: Milk)", price: 350, image: "https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&q=80&w=300", category: "Combos", veg: true },
-  { id: "c2", name: "Couple Combo", description: "2 Large Popcorn + 2 Cokes (1200 Kcal | Allergens: Milk)", price: 600, image: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&q=80&w=300", category: "Combos", veg: true },
-  { id: "c3", name: "Family Combo", description: "2 Popcorn, 4 Coke, Nachos, Fries (2400 Kcal | Allergens: Milk, Wheat)", price: 999, image: "https://images.unsplash.com/photo-1585647347384-2593bc35786b?auto=format&fit=crop&q=80&w=300", category: "Combos", veg: true },
-];
 
 const TABS = ["All", "Bestsellers", "Popcorn", "Beverages", "Snacks", "Combos"];
 
@@ -37,9 +10,19 @@ export default function FoodSelection() {
   const navigate = useNavigate();
   const bookingDetails = location.state?.bookingDetails;
 
-  const [cart, setCart] = useState({});
+  const [menu, setMenu]         = useState([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [cart, setCart]         = useState({});
   const [activeTab, setActiveTab] = useState("All");
-  const [search, setSearch] = useState("");
+  const [search, setSearch]     = useState("");
+
+  // Fetch items from API; fall back gracefully if none exist yet
+  useEffect(() => {
+    getAllFoodItems({ available: "true" })
+      .then((r) => setMenu(r.data.data || []))
+      .catch(() => setMenu([]))
+      .finally(() => setMenuLoading(false));
+  }, []);
 
   const handleAdd = (id) => setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
   const handleRemove = (id) => setCart(prev => {
@@ -49,14 +32,14 @@ export default function FoodSelection() {
   });
 
   const cartItems = Object.keys(cart).map(id => {
-    const item = FOOD_MENU.find(f => f.id === id);
-    return { ...item, qty: cart[id] };
-  });
+    const item = menu.find(f => f._id === id || f.id === id);
+    return item ? { ...item, qty: cart[id] } : null;
+  }).filter(Boolean);
 
   const foodTotal = cartItems.reduce((sum, i) => sum + i.price * i.qty, 0);
   const ticketPrice = bookingDetails?.totalAmount || 380;
 
-  const filtered = FOOD_MENU.filter(item => {
+  const filtered = menu.filter(item => {
     const matchTab = activeTab === "All" || item.category === activeTab;
     const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
     return matchTab && matchSearch;
@@ -153,8 +136,19 @@ export default function FoodSelection() {
 
           {/* Food Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {filtered.map(item => (
-              <div key={item.id} style={{ background: "#fff", border: "1px solid #e2e2e2", borderRadius: 10, padding: "16px", display: "flex", gap: 14, alignItems: "flex-start", position: "relative" }}>
+            {menuLoading ? (
+              <div className="col-span-2 flex justify-center py-12">
+                <div style={{ width: 36, height: 36, border: "3px solid #eee", borderTop: "3px solid #F84464", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="col-span-2 text-center py-12 text-gray-400">
+                <p className="font-medium">No items available</p>
+                <p className="text-sm mt-1">Check back later or try a different category</p>
+              </div>
+            ) : filtered.map(item => {
+              const itemKey = item._id || item.id;
+              return (
+              <div key={itemKey} style={{ background: "#fff", border: "1px solid #e2e2e2", borderRadius: 10, padding: "16px", display: "flex", gap: 14, alignItems: "flex-start", position: "relative" }}>
 
                 {/* Veg/Non-veg icon */}
                 <div style={{ position: "absolute", top: 14, left: 14, width: 14, height: 14, border: `2px solid ${item.veg ? "#2d8a4e" : "#c0392b"}`, borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center", background: "#fff" }}>
@@ -163,7 +157,11 @@ export default function FoodSelection() {
 
                 {/* Image */}
                 <div style={{ width: 110, height: 110, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#f8f8f8", border: "1px solid #eee", marginTop: 6 }}>
-                  <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc", fontSize: 28 }}>🍽️</div>
+                  )}
                 </div>
 
                 {/* Details */}
@@ -172,15 +170,15 @@ export default function FoodSelection() {
                   <div style={{ fontSize: 11, color: "#888", lineHeight: 1.5 }}>{item.description}</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto", paddingTop: 10 }}>
                     <span style={{ fontWeight: 800, fontSize: 15, color: "#111" }}>₹{item.price}</span>
-                    {cart[item.id] ? (
+                    {cart[itemKey] ? (
                       <div style={{ display: "flex", alignItems: "center", gap: 10, border: "1.5px solid #F84464", borderRadius: 5, padding: "3px 10px" }}>
-                        <button onClick={() => handleRemove(item.id)} style={{ background: "none", border: "none", color: "#F84464", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1, padding: 0 }}>−</button>
-                        <span style={{ fontWeight: 700, fontSize: 13, color: "#F84464", minWidth: 14, textAlign: "center" }}>{cart[item.id]}</span>
-                        <button onClick={() => handleAdd(item.id)} style={{ background: "none", border: "none", color: "#F84464", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1, padding: 0 }}>+</button>
+                        <button onClick={() => handleRemove(itemKey)} style={{ background: "none", border: "none", color: "#F84464", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1, padding: 0 }}>−</button>
+                        <span style={{ fontWeight: 700, fontSize: 13, color: "#F84464", minWidth: 14, textAlign: "center" }}>{cart[itemKey]}</span>
+                        <button onClick={() => handleAdd(itemKey)} style={{ background: "none", border: "none", color: "#F84464", fontSize: 18, fontWeight: 700, cursor: "pointer", lineHeight: 1, padding: 0 }}>+</button>
                       </div>
                     ) : (
                       <button
-                        onClick={() => handleAdd(item.id)}
+                        onClick={() => handleAdd(itemKey)}
                         style={{ border: "1.5px solid #F84464", color: "#F84464", background: "#fff", borderRadius: 5, padding: "5px 22px", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
                       >
                         Add
@@ -189,7 +187,7 @@ export default function FoodSelection() {
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
 

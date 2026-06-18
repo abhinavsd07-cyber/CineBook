@@ -16,6 +16,7 @@ const { uploadImage } = require("../controllers/uploadController");
 const { getBanners, getAllAdminBanners, createBanner, updateBanner, deleteBanner } = require("../controllers/bannerController");
 const { getMovieReviews, createReview, voteReview } = require("../controllers/reviewController");
 const { validateCoupon } = require("../controllers/couponController");
+const { getAllFoodItems, getFoodItemById, createFoodItem, updateFoodItem, deleteFoodItem } = require("../controllers/foodItemController");
 const upload = require("../middleware/uploadMiddleware");
 
 // ─────────────────────────────────────────────
@@ -108,5 +109,14 @@ router.get("/banners", getBanners);
 router.post("/banners", protect, adminOnly, createBanner);
 router.put("/banners/:id", protect, adminOnly, updateBanner);
 router.delete("/banners/:id", protect, adminOnly, deleteBanner);
+
+// ─────────────────────────────────────────────
+//  FOOD / SNACK ROUTES
+// ─────────────────────────────────────────────
+router.get("/food", getAllFoodItems);
+router.get("/food/:id", getFoodItemById);
+router.post("/food", protect, adminOnly, createFoodItem);
+router.put("/food/:id", protect, adminOnly, updateFoodItem);
+router.delete("/food/:id", protect, adminOnly, deleteFoodItem);
 
 module.exports = router;

@@ -160,51 +160,124 @@ export default function ManageMovies() {
           <div className="flex items-center justify-center py-20">
             <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
           </div>
+        ) : movies.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-2">
+            <LuClapperboard size={32} className="text-bms-text-dim/30" />
+            <p className="text-bms-text-dim text-sm font-medium">No items found</p>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-sm min-w-[800px]">
-              <thead>
-                <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
-                  <th className="px-4 py-3">Title Details</th>
-                  <th className="px-4 py-3">Type</th>
-                  <th className="px-4 py-3">Language</th>
-                  <th className="px-4 py-3">Duration</th>
-                  <th className="px-4 py-3">Rating</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-bms-border/50">
-                {movies.map((m) => (
-                  <tr key={m._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <img 
-                          src={m.poster} 
-                          alt={m.title} 
-                          className="w-8 h-11 object-cover rounded-md shadow-xs bg-slate-800 flex-shrink-0" 
-                        />
-                        <div className="min-w-0">
-                          <p className="font-bold text-sm text-bms-text leading-tight truncate">{m.title}</p>
-                          <p className="text-xs text-bms-text-dim mt-0.5 truncate">{m.genre?.join(", ")}</p>
+          <>
+            {/* ── Desktop table ── */}
+            <div className="hidden lg:block w-full overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm" style={{ minWidth: "800px" }}>
+                <thead>
+                  <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
+                    <th className="px-4 py-3">Title Details</th>
+                    <th className="px-4 py-3">Type</th>
+                    <th className="px-4 py-3">Language</th>
+                    <th className="px-4 py-3">Duration</th>
+                    <th className="px-4 py-3">Rating</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-bms-border/50">
+                  {movies.map((m) => (
+                    <tr key={m._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={m.poster} 
+                            alt={m.title} 
+                            className="w-8 h-11 object-cover rounded-md shadow-xs bg-slate-800 flex-shrink-0" 
+                          />
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm text-bms-text leading-tight truncate">{m.title}</p>
+                            <p className="text-xs text-bms-text-dim mt-0.5 truncate">{m.genre?.join(", ")}</p>
+                          </div>
                         </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-0.5 border border-bms-border bg-bms-surface-hover rounded text-[10px] font-semibold uppercase tracking-wider text-bms-text-muted">
+                          {m.itemType || 'movie'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-bms-text-muted">{m.language?.join(", ")}</td>
+                      <td className="px-4 py-3 text-xs text-bms-text-muted">{m.duration || "N/A"}</td>
+                      <td className="px-4 py-3 font-bold text-amber-500 text-xs">
+                        <div className="flex items-center gap-1">
+                          <LuStar size={12} className="fill-current" />
+                          <span>{m.rating?.toFixed(1) || m.rating}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1.5">
+                          {m.isNowShowing && (
+                            <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                              Now Showing
+                            </span>
+                          )}
+                          {m.isUpcoming && (
+                            <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                              Upcoming
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button 
+                            className="px-2.5 py-1 rounded-md border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer" 
+                            onClick={() => openEdit(m)} 
+                            id={`edit-movie-${m._id}`}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-semibold transition-all cursor-pointer" 
+                            onClick={() => handleDelete(m._id, m.title)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── Mobile / tablet cards ── */}
+            <div className="lg:hidden divide-y divide-bms-border/40">
+              {movies.map((m) => (
+                <div key={m._id} className="p-4 flex flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                    <img 
+                      src={m.poster} 
+                      alt={m.title} 
+                      className="w-10 h-14 object-cover rounded-lg shadow-xs bg-slate-800 flex-shrink-0" 
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-sm text-bms-text leading-tight">{m.title}</p>
+                      <p className="text-xs text-bms-text-dim mt-0.5">{m.genre?.join(", ")}</p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                        <span className="px-1.5 py-0.5 border border-bms-border bg-bms-surface-hover rounded text-[10px] font-semibold uppercase tracking-wider text-bms-text-muted">
+                          {m.itemType || 'movie'}
+                        </span>
+                        {m.language?.slice(0, 2).map((l) => (
+                          <span key={l} className="text-[10px] text-bms-text-muted">{l}</span>
+                        ))}
+                        <span className="text-[10px] text-bms-text-muted">· {m.duration || "N/A"}</span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 border border-bms-border bg-bms-surface-hover rounded text-[10px] font-semibold uppercase tracking-wider text-bms-text-muted">
-                        {m.itemType || 'movie'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-bms-text-muted">{m.language?.join(", ")}</td>
-                    <td className="px-4 py-3 text-xs text-bms-text-muted">{m.duration || "N/A"}</td>
-                    <td className="px-4 py-3 font-bold text-amber-500 text-xs">
-                      <div className="flex items-center gap-1">
-                        <LuStar size={12} className="fill-current" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                        <LuStar size={11} className="fill-current" />
                         <span>{m.rating?.toFixed(1) || m.rating}</span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1">
                         {m.isNowShowing && (
                           <span className="bg-emerald-500/10 text-emerald-500 text-[10px] font-bold px-1.5 py-0.5 rounded">
                             Now Showing
@@ -216,36 +289,27 @@ export default function ManageMovies() {
                           </span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-2">
-                        <button 
-                          className="px-2.5 py-1 rounded-md border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer" 
-                          onClick={() => openEdit(m)} 
-                          id={`edit-movie-${m._id}`}
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-semibold transition-all cursor-pointer" 
-                          onClick={() => handleDelete(m._id, m.title)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {movies.length === 0 && (
-                  <tr>
-                    <td colSpan="7" className="text-center text-bms-text-dim py-12">
-                      No items found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button 
+                        className="px-2.5 py-1 rounded-md border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer" 
+                        onClick={() => openEdit(m)} 
+                        id={`edit-movie-mob-${m._id}`}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-semibold transition-all cursor-pointer" 
+                        onClick={() => handleDelete(m._id, m.title)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

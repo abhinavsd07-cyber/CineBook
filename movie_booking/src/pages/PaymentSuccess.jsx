@@ -166,6 +166,23 @@ END:VCALENDAR`;
                 <span className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Amount Paid</span>
                 <span className="text-base font-bold text-bms-accent">₹{booking.grandTotal}</span>
               </div>
+              {/* Tax breakdown */}
+              {booking.grandTotal > 0 && (
+                <div className="border-t border-white/10 pt-2 mt-1 flex flex-col gap-0.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[8px] uppercase tracking-wider text-slate-500">CGST (9%)</span>
+                    <span className="text-[9px] text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[8px] uppercase tracking-wider text-slate-500">SGST (9%)</span>
+                    <span className="text-[9px] text-slate-400 font-semibold">₹{Math.round(booking.grandTotal * 0.09 / 1.18)}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-white/10 pt-1 mt-0.5">
+                    <span className="text-[8px] uppercase tracking-wider text-slate-400 font-bold">Total GST (18%)</span>
+                    <span className="text-[9px] text-slate-300 font-bold">₹{Math.round(booking.grandTotal * 0.18 / 1.18)}</span>
+                  </div>
+                </div>
+              )}
 
               {/* QR Code */}
               <div className="flex flex-col items-center gap-1.5 mt-2">

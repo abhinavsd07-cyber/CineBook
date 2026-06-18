@@ -98,3 +98,12 @@ export const createBanner = (data) => axiosInstance.post("/banners", data);
 export const updateBanner = (id, data) => axiosInstance.put(`/banners/${id}`, data);
 export const deleteBanner = (id) => axiosInstance.delete(`/banners/${id}`);
 
+// ─────────────────────────────────────────────
+//  FOOD / SNACK APIs
+// ─────────────────────────────────────────────
+export const getAllFoodItems = (params) => axiosInstance.get("/food", { params });
+export const getFoodItemById = (id) => axiosInstance.get(`/food/${id}`);
+export const createFoodItem = (data) => axiosInstance.post("/food", data);
+export const updateFoodItem = (id, data) => axiosInstance.put(`/food/${id}`, data);
+export const deleteFoodItem = (id) => axiosInstance.delete(`/food/${id}`);
+

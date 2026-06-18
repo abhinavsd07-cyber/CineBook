@@ -162,60 +162,98 @@ export default function ManageBanners() {
         <div className="p-6 border-b border-bms-border bg-bms-surface-hover/20">
           <h3 className="text-lg font-bold text-bms-text">Current Active Banners</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left text-sm min-w-[800px]">
-            <thead>
-              <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
-                <th className="px-6 py-4">Image</th>
-                <th className="px-6 py-4">Type</th>
-                <th className="px-6 py-4">Target Link</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-bms-border/50">
+        {banners.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-2">
+            <LuClapperboard size={32} className="text-bms-text-dim/30" />
+            <p className="text-bms-text-dim text-sm font-medium">No banners found. Upload one above!</p>
+          </div>
+        ) : (
+          <>
+            {/* ── Desktop table ── */}
+            <div className="hidden lg:block w-full overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm" style={{ minWidth: "800px" }}>
+                <thead>
+                  <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
+                    <th className="px-6 py-4">Image</th>
+                    <th className="px-6 py-4">Type</th>
+                    <th className="px-6 py-4">Target Link</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-bms-border/50">
+                  {banners.map((b) => (
+                    <tr key={b._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
+                      <td className="px-6 py-4">
+                        <img src={b.imageUrl} alt="Banner" className="w-[120px] h-[60px] object-cover rounded-lg bg-slate-800 shadow-xs border border-bms-border" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider ${
+                          b.type === 'hero' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'
+                        }`}>
+                          {b.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-bms-text-muted font-medium">{b.targetLink || "-"}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button 
+                            onClick={() => handleEdit(b)} 
+                            className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer flex items-center gap-1 bg-bms-surface"
+                          >
+                            <LuPen size={10} />
+                            <span>Edit</span>
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(b._id)} 
+                            className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                          >
+                            <LuTrash2 size={10} />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── Mobile / tablet cards ── */}
+            <div className="lg:hidden divide-y divide-bms-border/40">
               {banners.map((b) => (
-                <tr key={b._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
-                  <td className="px-6 py-4">
-                    <img src={b.imageUrl} alt="Banner" className="w-[120px] h-[60px] object-cover rounded-lg bg-slate-800 shadow-xs border border-bms-border" />
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider ${
-                      b.type === 'hero' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'
-                    }`}>
-                      {b.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-bms-text-muted font-medium">{b.targetLink || "-"}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button 
-                        onClick={() => handleEdit(b)} 
-                        className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer flex items-center gap-1 bg-bms-surface"
-                      >
-                        <LuPen size={10} />
-                        <span>Edit</span>
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(b._id)} 
-                        className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-                      >
-                        <LuTrash2 size={10} />
-                        <span>Delete</span>
-                      </button>
+                <div key={b._id} className="p-4 flex flex-col gap-3">
+                  <div className="flex items-start gap-3">
+                    <img src={b.imageUrl} alt="Banner" className="w-[100px] h-[50px] object-cover rounded-lg bg-slate-800 shadow-xs border border-bms-border flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider ${
+                        b.type === 'hero' ? 'bg-indigo-500/10 text-indigo-500' : 'bg-emerald-500/10 text-emerald-500'
+                      }`}>
+                        {b.type}
+                      </span>
+                      <p className="text-xs text-bms-text-muted mt-1.5 font-medium break-all">{b.targetLink || "No link"}</p>
                     </div>
-                  </td>
-                </tr>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleEdit(b)} 
+                      className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer flex items-center gap-1 bg-bms-surface"
+                    >
+                      <LuPen size={10} />
+                      <span>Edit</span>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(b._id)} 
+                      className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      <LuTrash2 size={10} />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
               ))}
-              {banners.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="text-center text-bms-text-dim py-12">
-                    No banners found. Upload one above!
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

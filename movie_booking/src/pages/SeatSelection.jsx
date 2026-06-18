@@ -182,11 +182,11 @@ export default function SeatSelection() {
                 {selectedQty === 1 ? "🚲" : selectedQty === 2 ? "🛵" : selectedQty === 3 ? "🛺" : selectedQty <= 5 ? "🚗" : selectedQty <= 7 ? "🚐" : "🚌"}
               </div>
               
-              <div className="flex justify-between items-center my-6 px-2">
+              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 sm:justify-between items-center my-6 px-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
                   <button
                     key={n}
-                    className={`w-8 h-8 rounded-full font-medium flex items-center justify-center cursor-pointer transition-all duration-150 focus:outline-none text-[16px] ${
+                    className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full font-medium flex items-center justify-center cursor-pointer transition-all duration-150 focus:outline-none text-[14px] sm:text-[16px] ${
                       selectedQty === n 
                         ? "bg-[#F84464] text-white shadow-sm scale-110" 
                         : "bg-transparent text-[#333333] hover:text-[#F84464]"

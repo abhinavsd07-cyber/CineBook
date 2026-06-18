@@ -189,7 +189,9 @@ export default function Payment() {
   const initialAmount = Number(bookingDetails?.totalAmount || state?.totalAmount || premiereItem?.basePrice || 0) || 0;
   const foodTotal = foodItems?.reduce((acc, item) => acc + (item.price * item.quantity), 0) || 0;
   const convenienceFee = state?.convenienceFee ?? Math.round(initialAmount * 0.05);
-  const gst = state?.gst ?? Math.round(initialAmount * 0.18);
+  const cgst = state?.cgst ?? Math.round(initialAmount * 0.09);
+  const sgst = state?.sgst ?? Math.round(initialAmount * 0.09);
+  const gst = cgst + sgst;
   const discountAmount = Math.round(((initialAmount + foodTotal) * appliedDiscount) / 100);
   
   let preCoinTotal = initialAmount + foodTotal + convenienceFee + gst - discountAmount;
@@ -294,9 +296,21 @@ export default function Payment() {
                   <span>Convenience fees</span>
                   <span>Rs. {convenienceFee}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span>Base GST</span>
-                  <span>Rs. {gst}</span>
+                {/* GST Breakdown */}
+                <div className="mt-2 pt-2 border-t border-slate-100">
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Tax Breakdown</p>
+                  <div className="flex justify-between items-center text-[12px] text-slate-500">
+                    <span>CGST (9%)</span>
+                    <span>Rs. {cgst}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[12px] text-slate-500 mt-0.5">
+                    <span>SGST (9%)</span>
+                    <span>Rs. {sgst}</span>
+                  </div>
+                  <div className="flex justify-between items-center font-semibold text-[#333333] mt-1 pt-1 border-t border-slate-100">
+                    <span>Total GST (18%)</span>
+                    <span>Rs. {gst}</span>
+                  </div>
                 </div>
                 {appliedDiscount > 0 && (
                   <div className="flex justify-between items-center font-medium text-[#4CAF50] mt-1">

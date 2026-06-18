@@ -13,6 +13,7 @@ import {
   LuMenu,
   LuX,
   LuBell,
+  LuUtensils,
 } from "react-icons/lu";
 
 const NAV_ITEMS = [
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { path: "/admin/theatres",  icon: LuBuilding2,       label: "Theatres"     },
   { path: "/admin/shows",     icon: LuCalendarDays,    label: "Shows"        },
   { path: "/admin/bookings",  icon: LuTicket,          label: "Bookings"     },
+  { path: "/admin/snacks",    icon: LuUtensils,        label: "Snacks & F&B" },
   { path: "/admin/banners",   icon: LuClapperboard,    label: "Banners / Ads"},
 ];
 

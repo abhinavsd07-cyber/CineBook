@@ -110,9 +110,43 @@ body {
   color: var(--color-bms-text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-weight: 400;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL FONT-WEIGHT CAP
+   Max weight in the entire app = 600 (semibold).
+   Anything set to 700 / 800 / 900 — whether via Tailwind class
+   or React inline style — is capped here at 600.
+   ═══════════════════════════════════════════════════════ */
+
+/* Cap all elements: if their computed weight would exceed 600, pull it back */
+* {
+  font-weight: revert;
+}
+
+/* Tailwind class overrides */
+.font-thin      { font-weight: 100 !important; }
+.font-extralight { font-weight: 200 !important; }
+.font-light     { font-weight: 300 !important; }
+.font-normal    { font-weight: 400 !important; }
+.font-medium    { font-weight: 500 !important; }
+.font-semibold  { font-weight: 600 !important; }
+.font-bold      { font-weight: 600 !important; }   /* bold = semibold */
+.font-extrabold { font-weight: 600 !important; }   /* extrabold = semibold */
+.font-black     { font-weight: 600 !important; }   /* black = semibold */
+
+/* React inline-style override — browser normalises spaces, so both variants */
+[style*="font-weight:700"]  { font-weight: 600 !important; }
+[style*="font-weight: 700"] { font-weight: 600 !important; }
+[style*="font-weight:800"]  { font-weight: 600 !important; }
+[style*="font-weight: 800"] { font-weight: 600 !important; }
+[style*="font-weight:900"]  { font-weight: 600 !important; }
+[style*="font-weight: 900"] { font-weight: 600 !important; }
 
 /* ── Custom Scrollbar ── */
 ::-webkit-scrollbar {

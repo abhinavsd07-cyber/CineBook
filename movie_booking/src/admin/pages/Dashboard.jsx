@@ -118,6 +118,26 @@ const PieTooltip = ({ active, payload }) => {
   );
 };
 
+/* ─── Status badge ───────────────────────────────────────────────────── */
+const StatusBadge = ({ status }) => {
+  const styles = {
+    confirmed: "bg-emerald-50 text-emerald-600 border border-emerald-200",
+    cancelled: "bg-red-50 text-red-500 border border-red-200",
+    pending: "bg-amber-50 text-amber-600 border border-amber-200",
+  };
+  const dots = {
+    confirmed: "#10B981",
+    cancelled: "#EF4444",
+    pending: "#F59E0B",
+  };
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold capitalize ${styles[status] || "bg-slate-50 text-slate-400 border border-slate-200"}`}>
+      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: dots[status] || "#94A3B8" }} />
+      {status}
+    </span>
+  );
+};
+
 /* ─── Skeleton loader ────────────────────────────────────────────────── */
 const Skeleton = ({ className = "" }) => (
   <div className={`animate-pulse bg-slate-200 rounded-lg ${className}`} />
@@ -482,114 +502,118 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm min-w-[900px]">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
-                {["Booking ID", "Customer", "Movie", "Theatre", "Seats", "Amount", "Status"].map((h) => (
-                  <th
-                    key={h}
-                    className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {recentBookings.map((b) => (
-                <tr
-                  key={b._id}
-                  className="hover:bg-slate-50/70 transition-colors duration-100 text-slate-700"
-                >
-                  {/* Booking ID */}
-                  <td className="px-5 py-3.5">
-                    <span className="font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                      {b.bookingId}
-                    </span>
-                  </td>
-
-                  {/* Customer */}
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs flex-shrink-0"
-                        style={{ backgroundColor: ACCENT }}
+        {recentBookings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-14 gap-2">
+            <LuTicket size={28} className="text-slate-300" />
+            <p className="text-slate-400 text-sm font-medium">No bookings recorded yet.</p>
+          </div>
+        ) : (
+          <>
+            {/* ── Desktop table ── */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full text-left text-sm" style={{ minWidth: "900px" }}>
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50">
+                    {["Booking ID", "Customer", "Movie", "Theatre", "Seats", "Amount", "Status"].map((h) => (
+                      <th
+                        key={h}
+                        className="px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400"
                       >
-                        {b.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-slate-800 text-xs truncate">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {recentBookings.map((b) => (
+                    <tr
+                      key={b._id}
+                      className="hover:bg-slate-50/70 transition-colors duration-100 text-slate-700"
+                    >
+                      <td className="px-5 py-3.5">
+                        <span className="font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                          {b.bookingId}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-xs flex-shrink-0"
+                            style={{ backgroundColor: ACCENT }}
+                          >
+                            {b.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-800 text-xs truncate">
+                              {b.user?.name || "Guest"}
+                            </p>
+                            <p className="text-[10px] text-slate-400 truncate">{b.user?.email || "—"}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 font-semibold text-slate-800 text-xs">
+                        {b.show?.movie?.title || "—"}
+                      </td>
+                      <td className="px-5 py-3.5 text-xs text-slate-500">
+                        {b.show?.theatre?.name || "—"}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="inline-flex items-center bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                          {b.seats?.length || 0} seat{b.seats?.length !== 1 ? "s" : ""}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 font-bold text-slate-900 text-xs">
+                        ₹{(b.grandTotal || 0).toLocaleString("en-IN")}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <StatusBadge status={b.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── Mobile / tablet cards ── */}
+            <div className="lg:hidden divide-y divide-slate-100">
+              {recentBookings.map((b) => (
+                <div key={b._id} className="p-4 flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div
+                          className="w-7 h-7 rounded-full text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0"
+                          style={{ backgroundColor: ACCENT }}
+                        >
+                          {b.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
+                        </div>
+                        <span className="font-semibold text-slate-800 text-xs truncate">
                           {b.user?.name || "Guest"}
-                        </p>
-                        <p className="text-[10px] text-slate-400 truncate">{b.user?.email || "—"}</p>
+                        </span>
                       </div>
+                      <p className="font-bold text-slate-800 text-sm leading-tight">
+                        {b.show?.movie?.title || "—"}
+                      </p>
+                      <span className="font-mono text-[10px] font-semibold text-slate-400">
+                        {b.bookingId}
+                      </span>
                     </div>
-                  </td>
-
-                  {/* Movie */}
-                  <td className="px-5 py-3.5 font-semibold text-slate-800 text-xs">
-                    {b.show?.movie?.title || "—"}
-                  </td>
-
-                  {/* Theatre */}
-                  <td className="px-5 py-3.5 text-xs text-slate-500">
-                    {b.show?.theatre?.name || "—"}
-                  </td>
-
-                  {/* Seats */}
-                  <td className="px-5 py-3.5">
+                    <StatusBadge status={b.status} />
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>{b.show?.theatre?.name || "—"}</span>
+                    <span className="font-bold text-slate-900">₹{(b.grandTotal || 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <span className="inline-flex items-center bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-md">
                       {b.seats?.length || 0} seat{b.seats?.length !== 1 ? "s" : ""}
                     </span>
-                  </td>
-
-                  {/* Amount */}
-                  <td className="px-5 py-3.5 font-bold text-slate-900 text-xs">
-                    ₹{(b.grandTotal || 0).toLocaleString("en-IN")}
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-5 py-3.5">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold capitalize ${
-                        b.status === "confirmed"
-                          ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                          : b.status === "cancelled"
-                          ? "bg-red-50 text-red-500 border border-red-200"
-                          : "bg-amber-50 text-amber-600 border border-amber-200"
-                      }`}
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor:
-                            b.status === "confirmed"
-                              ? "#10B981"
-                              : b.status === "cancelled"
-                              ? "#EF4444"
-                              : "#F59E0B",
-                        }}
-                      />
-                      {b.status}
-                    </span>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-
-              {recentBookings.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="text-center text-slate-400 py-14 text-sm font-medium"
-                  >
-                    No bookings recorded yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
     </div>

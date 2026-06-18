@@ -172,6 +172,19 @@ export default function MyBookings() {
                       <div className="text-right min-w-[100px]">
                         <p className="text-[10px] text-bms-text-dim uppercase font-semibold">Total Paid</p>
                         <p className="font-bold text-lg text-bms-accent">₹{b.grandTotal?.toLocaleString("en-IN")}</p>
+                        {b.grandTotal > 0 && (
+                          <div className="mt-1.5 pt-1.5 border-t border-bms-border/40 flex flex-col gap-0.5 text-right">
+                            <p className="text-[10px] text-bms-text-dim">
+                              <span className="text-bms-text-muted">CGST (9%)</span>: <span className="font-semibold">₹{Math.round(b.grandTotal * 0.09 / 1.18)}</span>
+                            </p>
+                            <p className="text-[10px] text-bms-text-dim">
+                              <span className="text-bms-text-muted">SGST (9%)</span>: <span className="font-semibold">₹{Math.round(b.grandTotal * 0.09 / 1.18)}</span>
+                            </p>
+                            <p className="text-[10px] text-bms-text-muted font-bold border-t border-bms-border/30 pt-0.5 mt-0.5">
+                              GST (18%): ₹{Math.round(b.grandTotal * 0.18 / 1.18)}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
 

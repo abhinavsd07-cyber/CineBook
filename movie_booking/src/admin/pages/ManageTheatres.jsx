@@ -91,71 +91,120 @@ export default function ManageTheatres() {
 
       {/* Table Card */}
       <div className="bg-bms-surface border border-bms-border rounded-3xl shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-left text-sm min-w-[800px]">
-            <thead>
-              <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
-                <th className="px-6 py-4">Theatre Name & Address</th>
-                <th className="px-6 py-4">Location</th>
-                <th className="px-6 py-4">Phone</th>
-                <th className="px-6 py-4">Screens</th>
-                <th className="px-6 py-4">Amenities</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-bms-border/50">
+        {filteredTheatres.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-2">
+            <LuBuilding2 size={32} className="text-bms-text-dim/30" />
+            <p className="text-bms-text-dim text-sm font-medium">No theatres found</p>
+          </div>
+        ) : (
+          <>
+            {/* ── Desktop table ── */}
+            <div className="hidden lg:block w-full overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm" style={{ minWidth: "800px" }}>
+                <thead>
+                  <tr className="border-b border-bms-border bg-bms-surface-hover/50 text-[10px] font-semibold text-bms-text-dim uppercase tracking-wider">
+                    <th className="px-6 py-4">Theatre Name & Address</th>
+                    <th className="px-6 py-4">Location</th>
+                    <th className="px-6 py-4">Phone</th>
+                    <th className="px-6 py-4">Screens</th>
+                    <th className="px-6 py-4">Amenities</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-bms-border/50">
+                  {filteredTheatres.map((t) => (
+                    <tr key={t._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
+                      <td className="px-6 py-4">
+                        <p className="font-bold text-sm text-bms-text leading-tight">{t.name}</p>
+                        <p className="text-xs text-bms-text-dim mt-1.5">{t.address}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="flex items-center gap-1 text-bms-text-muted">
+                          <LuMapPin size={12} className="text-bms-accent" />
+                          <span>{t.location}</span>
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-bms-text-muted">{t.phone || "—"}</td>
+                      <td className="px-6 py-4 font-semibold text-bms-text-muted">{t.totalScreens}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          {t.amenities?.map((a) => (
+                            <span key={a} className="bg-bms-accent/10 text-bms-accent text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-xs">
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button 
+                            className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer" 
+                            onClick={() => openEdit(t)} 
+                            id={`edit-theatre-${t._id}`}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer" 
+                            onClick={() => handleDelete(t._id, t.name)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── Mobile / tablet cards ── */}
+            <div className="lg:hidden divide-y divide-bms-border/40">
               {filteredTheatres.map((t) => (
-                <tr key={t._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-sm text-bms-text leading-tight">{t.name}</p>
-                    <p className="text-xs text-bms-text-dim mt-1.5">{t.address}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="flex items-center gap-1 text-bms-text-muted">
-                      <LuMapPin size={12} className="text-bms-accent" />
-                      <span>{t.location}</span>
+                <div key={t._id} className="p-4 flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-sm text-bms-text leading-tight">{t.name}</p>
+                      <p className="text-xs text-bms-text-dim mt-1">{t.address}</p>
+                    </div>
+                    <span className="flex items-center gap-1 text-[11px] text-bms-text-muted flex-shrink-0">
+                      <LuMapPin size={11} className="text-bms-accent" />
+                      <span className="font-semibold">{t.location}</span>
                     </span>
-                  </td>
-                  <td className="px-6 py-4 text-bms-text-muted">{t.phone || "—"}</td>
-                  <td className="px-6 py-4 font-semibold text-bms-text-muted">{t.totalScreens}</td>
-                  <td className="px-6 py-4">
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-bms-text-muted">
+                    {t.phone && <span>📞 {t.phone}</span>}
+                    <span className="font-semibold">{t.totalScreens} screen{t.totalScreens !== 1 ? "s" : ""}</span>
+                  </div>
+                  {t.amenities?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
-                      {t.amenities?.map((a) => (
-                        <span key={a} className="bg-bms-accent/10 text-bms-accent text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-xs">
+                      {t.amenities.map((a) => (
+                        <span key={a} className="bg-bms-accent/10 text-bms-accent text-[10px] font-semibold px-2 py-0.5 rounded-md">
                           {a}
                         </span>
                       ))}
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button 
-                        className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer" 
-                        onClick={() => openEdit(t)} 
-                        id={`edit-theatre-${t._id}`}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer" 
-                        onClick={() => handleDelete(t._id, t.name)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                  )}
+                  <div className="flex gap-2">
+                    <button 
+                      className="px-3 py-1.5 rounded-lg border border-bms-border text-bms-text hover:bg-bms-surface-hover text-xs font-bold transition-all cursor-pointer" 
+                      onClick={() => openEdit(t)} 
+                      id={`edit-theatre-mob-${t._id}`}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      className="px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 text-xs font-bold transition-all cursor-pointer" 
+                      onClick={() => handleDelete(t._id, t.name)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               ))}
-              {filteredTheatres.length === 0 && (
-                <tr>
-                  <td colSpan="6" className="text-center text-bms-text-dim py-12">
-                    No theatres found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Modal */}

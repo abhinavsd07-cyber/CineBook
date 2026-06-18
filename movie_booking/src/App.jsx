@@ -38,6 +38,7 @@ import ManageTheatres from "./admin/pages/ManageTheatres";
 import ManageShows from "./admin/pages/ManageShows";
 import ManageBookings from "./admin/pages/ManageBookings";
 import ManageBanners from "./admin/pages/ManageBanners";
+import ManageSnacks from "./admin/pages/ManageSnacks";
 
 import "./index.css";
 import Chatbot from "./components/Chatbot";
@@ -106,6 +107,7 @@ function App() {
             <Route path="theatres" element={<ManageTheatres />} />
             <Route path="shows" element={<ManageShows />} />
             <Route path="bookings" element={<ManageBookings />} />
+            <Route path="snacks" element={<ManageSnacks />} />
             <Route path="banners" element={<ManageBanners />} />
           </Route>
 
