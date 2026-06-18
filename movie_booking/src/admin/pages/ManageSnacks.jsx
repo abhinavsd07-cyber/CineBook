@@ -8,6 +8,7 @@ import {
   LuSearch, LuUpload, LuLeaf, LuDrumstick,
   LuToggleLeft, LuToggleRight,
 } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 const CATEGORIES = ["Bestsellers", "Popcorn", "Beverages", "Snacks", "Combos"];
 
@@ -67,7 +68,10 @@ export default function ManageSnacks() {
       const res = await uploadImage(fd);
       setForm((f) => ({ ...f, image: res.data.url }));
     } catch {
-      alert("Image upload failed. Please try again.");
+      toast.error("❌ Image upload failed. Please try again.", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } finally {
       setUploading(false);
     }
@@ -77,7 +81,10 @@ export default function ManageSnacks() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.price || !form.category) {
-      alert("Name, price and category are required.");
+      toast.warning("⚠️ Name, price and category are required.", {
+        position: "top-right", autoClose: 4000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
       return;
     }
     setSubmitting(true);
@@ -87,8 +94,15 @@ export default function ManageSnacks() {
       else        await createFoodItem(payload);
       fetchItems();
       closeModal();
+      toast.success("✅ Item saved successfully!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } catch (err) {
-      alert(err.response?.data?.message || "Error saving item");
+      toast.error(err.response?.data?.message || "❌ Error saving item", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } finally {
       setSubmitting(false);
     }

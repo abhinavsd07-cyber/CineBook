@@ -4,6 +4,7 @@ import { getAllMovies } from "../config/allApis";
 import { useLocationContext } from "../context/LocationContext";
 import { LuSearch, LuFilter, LuFilm, LuMic, LuMicOff } from "react-icons/lu";
 import SEO from "../components/SEO";
+import { toast } from "react-toastify";
 
 const GENRES = ["Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Romance", "Thriller"];
 const LANGUAGES = ["English", "Hindi", "Tamil", "Telugu", "Malayalam"];
@@ -60,7 +61,10 @@ export default function Explore() {
       if (recognition) {
         recognition.start();
       } else {
-        alert("Your browser does not support Voice Search. Please try Google Chrome.");
+        toast.warning("⚠️ Voice Search is not supported in your browser. Please try Google Chrome.", {
+          position: "top-right", autoClose: 5000, hideProgressBar: false,
+          closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+        });
       }
     }
   };

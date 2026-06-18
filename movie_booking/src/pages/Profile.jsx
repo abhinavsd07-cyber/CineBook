@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { updateProfile, getProfile } from "../config/allApis";
 import SEO from "../components/SEO";
+import { toast } from "react-toastify";
 
 const AVATARS = [
   "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
@@ -24,8 +25,6 @@ export default function Profile() {
   });
   
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
   const [cineCoins, setCineCoins] = useState(0);
 
   useEffect(() => {
@@ -50,18 +49,29 @@ export default function Profile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setSuccessMsg("");
-    setErrorMsg("");
-    
     try {
       const res = await updateProfile(formData);
       const updatedUser = { ...res.data.data, token: user.token };
-      login(updatedUser); 
-      
-      setSuccessMsg("Profile updated successfully!");
-      setTimeout(() => setSuccessMsg(""), 3000);
+      login(updatedUser);
+      toast.success("✅ Profile updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || "Failed to update profile");
+      toast.error(err.response?.data?.message || "❌ Failed to update profile", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
     } finally {
       setLoading(false);
     }
@@ -98,8 +108,7 @@ export default function Profile() {
 
           <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
             
-            {successMsg && <div className="text-xs text-[#2DC492] bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg font-bold">{successMsg}</div>}
-            {errorMsg && <div className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 p-3 rounded-lg font-bold">{errorMsg}</div>}
+
 
             <div className="flex flex-col gap-4 border-b border-bms-border/50 pb-6 last:border-b-0 last:pb-0">
               <h3 className="text-xs font-bold uppercase tracking-wider text-bms-text-muted mb-2">Personal Information</h3>

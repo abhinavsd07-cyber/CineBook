@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllBookingsAdmin, cancelBooking } from "../../config/allApis";
 import { LuTicket, LuSearch, LuX, LuUser, LuMapPin, LuCalendar, LuBan } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 // Using inline style objects avoids Tailwind purge issues with dynamic class names
 const SEAT_STYLES = {
@@ -45,8 +46,15 @@ export default function ManageBookings() {
     try {
       await cancelBooking(id);
       fetchBookings();
+      toast.success("✅ Booking cancelled successfully.", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } catch (err) {
-      alert(err.response?.data?.message || "Error cancelling booking.");
+      toast.error(err.response?.data?.message || "❌ Error cancelling booking.", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     }
   };
 

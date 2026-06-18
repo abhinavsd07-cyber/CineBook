@@ -3,10 +3,22 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { registerUser } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
 import { LuEye, LuEyeOff } from "react-icons/lu";
+import { toast, Bounce } from "react-toastify";
+
+const toastConfig = {
+  position: "top-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+  transition: Bounce,
+};
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
@@ -15,16 +27,16 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await registerUser(form);
       login(res.data.data);
+      toast.success(`🎉 Account created! Welcome, ${res.data.data.name || "User"}!`, toastConfig);
       const dataState = location.state?.data || {};
       const from = location.state?.from || "/";
-      navigate(from, { replace: true, state: dataState });
+      setTimeout(() => navigate(from, { replace: true, state: dataState }), 800);
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      toast.error(err.response?.data?.message || "Registration failed. Please try again.", toastConfig);
     } finally {
       setLoading(false);
     }
@@ -38,12 +50,6 @@ export default function Register() {
             <h2 className="text-[22px] font-bold text-[#333333]">Create Account</h2>
             <p className="text-[14px] text-[#666666] font-normal">Join us to book your favorite shows</p>
           </div>
-
-          {error && (
-            <div className="text-[12px] text-red-600 bg-red-50 p-2.5 rounded-[4px] border border-red-200">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">

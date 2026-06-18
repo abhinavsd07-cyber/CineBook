@@ -1,23 +1,37 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { forgotPassword } from "../config/allApis";
+import { toast } from "react-toastify";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
     try {
       await forgotPassword({ email });
-      setSuccess("If that email exists, we have sent a password reset link.");
+      toast.success("✅ If that email exists, we have sent a password reset link.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      setEmail("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to send reset link");
+      toast.error(err.response?.data?.message || "❌ Failed to send reset link", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
     } finally {
       setLoading(false);
     }
@@ -31,17 +45,6 @@ export default function ForgotPassword() {
             <h2 className="text-2xl font-bold text-bms-text">Forgot Password</h2>
             <p className="text-xs text-bms-text-muted">Enter your email to receive a password reset link.</p>
           </div>
-          
-          {error && (
-            <div className="text-xs text-red-600 bg-red-100 dark:bg-red-950/20 p-2.5 rounded border border-red-200 dark:border-red-900">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="text-xs text-bms-accent bg-bms-accent-glow p-2.5 rounded border border-bms-accent/10">
-              {success}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">

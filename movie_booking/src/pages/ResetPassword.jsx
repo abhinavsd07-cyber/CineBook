@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { resetPassword } from "../config/allApis";
 import { LuEye, LuEyeOff } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -9,42 +10,51 @@ export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      return setError("Passwords do not match");
+      toast.error("❌ Passwords do not match", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      return;
     }
     setLoading(true);
-    setError("");
     try {
       await resetPassword(token, { password });
-      setSuccess(true);
+      toast.success("🎉 Password reset successful! Redirecting to login...", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        onClose: () => navigate("/login"),
+      });
       setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid or expired token");
+      toast.error(err.response?.data?.message || "❌ Invalid or expired token", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
     } finally {
       setLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-bms-bg text-bms-text transition-colors duration-300">
-        <div className="w-full max-w-[440px] px-4">
-          <div className="bg-bms-surface border border-bms-border p-8 rounded-2xl shadow-xl flex flex-col gap-6 text-center">
-            <h2 className="text-2xl font-bold text-bms-text">Password Reset Successful! 🎉</h2>
-            <p className="text-xs text-bms-text-muted mb-4">Your password has been securely updated. Redirecting you to login...</p>
-            <Link to="/login" className="bg-bms-accent hover:bg-bms-accent-hover text-white py-3 rounded-lg font-bold w-full shadow-lg transition-all duration-200 text-center text-sm">Go to Login</Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-bms-bg text-bms-text transition-colors duration-300">
@@ -54,12 +64,6 @@ export default function ResetPassword() {
             <h2 className="text-2xl font-bold text-bms-text">Create New Password</h2>
             <p className="text-xs text-bms-text-muted">Please enter a new strong password below.</p>
           </div>
-          
-          {error && (
-            <div className="text-xs text-red-600 bg-red-100 dark:bg-red-950/20 p-2.5 rounded border border-red-200 dark:border-red-900">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
@@ -72,6 +76,7 @@ export default function ResetPassword() {
                   onChange={(e) => setPassword(e.target.value)} 
                   required 
                   minLength="6"
+                  placeholder="Min. 6 characters"
                 />
                 <button
                   type="button"
@@ -92,6 +97,7 @@ export default function ResetPassword() {
                   onChange={(e) => setConfirmPassword(e.target.value)} 
                   required 
                   minLength="6"
+                  placeholder="Repeat password"
                 />
                 <button
                   type="button"
@@ -109,6 +115,10 @@ export default function ResetPassword() {
               ) : "Reset Password"}
             </button>
           </form>
+
+          <p className="text-xs text-bms-text-muted text-center mt-2">
+            Remembered your password? <Link to="/login" className="text-bms-accent hover:text-bms-accent-hover font-semibold transition-colors">Log In</Link>
+          </p>
         </div>
       </div>
     </div>

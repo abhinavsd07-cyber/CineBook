@@ -41,6 +41,8 @@ import ManageBanners from "./admin/pages/ManageBanners";
 import ManageSnacks from "./admin/pages/ManageSnacks";
 
 import "./index.css";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, Bounce } from "react-toastify";
 import Chatbot from "./components/Chatbot";
 
 const UserLayout = ({ children }) => (
@@ -136,6 +138,19 @@ function App() {
           />
         </Routes>
         <Chatbot />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+        />
       </Router>
       </LocationProvider>
     </AuthProvider>

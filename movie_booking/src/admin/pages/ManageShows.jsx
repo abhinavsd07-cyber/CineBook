@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllShows, createShow, deleteShow, getAllMovies, getAllTheatres, updateShow } from "../../config/allApis";
 import { LuArmchair, LuSearch, LuPlus, LuX, LuTrash2, LuCopy, LuPen, LuCalendar, LuMapPin, LuFilm, LuFilter, LuChevronUp, LuChevronDown } from "react-icons/lu";
 import { POPULAR_CITIES } from "../../components/Header";
+import { toast } from "react-toastify";
 
 const EMPTY = {
   movie: "", theatre: "", screen: "Screen 1", startDate: "", endDate: "",
@@ -166,8 +167,15 @@ export default function ManageShows() {
       setModal(false);
       setForm(EMPTY);
       setEditGroup(null);
+      toast.success("✅ Shows saved successfully!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } catch (err) {
-      alert(err.response?.data?.message || "Something went wrong. Please try again.");
+      toast.error(err.response?.data?.message || "❌ Something went wrong. Please try again.", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } finally {
       setSubmitting(false);
     }

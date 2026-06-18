@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getShowById } from "../config/allApis";
 import { io } from "socket.io-client";
+import { toast } from "react-toastify";
 
 const SEAT_TYPES = [
   { key: "recliner", label: "Recliner", priceKey: "recliner" },
@@ -99,7 +100,10 @@ export default function SeatSelection() {
         return prev.filter((s) => !(s.id === seatId && s.type === type));
       } else {
         if (prev.length >= maxQty) {
-          alert(`You can only select up to ${maxQty} seats.`);
+          toast.warning(`⚠️ You can only select up to ${maxQty} seats.`, {
+            position: "top-right", autoClose: 3000, hideProgressBar: false,
+            closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+          });
           return prev;
         }
         socketRef.current?.emit("lockSeat", { showId, seatId });
@@ -112,7 +116,13 @@ export default function SeatSelection() {
     const seatData = show.seats[type];
     const typeCount = selected.filter(s => s.type === type).length;
     const maxCapacity = (seatData.rows * seatData.seatsPerRow) - (seatData.bookedSeats?.length || 0);
-    if (typeCount >= maxCapacity) return alert("Category sold out!");
+    if (typeCount >= maxCapacity) {
+      toast.error("❌ Category sold out!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+      return;
+    }
     
     setSelected(prev => [...prev, { id: `${type.toUpperCase()}-TKT-${Date.now()}-${Math.floor(Math.random()*100)}`, type }]);
   };

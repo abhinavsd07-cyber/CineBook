@@ -4,10 +4,22 @@ import { loginUser, googleLoginUser } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { GoogleLogin } from '@react-oauth/google';
+import { toast, Bounce } from "react-toastify";
+
+const toastConfig = {
+  position: "top-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+  transition: Bounce,
+};
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
@@ -17,30 +29,34 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res = await loginUser(form);
       login(res.data.data);
+      toast.success(`🎬 Welcome back, ${res.data.data.name || "User"}!`, toastConfig);
       const dataState = location.state?.data || {};
-      navigate(res.data.data.role === "admin" ? "/admin/dashboard" : from, { replace: true, state: dataState });
+      setTimeout(() => {
+        navigate(res.data.data.role === "admin" ? "/admin/dashboard" : from, { replace: true, state: dataState });
+      }, 800);
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+      toast.error(err.response?.data?.message || "Login failed. Please try again.", toastConfig);
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    setError("");
     setLoading(true);
     try {
       const res = await googleLoginUser({ token: credentialResponse.credential });
       login(res.data.data);
+      toast.success(`🎬 Welcome, ${res.data.data.name || "User"}!`, toastConfig);
       const dataState = location.state?.data || {};
-      navigate(res.data.data.role === "admin" ? "/admin/dashboard" : from, { replace: true, state: dataState });
+      setTimeout(() => {
+        navigate(res.data.data.role === "admin" ? "/admin/dashboard" : from, { replace: true, state: dataState });
+      }, 800);
     } catch (err) {
-      setError(err.response?.data?.message || "Google Login failed. Please try again.");
+      toast.error(err.response?.data?.message || "Google Login failed. Please try again.", toastConfig);
     } finally {
       setLoading(false);
     }
@@ -54,12 +70,6 @@ export default function Login() {
             <h2 className="text-[22px] font-bold text-[#333333]">Get Started</h2>
             <p className="text-[14px] text-[#666666] font-normal">Login to book your favorite shows</p>
           </div>
-
-          {error && (
-            <div className="text-[12px] text-red-600 bg-red-50 p-2.5 rounded-[4px] border border-red-200">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
@@ -115,7 +125,7 @@ export default function Login() {
           <div className="flex justify-center">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError("Google Login Failed")}
+              onError={() => toast.error("Google Login Failed", toastConfig)}
               useOneTap
               theme="outline"
               size="large"

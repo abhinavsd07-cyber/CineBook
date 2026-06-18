@@ -4,6 +4,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { SiGooglepay, SiPhonepe, SiPaytm } from "react-icons/si";
 import { createPaymentIntent, createBooking, getMovieById, validateCoupon } from "../config/allApis";
+import { toast } from "react-toastify";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "pk_test_51234");
 
@@ -149,8 +150,6 @@ export default function Payment() {
 
   const [promoCode, setPromoCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
-  const [promoError, setPromoError] = useState("");
-  const [promoSuccess, setPromoSuccess] = useState("");
 
   const [cineCoins, setCineCoins] = useState(0);
   const [useCoins, setUseCoins] = useState(false);
@@ -209,14 +208,28 @@ export default function Payment() {
 
   const handleApplyPromo = async () => {
     if (!promoCode) return;
-    setPromoError("");
-    setPromoSuccess("");
     try {
       const res = await validateCoupon({ code: promoCode });
       setAppliedDiscount(res.data.data.discountPercent);
-      setPromoSuccess(`Coupon applied! ${res.data.data.discountPercent}% off`);
+      toast.success(`🎟️ Coupon applied! ${res.data.data.discountPercent}% off`, {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
     } catch (err) {
-      setPromoError(err.response?.data?.message || "Invalid promo code");
+      toast.error(err.response?.data?.message || "❌ Invalid promo code", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
       setAppliedDiscount(0);
     }
   };
@@ -238,7 +251,15 @@ export default function Payment() {
       navigate("/payment-success", { state: { booking: bookingRes.data.data } });
     } catch (err) {
       console.error(err);
-      alert("Payment failed. Please try again.");
+      toast.error(err.response?.data?.message || "❌ Payment failed. Please try again.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
       setProcessing(false);
     }
   };
@@ -350,8 +371,7 @@ export default function Payment() {
                   />
                   <button className="border border-[#F84464] text-[#F84464] hover:bg-red-50 px-4 py-2 text-[12px] font-semibold rounded-[4px] transition-colors cursor-pointer" onClick={handleApplyPromo}>Apply</button>
                 </div>
-                {promoError && <div className="text-[11px] text-red-500 mt-1.5 font-medium px-1">{promoError}</div>}
-                {promoSuccess && <div className="text-[11px] text-[#4CAF50] bg-green-50 p-2 rounded border border-[#4CAF50]/20 mt-1.5 font-medium">{promoSuccess}</div>}
+
               </div>
 
               <div className="mt-4 pt-4 border-t border-slate-200 flex justify-between items-center bg-[#fcfcfc] p-4 rounded-[8px]">
@@ -389,7 +409,15 @@ export default function Payment() {
                         navigate("/payment-success", { state: { booking: bookingRes.data.data } });
                       } catch (err) {
                         console.error(err);
-                        alert("Booking failed. Please try again.");
+                        toast.error(err.response?.data?.message || "❌ Booking failed. Please try again.", {
+                          position: "top-right",
+                          autoClose: 5000,
+                          hideProgressBar: false,
+                          closeOnClick: false,
+                          pauseOnHover: true,
+                          draggable: true,
+                          theme: "light",
+                        });
                         setProcessing(false);
                       }
                     }}

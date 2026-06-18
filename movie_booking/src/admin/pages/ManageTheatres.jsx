@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllTheatres, createTheatre, updateTheatre, deleteTheatre } from "../../config/allApis";
 import { LuBuilding2, LuMapPin, LuSearch, LuPlus, LuX } from "react-icons/lu";
 import { POPULAR_CITIES } from "../../components/Header";
+import { toast } from "react-toastify";
 
 const EMPTY = { name: "", location: "", address: "", phone: "", totalScreens: 1, amenities: "" };
 
@@ -29,7 +30,16 @@ export default function ManageTheatres() {
       if (editId) await updateTheatre(editId, payload);
       else await createTheatre(payload);
       fetch(); close();
-    } catch (err) { alert(err.response?.data?.message || "Error"); } finally { setSubmitting(false); }
+      toast.success("✅ Theatre saved successfully!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "❌ Error saving theatre", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+    } finally { setSubmitting(false); }
   };
 
   const handleDelete = async (id, name) => {

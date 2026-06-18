@@ -4,6 +4,7 @@ import { LuTicket, LuFilm, LuBuilding2, LuCalendar, LuClock, LuDownload, LuCalen
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import QRCode from "react-qr-code";
+import { toast } from "react-toastify";
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState([]);
@@ -19,8 +20,18 @@ export default function MyBookings() {
 
   const handleCancel = async (id) => {
     if (!window.confirm("Cancel this booking? Seats will be released.")) return;
-    try { await cancelBooking(id); fetch(); }
-    catch (err) { alert(err.response?.data?.message || "Cannot cancel"); }
+    try { await cancelBooking(id); fetch();
+      toast.success("✅ Booking cancelled successfully.", {
+        position: "top-right", autoClose: 4000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+    }
+    catch (err) {
+      toast.error(err.response?.data?.message || "❌ Cannot cancel", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+    }
   };
 
   const handleDownload = async (id, title) => {
@@ -52,7 +63,13 @@ export default function MyBookings() {
   };
 
   const handleAddToCalendar = (b, title) => {
-    if (!b.show || !b.show.date || !b.show.time) return alert("Streaming movies are available 24/7!");
+    if (!b.show || !b.show.date || !b.show.time) {
+      toast.info("ℹ️ Streaming movies are available 24/7!", {
+        position: "top-right", autoClose: 4000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+      return;
+    }
 
     try {
       const d = new Date(b.show.date);
@@ -84,7 +101,10 @@ export default function MyBookings() {
       document.body.removeChild(link);
     } catch (err) {
       console.error(err);
-      alert("Could not generate calendar invite.");
+      toast.error("❌ Could not generate calendar invite.", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     }
   };
 

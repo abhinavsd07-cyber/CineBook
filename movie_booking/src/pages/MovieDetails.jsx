@@ -4,6 +4,7 @@ import { getMovieById, getMovieReviews, createReview, voteReview, getMovieRecomm
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
 import ScrollContainer from "../components/ScrollContainer";
+import { toast } from "react-toastify";
 
 const getYoutubeVideoId = (url) => {
   if (!url) return "";
@@ -52,24 +53,43 @@ export default function MovieDetails() {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return alert("Please log in to post a review.");
+    if (!user) {
+      toast.warning("⚠️ Please log in to post a review.", {
+        position: "top-right", autoClose: 4000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+      return;
+    }
     setSubmittingReview(true);
     try {
       await createReview({ movie: id, rating: reviewForm.rating, comment: reviewForm.comment });
       setReviewForm({ rating: 10, comment: "" });
-      fetchMovieData(); 
+      toast.success("✅ Review posted successfully!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+      fetchMovieData();
     } catch (err) {
-      alert(err.response?.data?.message || "Error posting review");
+      toast.error(err.response?.data?.message || "❌ Error posting review", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } finally {
       setSubmittingReview(false);
     }
   };
 
   const handleVote = async (reviewId, type) => {
-    if (!user) return alert("Please log in to vote.");
+    if (!user) {
+      toast.warning("⚠️ Please log in to vote.", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+      return;
+    }
     try {
       await voteReview(reviewId, { type });
-      fetchMovieData(); 
+      fetchMovieData();
     } catch (err) {
       console.error(err);
     }
@@ -90,7 +110,10 @@ export default function MovieDetails() {
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      toast.success("🔗 Link copied to clipboard!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     }
   };
 

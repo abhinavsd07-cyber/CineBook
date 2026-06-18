@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllMovies, createMovie, updateMovie, deleteMovie, uploadImage } from "../../config/allApis";
 import { LuClapperboard, LuSearch, LuStar, LuTrash2, LuPlus, LuX } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 const EMPTY = { 
   title: "", description: "", genre: "", language: "", duration: "", rating: 7, 
@@ -66,8 +67,15 @@ export default function ManageMovies() {
       else await createMovie(payload);
       fetchMovies();
       closeModal();
+      toast.success("✅ Movie saved successfully!", {
+        position: "top-right", autoClose: 3000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } catch (err) {
-      alert(err.response?.data?.message || "Error saving movie");
+      toast.error(err.response?.data?.message || "❌ Error saving movie", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -99,7 +107,10 @@ export default function ManageMovies() {
         setForm({ ...form, [field]: res.data.url });
       }
     } catch (err) {
-      alert("Error uploading image");
+      toast.error("❌ Error uploading image", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
       console.error(err);
     } finally {
       setUploading({ ...uploading, [uploadKey]: false });

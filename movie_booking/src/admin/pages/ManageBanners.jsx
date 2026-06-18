@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { LuClapperboard, LuTrash2, LuPen, LuX } from "react-icons/lu";
+import { toast } from "react-toastify";
 
 export default function ManageBanners() {
   const [banners, setBanners] = useState([]);
@@ -25,7 +26,13 @@ export default function ManageBanners() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!editId && !file) return alert("Please select an image file");
+    if (!editId && !file) {
+      toast.warning("⚠️ Please select an image file", {
+        position: "top-right", autoClose: 4000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
+      return;
+    }
     
     setUploading(true);
     try {
@@ -41,10 +48,16 @@ export default function ManageBanners() {
 
       if (editId) {
         await updateBanner(editId, { imageUrl, type, targetLink });
-        alert("Banner updated successfully!");
+        toast.success("✅ Banner updated successfully!", {
+          position: "top-right", autoClose: 3000, hideProgressBar: false,
+          closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+        });
       } else {
         await createBanner({ imageUrl, type, targetLink });
-        alert("Banner uploaded successfully!");
+        toast.success("✅ Banner uploaded successfully!", {
+          position: "top-right", autoClose: 3000, hideProgressBar: false,
+          closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+        });
       }
       
       setFile(null);
@@ -53,7 +66,10 @@ export default function ManageBanners() {
       fetchBanners();
     } catch (err) {
       console.error(err);
-      alert("Error saving banner");
+      toast.error("❌ Error saving banner", {
+        position: "top-right", autoClose: 5000, hideProgressBar: false,
+        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
+      });
     } finally {
       setUploading(false);
     }
