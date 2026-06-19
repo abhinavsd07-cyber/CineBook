@@ -33,11 +33,11 @@ export default function ManageBookings() {
 
   const fetchBookings = React.useCallback(() => {
     setLoading(true);
-    getAllBookingsAdmin(filter !== "all" ? { status: filter } : {})
+    getAllBookingsAdmin()
       .then((r) => setBookings(r.data.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [filter]);
+  }, []);
 
   useEffect(() => { fetchBookings(); }, [fetchBookings]);
 
@@ -60,13 +60,15 @@ export default function ManageBookings() {
 
   const filtered = bookings.filter((b) => {
     const title = b.show?.movie?.title || b.item?.title || "";
-    return (
-      !search ||
+    const matchesSearch = !search ||
       b.bookingId?.toLowerCase().includes(search.toLowerCase()) ||
       b.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
       b.user?.email?.toLowerCase().includes(search.toLowerCase()) ||
-      title.toLowerCase().includes(search.toLowerCase())
-    );
+      title.toLowerCase().includes(search.toLowerCase());
+      
+    const matchesFilter = filter === "all" || b.status === filter;
+
+    return matchesSearch && matchesFilter;
   });
 
   const counts = FILTERS.reduce((acc, s) => {

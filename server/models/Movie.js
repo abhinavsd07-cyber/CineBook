@@ -23,6 +23,8 @@ const movieSchema = new mongoose.Schema(
     eventTime: { type: String, default: "" },
     eventLocation: { type: String, default: "" },
     eventAgeGroups: { type: String, default: "" },
+    interestCount: { type: Number, default: 0 },
+    interestedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

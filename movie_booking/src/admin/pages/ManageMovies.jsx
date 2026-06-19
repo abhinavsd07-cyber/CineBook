@@ -13,20 +13,22 @@ const EMPTY = {
 export default function ManageMovies() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [modal, setModal] = useState(null); // null | 'add' | 'edit'
   const [form, setForm] = useState(EMPTY);
   const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState({});
 
   const fetchMovies = React.useCallback(() => {
     setLoading(true);
-    getAllMovies(search ? { search } : {})
+    getAllMovies()
       .then((r) => setMovies(r.data.data))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [search]);
+  }, []);
 
   useEffect(() => { fetchMovies(); }, [fetchMovies]);
 
@@ -130,6 +132,14 @@ export default function ManageMovies() {
     setForm({ ...form, [field]: arr });
   };
 
+  const filteredMovies = movies.filter(m => {
+    const matchesSearch = !search || m.title.toLowerCase().includes(search.toLowerCase()) || (m.genre || []).some(g => g.toLowerCase().includes(search.toLowerCase()));
+    const itemType = m.itemType || "movie"; // defaults to movie
+    const matchesType = typeFilter === "all" || itemType === typeFilter;
+    const matchesStatus = statusFilter === "all" || (statusFilter === "now_showing" && m.isNowShowing) || (statusFilter === "upcoming" && m.isUpcoming);
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in text-bms-text">
       {/* Header */}
@@ -139,7 +149,7 @@ export default function ManageMovies() {
             <LuClapperboard className="text-bms-accent" />
             <span>Manage Items</span>
           </h1>
-          <p className="text-bms-text-muted text-sm mt-1">{movies.length} items in database (Movies, Events, Premieres)</p>
+          <p className="text-bms-text-muted text-sm mt-1">{filteredMovies.length} items shown out of {movies.length}</p>
         </div>
         <button 
           className="btn bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm cursor-pointer flex items-center gap-1.5" 
@@ -152,7 +162,7 @@ export default function ManageMovies() {
       </div>
 
       {/* Filter/Search Bar */}
-      <div className="flex justify-between items-center flex-wrap gap-4">
+      <div className="flex justify-between items-start sm:items-center flex-wrap gap-4">
         <div className="flex items-center gap-2.5 bg-bms-surface border border-bms-border rounded-xl px-3.5 h-11 w-full max-w-[320px] focus-within:ring-2 focus-within:ring-bms-accent/10 focus-within:border-bms-accent transition-all duration-200">
           <LuSearch className="text-bms-text-dim" size={14} />
           <input 
@@ -162,6 +172,34 @@ export default function ManageMovies() {
             value={search} 
             onChange={(e) => setSearch(e.target.value)} 
           />
+          {search && (
+            <button onClick={() => setSearch("")} className="text-bms-text-dim hover:text-bms-text">
+              <LuX size={12} />
+            </button>
+          )}
+        </div>
+        
+        <div className="flex flex-wrap gap-3">
+          <select 
+            className="bg-bms-surface border border-bms-border rounded-xl px-3.5 h-11 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent cursor-pointer transition-all" 
+            value={typeFilter} 
+            onChange={(e) => setTypeFilter(e.target.value)}
+          >
+            <option value="all">All Types</option>
+            <option value="movie">Movies</option>
+            <option value="event">Events</option>
+            <option value="premiere">Premieres</option>
+          </select>
+          
+          <select 
+            className="bg-bms-surface border border-bms-border rounded-xl px-3.5 h-11 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent cursor-pointer transition-all" 
+            value={statusFilter} 
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">Any Status</option>
+            <option value="now_showing">Now Showing</option>
+            <option value="upcoming">Upcoming</option>
+          </select>
         </div>
       </div>
 
@@ -193,7 +231,7 @@ export default function ManageMovies() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-bms-border/50">
-                  {movies.map((m) => (
+                  {filteredMovies.map((m) => (
                     <tr key={m._id} className="hover:bg-bms-surface-hover/30 transition-colors duration-150 text-bms-text">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -260,7 +298,7 @@ export default function ManageMovies() {
 
             {/* ── Mobile / tablet cards ── */}
             <div className="lg:hidden divide-y divide-bms-border/40">
-              {movies.map((m) => (
+              {filteredMovies.map((m) => (
                 <div key={m._id} className="p-4 flex flex-col gap-3">
                   <div className="flex items-start gap-3">
                     <img 
@@ -364,17 +402,20 @@ export default function ManageMovies() {
                 )}
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Release Date / Event Date</label>
+                  <input 
+                    type="date" 
+                    className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent transition-all" 
+                    value={form.releaseDate} 
+                    onChange={(e) => setForm({ ...form, releaseDate: e.target.value })} 
+                  />
+                </div>
+              </div>
+
               {form.itemType === "event" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 border border-dashed border-bms-border p-4 rounded-2xl bg-bms-surface-hover/20">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Event Date</label>
-                    <input 
-                      type="date" 
-                      className="bg-bms-surface border border-bms-border rounded-xl px-4 py-2.5 text-sm text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent transition-all" 
-                      value={form.releaseDate} 
-                      onChange={(e) => setForm({ ...form, releaseDate: e.target.value })} 
-                    />
-                  </div>
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-bold text-bms-text-dim uppercase tracking-wide">Event Time</label>
                     <input 
@@ -538,37 +579,37 @@ export default function ManageMovies() {
                 </div>
                 <div className="flex flex-col gap-3.5">
                   {form.cast.map((c, i) => (
-                    <div key={i} className="grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-center border border-bms-border/50 rounded-xl p-3 bg-bms-surface/50 relative">
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center border border-bms-border/50 rounded-xl p-3 bg-bms-surface/50 relative">
                       <input 
-                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        className="sm:col-span-3 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
                         placeholder="Name" 
                         value={c.name} 
                         onChange={e => updateArrayRow("cast", i, "name", e.target.value)} 
                       />
                       <input 
-                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        className="sm:col-span-3 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
                         placeholder="Role/Character" 
                         value={c.role} 
                         onChange={e => updateArrayRow("cast", i, "role", e.target.value)} 
                       />
-                      <div className="flex gap-2">
+                      <div className="sm:col-span-5 flex gap-2">
                         <input 
-                          className="flex-1 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                          className="flex-1 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all min-w-0" 
                           placeholder="Image URL" 
                           value={c.image} 
                           onChange={e => updateArrayRow("cast", i, "image", e.target.value)} 
                         />
                         <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "cast", i)} style={{ display: "none" }} id={`cast-upload-${i}`} />
-                        <label htmlFor={`cast-upload-${i}`} className="px-3 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer bg-bms-surface text-bms-text">
+                        <label htmlFor={`cast-upload-${i}`} className="whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer bg-bms-surface text-bms-text">
                           {uploading[`cast-${i}`] ? "..." : "Upload"}
                         </label>
                       </div>
                       <button 
                         type="button" 
-                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-dashed border-red-500/10 text-center text-xs font-bold w-full sm:w-auto flex items-center justify-center" 
+                        className="sm:col-span-1 p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-dashed border-red-500/10 text-center text-xs font-bold w-full flex items-center justify-center" 
                         onClick={() => removeArrayRow("cast", i)}
                       >
-                        <LuTrash2 size={12} />
+                        <LuTrash2 size={16} />
                       </button>
                     </div>
                   ))}
@@ -588,37 +629,37 @@ export default function ManageMovies() {
                 </div>
                 <div className="flex flex-col gap-3.5">
                   {form.crew.map((c, i) => (
-                    <div key={i} className="grid grid-cols-1 sm:grid-cols-4 gap-3.5 items-center border border-bms-border/50 rounded-xl p-3 bg-bms-surface/50 relative">
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 items-center border border-bms-border/50 rounded-xl p-3 bg-bms-surface/50 relative">
                       <input 
-                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        className="sm:col-span-3 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
                         placeholder="Name" 
                         value={c.name} 
                         onChange={e => updateArrayRow("crew", i, "name", e.target.value)} 
                       />
                       <input 
-                        className="bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                        className="sm:col-span-3 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
                         placeholder="Department/Role" 
                         value={c.role} 
                         onChange={e => updateArrayRow("crew", i, "role", e.target.value)} 
                       />
-                      <div className="flex gap-2">
+                      <div className="sm:col-span-5 flex gap-2">
                         <input 
-                          className="flex-1 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all" 
+                          className="flex-1 bg-bms-surface border border-bms-border rounded-lg px-3 py-1.5 text-xs text-bms-text focus:outline-none focus:ring-2 focus:ring-bms-accent/10 focus:border-bms-accent placeholder-bms-text-dim transition-all min-w-0" 
                           placeholder="Image URL" 
                           value={c.image} 
                           onChange={e => updateArrayRow("crew", i, "image", e.target.value)} 
                         />
                         <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, "crew", i)} style={{ display: "none" }} id={`crew-upload-${i}`} />
-                        <label htmlFor={`crew-upload-${i}`} className="px-3 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer bg-bms-surface text-bms-text">
+                        <label htmlFor={`crew-upload-${i}`} className="whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-lg border border-bms-border hover:bg-bms-surface-hover text-xs font-semibold transition-all cursor-pointer bg-bms-surface text-bms-text">
                           {uploading[`crew-${i}`] ? "..." : "Upload"}
                         </label>
                       </div>
                       <button 
                         type="button" 
-                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-dashed border-red-500/10 text-center text-xs font-bold w-full sm:w-auto flex items-center justify-center" 
+                        className="sm:col-span-1 p-1.5 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-dashed border-red-500/10 text-center text-xs font-bold w-full flex items-center justify-center" 
                         onClick={() => removeArrayRow("crew", i)}
                       >
-                        <LuTrash2 size={12} />
+                        <LuTrash2 size={16} />
                       </button>
                     </div>
                   ))}

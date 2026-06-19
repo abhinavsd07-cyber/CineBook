@@ -21,6 +21,7 @@ export const getPremieres = () => axiosInstance.get("/movies/premieres");
 export const getEvents = (params) => axiosInstance.get("/movies/events", { params });
 export const getMovieById = (id) => axiosInstance.get(`/movies/${id}`);
 export const getMovieRecommendations = (id) => axiosInstance.get(`/movies/${id}/recommendations`);
+export const toggleMovieInterest = (id) => axiosInstance.put(`/movies/${id}/interest`);
 
 // Admin Movie APIs
 export const createMovie = (data) => axiosInstance.post("/movies", data);

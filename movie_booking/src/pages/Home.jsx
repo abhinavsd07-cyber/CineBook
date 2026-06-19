@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getNowShowing, getPremieres, getEvents, getBanners } from "../config/allApis";
+import { getNowShowing, getUpcoming, getPremieres, getEvents, getBanners } from "../config/allApis";
 import { useLocationContext } from "../context/LocationContext";
 import SEO from "../components/SEO";
 
@@ -10,6 +10,7 @@ import ScrollContainer from "../components/ScrollContainer";
 
 export default function Home() {
   const [movies, setMovies] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
   const [premieres, setPremieres] = useState([]);
   const [events, setEvents] = useState([]);
   const [heroBanners, setHeroBanners] = useState([]);
@@ -22,10 +23,11 @@ export default function Home() {
     let active = true;
     const fetchHomeData = () => {
       setLoading(true);
-      Promise.all([getNowShowing({ location }), getPremieres(), getEvents({ location }), getBanners()])
-        .then(([m, p, e, b]) => { 
+      Promise.all([getNowShowing({ location }), getUpcoming(), getPremieres(), getEvents({ location }), getBanners()])
+        .then(([m, u, p, e, b]) => { 
           if(active) {
             setMovies(m.data.data); 
+            setUpcoming(u.data.data);
             setPremieres(p.data.data); 
             setEvents(e.data.data); 
             
@@ -92,6 +94,35 @@ export default function Home() {
             </ScrollContainer>
           )}
         </section>
+
+        {/* ── UPCOMING MOVIES ── */}
+        {upcoming.length > 0 && (
+          <section id="upcoming" className="mb-12">
+            <div className="flex items-center justify-between mb-4 px-1">
+              <h2 className="text-[20px] md:text-[24px] font-bold text-[#333333]">Coming Soon</h2>
+              <button className="text-[#F84464] hover:text-[#e03a58] text-[13px] md:text-[14px] font-medium flex items-center transition-colors" onClick={() => navigate('/explore')}>Explore Upcoming &rsaquo;</button>
+            </div>
+            <ScrollContainer className="py-2">
+              {upcoming.map((m) => (
+                <div key={m._id} className="w-[140px] sm:w-[170px] md:w-[224px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(`/movie/${m._id}`)}>
+                  <div className="relative w-full overflow-hidden rounded-[8px] bg-[#222222]">
+                    <div className="w-full aspect-[2/3] overflow-hidden">
+                      <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" loading="lazy" />
+                    </div>
+                    <div className="w-full bg-[#222222] text-white text-[11px] md:text-[12px] font-medium py-[6px] px-3 flex items-center tracking-wide">
+                      {m.releaseDate ? (() => {
+                        const d = new Date(m.releaseDate);
+                        return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear()}`;
+                      })() : "Release TBA"}
+                    </div>
+                  </div>
+                  <h4 className="text-[14px] md:text-[18px] font-medium text-[#333333] mt-3 truncate">{m.title}</h4>
+                  <p className="text-[12px] md:text-[14px] text-[#666666] mt-1 truncate">{m.genre?.join("/")}</p>
+                </div>
+              ))}
+            </ScrollContainer>
+          </section>
+        )}
 
         {/* ── STREAM AD BANNER ── */}
         <section className="mb-12 cursor-pointer hover:opacity-95 transition-opacity duration-200 px-1" onClick={() => navigate('/explore')}>

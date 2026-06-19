@@ -5,6 +5,7 @@ import { LocationProvider } from "./context/LocationContext";
 import { ProtectedRoute, AdminRoute } from "./components/ProtectedRoute";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 // User Pages
 import Home from "./pages/Home";
@@ -59,6 +60,7 @@ function App() {
     <AuthProvider>
       <LocationProvider>
         <Router>
+          <ScrollToTop />
         <Routes>
           {/* ── Public Routes ── */}
           <Route path="/" element={<UserLayout><Home /></UserLayout>} />

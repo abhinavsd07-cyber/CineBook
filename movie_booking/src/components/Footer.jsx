@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaFacebookF, FaXTwitter, FaInstagram, FaYoutube, FaPinterestP, FaLinkedinIn } from "react-icons/fa6";
 
 const Footer = () => (
   <footer className="bg-[#31353B] dark:bg-[#121620] text-[#9E9E9E] pt-8 pb-4 border-t border-bms-border/10 mt-auto" id="contact">
@@ -27,8 +28,8 @@ const Footer = () => (
     <div className="container mx-auto text-center px-4">
       <div className="flex items-center justify-between mb-8 gap-4">
         <div className="flex-1 h-[1px] bg-bms-border/10"></div>
-        <div className="mx-auto" style={{ display: "flex", justifyContent: "center" }}>
-           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 26" className="h-7 filter grayscale brightness-[200%] opacity-80">
+        <div className="mx-auto px-6 bg-[#31353B] dark:bg-[#121620]" style={{ display: "flex", justifyContent: "center" }}>
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 26" className="h-10 text-white">
                 <g fill="none">
                    <path fill="#C4242B" d="m55.433 7.383-1.444-2.43-2.583 1.213-1.444-2.43L47.38 4.95l-1.445-2.43-2.582 1.215-1.445-2.43-2.582 1.212L37.88.087 35.3 1.3l-5.476 17.591 6.643 2.005a3.516 3.516 0 0 1 3.363-2.45c1.944 0 3.52 1.557 3.52 3.478l-.001.07c.016.315-.021.634-.118.946l6.756 2.042 5.446-17.6"/>
                    <path fill="#FFFFFF" d="M35.52 17.438a.705.705 0 0 1-.591-.705V8.122a.715.715 0 0 1 .724-.717h6.297c.164 0 .329.016.489.043a2.798 2.798 0 0 1 2.336 2.749v6.536a.705.705 0 0 1-.217.51.73.73 0 0 1-.641.195.704.704 0 0 1-.59-.705v-6.536a1.363 1.363 0 0 0-1.377-1.358h-1.372v7.894a.723.723 0 0 1-.86.705.705.705 0 0 1-.59-.705V8.838h-2.75v7.895a.704.704 0 0 1-.216.51.728.728 0 0 1-.642.195m10.47 3.752a.704.704 0 0 1-.592-.706.71.71 0 0 1 .209-.51.73.73 0 0 1 .516-.206c.61 0 1.14-.39 1.315-.97l.748-2.462-2.448-8.083a.722.722 0 0 1 .483-.904.742.742 0 0 1 .896.473l1.82 6.03 1.839-6.026c.091-.34.46-.556.839-.49l.051.011a.726.726 0 0 1 .489.907l-2.52 8.295-.796 2.655c-.206.61-.56 1.106-1.022 1.44-.5.365-1.086.557-1.694.557a.708.708 0 0 1-.133-.012"/>
@@ -78,11 +79,12 @@ const Footer = () => (
       </div>
 
       <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        <a href="#" className="w-9 h-9 rounded-full bg-slate-700/50 hover:bg-bms-accent text-white flex items-center justify-center font-bold text-sm transition-all duration-150">f</a>
-        <a href="#" className="w-9 h-9 rounded-full bg-slate-700/50 hover:bg-bms-accent text-white flex items-center justify-center font-bold text-sm transition-all duration-150">𝕏</a>
-        <a href="#" className="w-9 h-9 rounded-full bg-slate-700/50 hover:bg-bms-accent text-white flex items-center justify-center font-bold text-sm transition-all duration-150">in</a>
-        <a href="#" className="w-9 h-9 rounded-full bg-slate-700/50 hover:bg-bms-accent text-white flex items-center justify-center font-bold text-sm transition-all duration-150">ig</a>
-        <a href="#" className="w-9 h-9 rounded-full bg-slate-700/50 hover:bg-bms-accent text-white flex items-center justify-center font-bold text-sm transition-all duration-150">yt</a>
+        <a href="#" className="w-11 h-11 rounded-full bg-[#555555] hover:bg-white text-[#31353B] flex items-center justify-center text-[20px] transition-colors duration-200"><FaFacebookF /></a>
+        <a href="#" className="w-11 h-11 rounded-full bg-[#555555] hover:bg-white text-[#31353B] flex items-center justify-center text-[20px] transition-colors duration-200"><FaXTwitter /></a>
+        <a href="#" className="w-11 h-11 rounded-full bg-[#555555] hover:bg-white text-[#31353B] flex items-center justify-center text-[22px] transition-colors duration-200"><FaInstagram /></a>
+        <a href="#" className="w-11 h-11 rounded-full bg-[#555555] hover:bg-white text-[#31353B] flex items-center justify-center text-[22px] transition-colors duration-200"><FaYoutube /></a>
+        <a href="#" className="w-11 h-11 rounded-full bg-[#555555] hover:bg-white text-[#31353B] flex items-center justify-center text-[20px] transition-colors duration-200"><FaPinterestP /></a>
+        <a href="#" className="w-11 h-11 rounded-full bg-[#555555] hover:bg-white text-[#31353B] flex items-center justify-center text-[20px] transition-colors duration-200"><FaLinkedinIn /></a>
       </div>
 
       <div className="max-w-[1000px] mx-auto text-[11px] text-slate-500 leading-relaxed text-center mt-6">

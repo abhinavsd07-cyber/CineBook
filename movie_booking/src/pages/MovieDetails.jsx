@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getMovieById, getMovieReviews, createReview, voteReview, getMovieRecommendations } from "../config/allApis";
+import { getMovieById, getMovieReviews, createReview, voteReview, getMovieRecommendations, toggleMovieInterest } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
 import ScrollContainer from "../components/ScrollContainer";
 import { toast } from "react-toastify";
-
-const getYoutubeVideoId = (url) => {
-  if (!url) return "";
-  if (url.includes("youtu.be/")) return url.split("youtu.be/")[1]?.split("?")[0];
-  if (url.includes("watch?v=")) return url.split("watch?v=")[1]?.split("&")[0];
-  if (url.includes("embed/")) return url.split("embed/")[1]?.split("?")[0];
-  return url.split("/").pop();
-};
+import { LuThumbsUp } from "react-icons/lu";
 
 export default function MovieDetails() {
   const { id } = useParams();
@@ -27,9 +20,6 @@ export default function MovieDetails() {
   // Review form state
   const [reviewForm, setReviewForm] = useState({ rating: 10, comment: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
-
-  // Trailer Modal State
-  const [showTrailerModal, setShowTrailerModal] = useState(false);
 
   const fetchMovieData = React.useCallback(() => {
     setLoading(true);
@@ -50,6 +40,29 @@ export default function MovieDetails() {
   useEffect(() => {
     fetchMovieData();
   }, [fetchMovieData]);
+
+  const handleInterestClick = async () => {
+    if (!user) {
+      toast.error("Please login to mark interest");
+      navigate("/login");
+      return;
+    }
+    try {
+      const res = await toggleMovieInterest(movie._id);
+      if (res.data.success) {
+        setMovie({ ...movie, interestCount: res.data.interestCount, interestedUsers: res.data.isInterested ? [...(movie.interestedUsers || []), user._id] : (movie.interestedUsers || []).filter(id => id !== user._id) });
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to update interest");
+    }
+  };
+
+  const formatCount = (count) => {
+    if (!count) return "0";
+    if (count >= 1000) return (count / 1000).toFixed(1) + "K+";
+    return count;
+  };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -126,11 +139,8 @@ export default function MovieDetails() {
 
   const hasReviewed = reviews.some(r => r.user?._id === user?._id);
 
-  const videoId = getYoutubeVideoId(movie.trailer);
-  const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : movie.trailer;
-
   return (
-    <div className="pt-[110px] md:pt-[125px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333] transition-colors duration-300">
+    <div className="pt-[100px] md:pt-[96px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333] transition-colors duration-300">
       <SEO 
         title={movie.title}
         description={movie.description?.substring(0, 160) || "Book tickets now on Book My Show"}
@@ -140,40 +150,63 @@ export default function MovieDetails() {
       {/* ── BMS Style Top Banner ── */}
       <div 
         className="relative min-h-[480px] w-full flex items-center bg-cover bg-center overflow-hidden py-10 bg-slate-900" 
-        style={!movie.trailer ? { backgroundImage: `url(${movie.backdrop || movie.poster})` } : {}}
+        style={{ backgroundImage: `url(${movie.backdrop || movie.poster})` }}
       >
-        {movie.trailer && (
-          <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden scale-110">
-            <iframe
-              className="w-full h-full object-cover opacity-35"
-              src={`${embedUrl}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=${videoId}`}
-              title="Movie Trailer"
-              frameBorder="0"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            ></iframe>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
         
         <div className="max-w-[1200px] mx-auto px-4 w-full relative z-10 flex flex-col md:flex-row gap-6 md:gap-10 items-center text-white">
-          <div className="relative w-[180px] sm:w-[240px] md:w-[260px] aspect-[2/3] rounded-[10px] overflow-hidden shadow-2xl flex-shrink-0">
-            <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover" />
-            {movie.isNowShowing && (
-              <div className="absolute bottom-0 left-0 w-full bg-black/80 backdrop-blur px-4 py-1.5 text-[11px] font-semibold uppercase text-center tracking-widest text-white">In cinemas</div>
+          <div 
+            className={`relative w-[180px] sm:w-[240px] md:w-[260px] aspect-[2/3] rounded-[10px] overflow-hidden shadow-2xl flex-shrink-0 ${movie.trailer ? 'cursor-pointer group' : ''}`}
+            onClick={() => movie.trailer && window.open(movie.trailer, '_blank')}
+          >
+            <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            
+            {movie.trailer && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 backdrop-blur-sm text-white text-[12px] md:text-[13px] font-medium px-4 py-1.5 rounded-full flex items-center gap-2 border border-white/20 shadow-lg group-hover:bg-black/80 transition-colors">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                Trailers
+              </div>
             )}
+
+            {movie.isNowShowing ? (
+              <div className="absolute bottom-0 left-0 w-full bg-black/90 backdrop-blur px-4 py-1.5 text-[11px] font-semibold uppercase text-center tracking-widest text-white z-10">In cinemas</div>
+            ) : movie.isUpcoming ? (
+              <div className="absolute bottom-0 left-0 w-full bg-black px-4 py-2 text-[12px] font-semibold text-center text-white z-10 rounded-b-[8px]">
+                Releasing on {movie.releaseDate ? new Date(movie.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "TBA"}
+              </div>
+            ) : null}
           </div>
           
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 md:gap-5 w-full">
             <h1 className="text-3xl sm:text-4xl md:text-[38px] font-bold text-white leading-tight">{movie.title}</h1>
             
-            <div className="flex items-center gap-3 bg-[#333333] p-3 rounded-[8px] w-fit flex-wrap justify-center shadow-lg">
-              <span className="text-[#F84464] text-xl">★</span>
-              <span className="text-[18px] md:text-[22px] font-bold text-white">{movie.rating?.toFixed(1) || 0}/10</span>
-              <span className="text-[13px] text-slate-300 font-medium ml-2">{reviews.length} Ratings &rsaquo;</span>
-              <button className="bg-white text-[#333333] hover:bg-slate-100 font-semibold px-4 py-2 text-[12px] rounded-[6px] transition-colors ml-4 shadow-sm" onClick={() => document.getElementById("review-section").scrollIntoView({ behavior: "smooth" })}>Rate now</button>
-            </div>
+            {movie.isUpcoming ? (
+              <div className="bg-black border border-white/20 rounded-xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-6 w-full max-w-[450px]">
+                <div className="flex items-start gap-3">
+                  <span className="text-[#4caf50] text-xl mt-0.5"><LuThumbsUp className="fill-current" /></span>
+                  <div className="flex flex-col text-left">
+                    <span className="text-white font-bold text-[15px]">{formatCount(movie.interestCount)} are interested</span>
+                    <span className="text-slate-300 text-[12px] font-medium mt-0.5">Mark interested to know when bookings open</span>
+                  </div>
+                </div>
+                <button
+                  className="bg-transparent hover:bg-white/10 border border-white/50 text-white px-5 py-2 text-[14px] font-semibold rounded-lg transition-all whitespace-nowrap"
+                  onClick={handleInterestClick}
+                >
+                  {user && movie.interestedUsers?.includes(user._id) ? "Interested ✅" : "I'm interested"}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 bg-[#333333] p-3 rounded-[8px] w-fit flex-wrap justify-center shadow-lg">
+                <span className="text-[#F84464] text-xl">★</span>
+                <span className="text-[18px] md:text-[22px] font-bold text-white">{movie.rating?.toFixed(1) || 0}/10</span>
+                <span className="text-[13px] text-slate-300 font-medium ml-2">{reviews.length} Ratings &rsaquo;</span>
+                <button className="bg-white text-[#333333] hover:bg-slate-100 font-semibold px-4 py-2 text-[12px] rounded-[6px] transition-colors ml-4 shadow-sm" onClick={() => document.getElementById("review-section").scrollIntoView({ behavior: "smooth" })}>Rate now</button>
+              </div>
+            )}
 
             <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-1">
               <span className="bg-white/90 text-[#333333] hover:bg-white px-3 py-1.5 text-[12px] font-semibold rounded-[4px] cursor-pointer">2D, 3D, IMAX</span>
@@ -216,7 +249,7 @@ export default function MovieDetails() {
               {movie.trailer && (
                 <button
                   className="w-full sm:w-auto bg-transparent border border-white/40 hover:bg-white/10 text-white px-8 py-3.5 text-[15px] font-semibold rounded-[8px] transition-colors"
-                  onClick={() => setShowTrailerModal(true)}
+                  onClick={() => window.open(movie.trailer, '_blank')}
                 >
                   Watch Trailer
                 </button>
@@ -235,7 +268,7 @@ export default function MovieDetails() {
       </div>
 
       {/* ── Bottom Content Section ── */}
-      <div className="max-w-[1000px] mx-auto px-4 py-8 md:py-12 flex flex-col gap-10">
+      <div className="max-w-[1000px] mx-auto px-4 py-8 md:py-10 flex flex-col gap-8">
         <section className="w-full">
           <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-4">About the movie</h3>
           <p className="text-[14px] md:text-[16px] leading-[1.6] text-[#333333]">{movie.description}</p>
@@ -245,15 +278,15 @@ export default function MovieDetails() {
 
         {movie.cast?.length > 0 && (
           <section className="w-full">
-            <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-6">Cast</h3>
-            <div className="flex gap-6 overflow-x-auto py-2 scrollbar-none">
+            <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-4">Cast</h3>
+            <div className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none">
               {movie.cast.map((c, idx) => (
-                <div key={idx} className="w-24 md:w-[110px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer">
-                  <div className="w-[85px] h-[85px] md:w-[100px] md:h-[100px] rounded-full overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-3 shadow-sm group-hover:shadow-md transition-shadow">
+                <div key={idx} className="w-[90px] md:w-[110px] flex-shrink-0 flex flex-col items-start text-left group cursor-pointer">
+                  <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-2 shadow-sm group-hover:shadow-md transition-shadow">
                     {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" /> : <span>{c.name.charAt(0)}</span>}
                   </div>
-                  <span className="text-[14px] font-medium text-[#333333] w-full block leading-tight">{c.name}</span>
-                  <span className="text-[12px] text-slate-500 mt-1 w-full block">Actor</span>
+                  <span className="text-[13px] md:text-[14px] font-medium text-[#333333] w-full block leading-tight truncate">{c.name}</span>
+                  <span className="text-[12px] text-slate-500 mt-0.5 w-full block truncate">Actor</span>
                 </div>
               ))}
             </div>
@@ -264,24 +297,24 @@ export default function MovieDetails() {
           <>
             <div className="h-[1px] bg-slate-200" />
             <section className="w-full">
-              <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-6">Crew</h3>
-              <div className="flex gap-6 overflow-x-auto py-2 scrollbar-none">
+              <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-4">Crew</h3>
+              <div className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none">
                 {movie.director && !movie.crew?.some(c => c.name === movie.director) && (
-                  <div className="w-24 md:w-[110px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer">
-                    <div className="w-[85px] h-[85px] md:w-[100px] md:h-[100px] rounded-full overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-3 shadow-sm group-hover:shadow-md transition-shadow">
+                  <div className="w-[90px] md:w-[110px] flex-shrink-0 flex flex-col items-start text-left group cursor-pointer">
+                    <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-2 shadow-sm group-hover:shadow-md transition-shadow">
                       <span>{movie.director.charAt(0)}</span>
                     </div>
-                    <span className="text-[14px] font-medium text-[#333333] w-full block leading-tight">{movie.director}</span>
-                    <span className="text-[12px] md:text-[14px] text-slate-500 mt-0.5 w-full block truncate tracking-normal">Director</span>
+                    <span className="text-[13px] md:text-[14px] font-medium text-[#333333] w-full block leading-tight truncate">{movie.director}</span>
+                    <span className="text-[12px] text-slate-500 mt-0.5 w-full block truncate tracking-normal">Director</span>
                   </div>
                 )}
                 {movie.crew?.map((c, idx) => (
-                  <div key={idx} className="w-24 md:w-[110px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer">
-                    <div className="w-[85px] h-[85px] md:w-[100px] md:h-[100px] rounded-full overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-3 shadow-sm group-hover:shadow-md transition-shadow">
+                  <div key={idx} className="w-[90px] md:w-[110px] flex-shrink-0 flex flex-col items-start text-left group cursor-pointer">
+                    <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-2 shadow-sm group-hover:shadow-md transition-shadow">
                       {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" /> : <span>{c.name.charAt(0)}</span>}
                     </div>
-                    <span className="text-[14px] font-medium text-[#333333] w-full block leading-tight">{c.name}</span>
-                    <span className="text-[12px] text-slate-500 mt-1 w-full block">{c.role}</span>
+                    <span className="text-[13px] md:text-[14px] font-medium text-[#333333] w-full block leading-tight truncate">{c.name}</span>
+                    <span className="text-[12px] text-slate-500 mt-0.5 w-full block truncate">{c.role}</span>
                   </div>
                 ))}
               </div>
@@ -425,24 +458,6 @@ export default function MovieDetails() {
         )}
       </div>
 
-      {/* ── Trailer Modal ── */}
-      {showTrailerModal && movie.trailer && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur z-[3000] flex justify-center items-center p-4 md:p-8 animate-fade-in" onClick={() => setShowTrailerModal(false)}>
-          <div className="relative w-full max-w-[960px] aspect-video bg-black rounded-xl overflow-hidden shadow-2xl animate-slide-up" onClick={(e) => e.stopPropagation()}>
-            <button className="absolute top-4 right-4 text-white text-3xl font-light hover:text-bms-accent transition-colors duration-150 z-20 cursor-pointer border-none bg-transparent" onClick={() => setShowTrailerModal(false)}>✕</button>
-            <div className="w-full h-full">
-              <iframe
-                src={`${embedUrl}?autoplay=1`}
-                title="Movie Trailer"
-                frameBorder="0"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

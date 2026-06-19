@@ -6,7 +6,7 @@ const { adminOnly } = require("../middleware/adminMiddleware");
 
 // Controllers
 const { register, login, googleLogin, getProfile, updateProfile, forgotPassword, resetPassword } = require("../controllers/authController");
-const { getAllMovies, getNowShowing, getUpcoming, getPremieres, getEvents, getMovieById, getMovieRecommendations, createMovie, updateMovie, deleteMovie } = require("../controllers/movieController");
+const { getAllMovies, getNowShowing, getUpcoming, getPremieres, getEvents, getMovieById, getMovieRecommendations, createMovie, updateMovie, deleteMovie, toggleMovieInterest } = require("../controllers/movieController");
 const { getAllTheatres, getTheatreById, createTheatre, updateTheatre, deleteTheatre } = require("../controllers/theatreController");
 const { getShowsByMovie, getShowById, getAllShows, createShow, updateShow, deleteShow } = require("../controllers/showController");
 const { createBooking, getUserBookings, getBookingById, cancelBooking, getAllBookings } = require("../controllers/bookingController");
@@ -45,6 +45,7 @@ router.get("/movies/premieres", getPremieres);
 router.get("/movies/events", getEvents);
 router.get("/movies/:id", getMovieById);
 router.get("/movies/:id/recommendations", getMovieRecommendations);
+router.put("/movies/:id/interest", protect, toggleMovieInterest);
 router.post("/movies", protect, adminOnly, createMovie);
 router.put("/movies/:id", protect, adminOnly, updateMovie);
 router.delete("/movies/:id", protect, adminOnly, deleteMovie);

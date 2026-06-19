@@ -127,4 +127,35 @@ const getMovieRecommendations = asyncHandler(async (req, res) => {
   res.json({ success: true, data: recommendations });
 });
 
-module.exports = { getAllMovies, getNowShowing, getUpcoming, getPremieres, getEvents, getMovieById, getMovieRecommendations, createMovie, updateMovie, deleteMovie };
+// @PUT /api/movies/:id/interest
+const toggleMovieInterest = asyncHandler(async (req, res) => {
+  const movie = await Movie.findById(req.params.id);
+  if (!movie) {
+    res.status(404);
+    throw new Error("Movie not found");
+  }
+
+  const userId = req.user._id;
+  const isInterested = movie.interestedUsers.includes(userId);
+
+  if (isInterested) {
+    // Remove interest
+    movie.interestedUsers = movie.interestedUsers.filter(id => id.toString() !== userId.toString());
+    movie.interestCount = Math.max(0, movie.interestCount - 1);
+  } else {
+    // Add interest
+    movie.interestedUsers.push(userId);
+    movie.interestCount += 1;
+  }
+
+  await movie.save();
+
+  res.json({
+    success: true,
+    message: isInterested ? "Removed from interested list" : "Added to interested list",
+    interestCount: movie.interestCount,
+    isInterested: !isInterested
+  });
+});
+
+module.exports = { getAllMovies, getNowShowing, getUpcoming, getPremieres, getEvents, getMovieById, getMovieRecommendations, createMovie, updateMovie, deleteMovie, toggleMovieInterest };
