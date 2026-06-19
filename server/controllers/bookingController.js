@@ -97,6 +97,8 @@ const createBooking = async (req, res) => {
       if (populated.status === "confirmed") {
         sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
           isPremiere: false,
+          bookingId: populated._id,
+          poster: populated.show.movie.poster,
           title: populated.show.movie.title,
           theatre: populated.show.theatre.name + " - " + populated.show.theatre.location,
           date: new Date(populated.show.date).toLocaleDateString(),
@@ -161,6 +163,8 @@ const createBooking = async (req, res) => {
       if (populated.status === "confirmed") {
         sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
           isPremiere: true,
+          bookingId: populated._id,
+          poster: populated.item.poster,
           title: populated.item.title,
           totalAmount: populated.grandTotal
         });

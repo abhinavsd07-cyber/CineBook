@@ -22,6 +22,10 @@ const register = async (req, res) => {
       return res.status(400).json({ success: false, message: "Email already registered" });
 
     const user = await User.create({ name, email, password, phone });
+
+    // Asynchronously send login notification since registration auto-logs them in
+    sendLoginSuccessEmail(user.email, user.name);
+
     res.status(201).json({
       success: true,
       message: "Registered successfully",
