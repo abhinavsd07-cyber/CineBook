@@ -15,8 +15,8 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 4000000
       },
       manifest: {
-        name: 'Book My Show Ticketing',
-        short_name: 'Book My Show',
+        name: 'cineBook Ticketing',
+        short_name: 'cineBook',
         description: 'Book your favorite movies and events.',
         theme_color: '#E50914',
         background_color: '#000000',

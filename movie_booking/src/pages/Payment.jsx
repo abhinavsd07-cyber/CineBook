@@ -42,6 +42,20 @@ function CheckoutForm({ show, premiereItem, selectedSeats, foodItems, grandTotal
     try {
       let stripePaymentIntentId = `zero_amount_${Date.now()}`;
       
+      // PRE-CHECK: Ensure seats are not booked by someone else in the meantime
+      if (show?._id && selectedSeats?.length > 0) {
+        const { getShowById } = await import("../config/allApis");
+        const latestShowRes = await getShowById(show._id);
+        const latestShow = latestShowRes.data.data;
+        for (const seat of selectedSeats) {
+          if (latestShow.seats[seat.type].bookedSeats.includes(seat.id)) {
+            setCardError("Oops! Someone just booked those seats. Please go back and select different seats.");
+            setProcessing(false);
+            return;
+          }
+        }
+      }
+
       if (grandTotal >= 1) {
         const piRes = await createPaymentIntent({ amount: grandTotal });
         const { clientSecret } = piRes.data.data;

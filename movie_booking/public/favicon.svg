@@ -1,0 +1,27 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ticketGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF3A5E" />
+      <stop offset="100%" stop-color="#E50914" />
+    </linearGradient>
+  </defs>
+
+  <!-- Ticket shape sized perfectly for a square favicon -->
+  <path d="M 12 10 
+           L 52 10 
+           A 6 6 0 0 1 58 16
+           L 58 20
+           A 5 5 0 0 0 58 44
+           L 58 48
+           A 6 6 0 0 1 52 54
+           L 12 54 
+           A 6 6 0 0 1 6 48
+           L 6 44
+           A 5 5 0 0 0 6 20
+           L 6 16
+           A 6 6 0 0 1 12 10 Z" 
+        fill="url(#ticketGrad)" />
+
+  <!-- "cB" for cineBook -->
+  <text x="32" y="40" font-family="'Inter', 'Outfit', sans-serif" font-weight="800" font-size="24" fill="#ffffff" letter-spacing="-1" text-anchor="middle">cB</text>
+</svg>

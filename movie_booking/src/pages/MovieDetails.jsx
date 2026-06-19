@@ -111,7 +111,7 @@ export default function MovieDetails() {
   const handleShare = async () => {
     const shareData = {
       title: movie.title,
-      text: `Check out ${movie.title} on Book My Show!`,
+      text: `Check out ${movie.title} on cineBook!`,
       url: window.location.href,
     };
 
@@ -143,7 +143,7 @@ export default function MovieDetails() {
     <div className="pt-[100px] md:pt-[96px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333] transition-colors duration-300">
       <SEO 
         title={movie.title}
-        description={movie.description?.substring(0, 160) || "Book tickets now on Book My Show"}
+        description={movie.description?.substring(0, 160) || "Book tickets now on cineBook"}
         image={movie.poster}
         url={`/movie/${movie._id}`}
       />
@@ -391,7 +391,7 @@ export default function MovieDetails() {
                       </div>
                       <div>
                         <div className="font-bold text-sm text-bms-text">{r.user?.name || "Anonymous"}</div>
-                        <div className="text-[10px] text-bms-text-dim">Booked on Book My Show</div>
+                        <div className="text-[10px] text-bms-text-dim">Booked on cineBook</div>
                       </div>
                     </div>
                     <div className="text-bms-accent font-bold text-sm bg-bms-accent-glow px-2.5 py-1 rounded-full border border-bms-accent/10">

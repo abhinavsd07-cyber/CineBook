@@ -87,7 +87,7 @@ export default function Profile() {
 
   return (
     <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
-      <SEO title="My Profile" description="Manage your Book My Show account and choose your avatar." url="/profile" />
+      <SEO title="My Profile" description="Manage your cineBook account and choose your avatar." url="/profile" />
       
       <div className="container">
         <div className="bg-bms-surface border border-bms-border max-w-[650px] mx-auto p-6 md:p-8 rounded-2xl shadow-xl flex flex-col gap-6">

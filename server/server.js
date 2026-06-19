@@ -56,7 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health Check
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "🎬 Book My Show API is running..." });
+  res.json({ success: true, message: "🎬 cineBook API is running..." });
 });
 
 // API Routes

@@ -49,7 +49,7 @@ export default function EventDetails() {
 
   return (
     <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
-      <SEO title={`${event.title} Tickets | Book My Show`} />
+      <SEO title={`${event.title} Tickets | cineBook`} />
 
       <div className="bg-[#1A202C] dark:bg-[#0E121A] text-white py-10 mb-8 border-b border-white/5">
         <div className="container">

@@ -132,7 +132,7 @@ const sendBookingConfirmationEmail = async (userEmail, userName, bookingDetails)
         </div>
         
         <div style="text-align: center; font-size: 12px; color: #999999;">
-          <p style="margin: 0;">&copy; ${new Date().getFullYear()} Book My Show. All rights reserved.</p>
+          <p style="margin: 0;">&copy; ${new Date().getFullYear()} cineBook. All rights reserved.</p>
         </div>
       </div>
     `;
@@ -154,7 +154,7 @@ const sendBookingConfirmationEmail = async (userEmail, userName, bookingDetails)
     }
 
     const info = await transporter.sendMail({
-      from: `"${process.env.FROM_NAME || 'Book My Show'}" <${process.env.FROM_EMAIL || 'no-reply@bookmyshow.com'}>`,
+      from: `"${process.env.FROM_NAME || 'cineBook'}" <${process.env.FROM_EMAIL || 'no-reply@cinebook.com'}>`,
       to: userEmail,
       subject: "Your Movie Ticket is Confirmed! 🍿",
       html: htmlContent,
@@ -183,17 +183,17 @@ const sendLoginSuccessEmail = async (userEmail, userName) => {
         </div>
         <div style="padding: 32px 24px;">
           <p style="font-size: 18px; margin-bottom: 24px;">Hi ${userName},</p>
-          <p style="font-size: 16px; color: #cccccc; margin-bottom: 24px;">We noticed a new login to your Book My Show account on <strong>${new Date().toLocaleString()}</strong>.</p>
+          <p style="font-size: 16px; color: #cccccc; margin-bottom: 24px;">We noticed a new login to your cineBook account on <strong>${new Date().toLocaleString()}</strong>.</p>
           <p style="font-size: 14px; color: #aaaaaa; margin-bottom: 24px;">If this was you, there's nothing else you need to do. If you don't recognize this activity, please reset your password immediately to protect your account.</p>
         </div>
         <div style="background-color: #0f3460; padding: 16px; text-align: center; font-size: 12px; color: #cccccc;">
-          <p style="margin: 0;">&copy; 2026 Book My Show. All rights reserved.</p>
+          <p style="margin: 0;">&copy; 2026 cineBook. All rights reserved.</p>
         </div>
       </div>
     `;
 
     await transporter.sendMail({
-      from: `"${process.env.FROM_NAME || 'Book My Show'}" <${process.env.FROM_EMAIL || 'no-reply@bookmyshow.com'}>`,
+      from: `"${process.env.FROM_NAME || 'cineBook'}" <${process.env.FROM_EMAIL || 'no-reply@cinebook.com'}>`,
       to: userEmail,
       subject: "New Login to Your Account 🔒",
       html: htmlContent,
@@ -216,7 +216,7 @@ const sendOtpEmail = async (userEmail, userName, otp) => {
         </div>
         <div style="padding: 32px 24px;">
           <p style="font-size: 18px; margin-bottom: 24px;">Hi ${userName},</p>
-          <p style="font-size: 16px; color: #cccccc; margin-bottom: 24px;">You requested a password reset for your Book My Show account. Use the following 6-digit OTP to complete the reset process:</p>
+          <p style="font-size: 16px; color: #cccccc; margin-bottom: 24px;">You requested a password reset for your cineBook account. Use the following 6-digit OTP to complete the reset process:</p>
           <div style="text-align: center; margin: 32px 0;">
             <span style="display: inline-block; background-color: #16213e; border: 2px dashed #F84464; padding: 16px 32px; font-size: 32px; font-weight: bold; letter-spacing: 4px; border-radius: 8px;">${otp}</span>
           </div>
@@ -224,13 +224,13 @@ const sendOtpEmail = async (userEmail, userName, otp) => {
           <p style="font-size: 14px; color: #aaaaaa; margin-bottom: 24px;">If you did not request a password reset, please ignore this email or secure your account.</p>
         </div>
         <div style="background-color: #0f3460; padding: 16px; text-align: center; font-size: 12px; color: #cccccc;">
-          <p style="margin: 0;">&copy; 2026 Book My Show. All rights reserved.</p>
+          <p style="margin: 0;">&copy; 2026 cineBook. All rights reserved.</p>
         </div>
       </div>
     `;
 
     await transporter.sendMail({
-      from: `"${process.env.FROM_NAME || 'Book My Show'}" <${process.env.FROM_EMAIL || 'no-reply@bookmyshow.com'}>`,
+      from: `"${process.env.FROM_NAME || 'cineBook'}" <${process.env.FROM_EMAIL || 'no-reply@cinebook.com'}>`,
       to: userEmail,
       subject: "Your Password Reset OTP 🔐",
       html: htmlContent,

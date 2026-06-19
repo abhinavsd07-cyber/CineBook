@@ -26,7 +26,7 @@ export default function Stream() {
 
   return (
     <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-[#121528] text-white transition-colors duration-300">
-      <SEO title="Stream - Rent or Buy Latest Movies | Book My Show" />
+      <SEO title="Stream - Rent or Buy Latest Movies | cineBook" />
       
       <section className="relative min-h-[220px] bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 py-12 mb-10 flex items-center">
         <div className="absolute inset-0 bg-black/40" />

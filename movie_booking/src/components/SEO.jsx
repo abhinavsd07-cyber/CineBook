@@ -2,11 +2,11 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 export default function SEO({ title, description, image, url }) {
-  const defaultTitle = "Book My Show - Book Tickets & Premieres";
-  const defaultDescription = "Discover the latest movies, book tickets, and rent exclusive premieres instantly on Book My Show.";
+  const defaultTitle = "cineBook - Book Tickets & Premieres";
+  const defaultDescription = "Discover the latest movies, book tickets, and rent exclusive premieres instantly on cineBook.";
   const defaultImage = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=1200";
 
-  const seoTitle = title ? `${title} - Book My Show` : defaultTitle;
+  const seoTitle = title ? `${title} - cineBook` : defaultTitle;
   const seoDescription = description || defaultDescription;
   const seoImage = image || defaultImage;
   const seoUrl = url ? `http://localhost:5173${url}` : "http://localhost:5173";

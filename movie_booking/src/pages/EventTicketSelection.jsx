@@ -81,7 +81,7 @@ export default function EventTicketSelection() {
 
   return (
     <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
-      <SEO title={`Tickets for ${event.title} | Book My Show`} />
+      <SEO title={`Tickets for ${event.title} | cineBook`} />
       
       <div className="bg-[#1A202C] dark:bg-[#0E121A] text-white py-6 mb-8 border-b border-white/5">
         <div className="container">

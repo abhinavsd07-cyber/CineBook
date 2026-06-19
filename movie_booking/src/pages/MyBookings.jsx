@@ -239,7 +239,7 @@ export default function MyBookings() {
                   {/* Hidden PDF Ticket Template */}
                   <div id={`ticket-${b._id}`} style={{ position: "absolute", visibility: "hidden", pointerEvents: "none", width: "400px", padding: "30px", background: "#ffffff", color: "#000000", fontFamily: "sans-serif", borderRadius: "12px", border: "1px solid #e0e0e0" }}>
                     <div style={{ textAlign: "center", borderBottom: "2px dashed #cccccc", paddingBottom: "15px", marginBottom: "20px" }}>
-                      <h1 style={{ margin: 0, color: "#F84464", fontSize: "28px", letterSpacing: "2px" }}>Book My Show</h1>
+                      <h1 style={{ margin: 0, color: "#F84464", fontSize: "28px", letterSpacing: "2px" }}>cineBook</h1>
                       <p style={{ margin: "5px 0 0 0", fontSize: "12px", color: "#666666", textTransform: "uppercase", letterSpacing: "4px" }}>Admit One</p>
                     </div>
                     

@@ -1,0 +1,19 @@
+<svg width="250" height="80" viewBox="0 0 250 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- "cine" text -->
+  <text x="10" y="55" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="bold" font-size="44" fill="currentColor" letter-spacing="-1">cine</text>
+
+  <!-- Ticket Shape Background for "Book" -->
+  <path d="M 105 20 
+           L 240 20 
+           A 5 5 0 0 0 240 30 
+           A 5 5 0 0 1 240 50 
+           A 5 5 0 0 0 240 60 
+           L 105 60 
+           A 5 5 0 0 0 105 50 
+           A 5 5 0 0 1 105 30 
+           A 5 5 0 0 0 105 20 Z" 
+        fill="#E2202C" />
+
+  <!-- "Book" text inside the ticket -->
+  <text x="125" y="52" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="bold" font-size="34" fill="#ffffff">Book</text>
+</svg>
