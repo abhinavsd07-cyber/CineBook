@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { forgotPassword } from "../config/allApis";
 import { toast } from "react-toastify";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       await forgotPassword({ email });
-      toast.success("✅ If that email exists, we have sent a password reset link.", {
+      toast.success("✅ If that email exists, an OTP has been sent.", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -22,6 +23,7 @@ export default function ForgotPassword() {
         theme: "light",
       });
       setEmail("");
+      navigate("/reset-password");
     } catch (err) {
       toast.error(err.response?.data?.message || "❌ Failed to send reset link", {
         position: "top-right",
@@ -43,7 +45,7 @@ export default function ForgotPassword() {
         <div className="bg-bms-surface border border-bms-border p-8 rounded-2xl shadow-xl flex flex-col gap-6">
           <div className="text-center flex flex-col gap-1.5">
             <h2 className="text-2xl font-bold text-bms-text">Forgot Password</h2>
-            <p className="text-xs text-bms-text-muted">Enter your email to receive a password reset link.</p>
+            <p className="text-xs text-bms-text-muted">Enter your email to receive a 6-digit OTP.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -62,7 +64,7 @@ export default function ForgotPassword() {
             <button type="submit" className="bg-bms-accent hover:bg-bms-accent-hover text-white py-3 rounded-lg font-bold w-full shadow-lg transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-2 mt-2 disabled:opacity-50" disabled={loading}>
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : "Send Reset Link"}
+              ) : "Send OTP"}
             </button>
           </form>
 

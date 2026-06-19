@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const crypto = require("crypto");
 const { sendEmail } = require("../utils/sendEmail");
+const { sendLoginSuccessEmail, sendOtpEmail } = require("../utils/emailService");
 const { OAuth2Client } = require("google-auth-library");
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -48,6 +49,9 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user || !(await user.comparePassword(password)))
       return res.status(401).json({ success: false, message: "Invalid credentials" });
+
+    // Asynchronously send login notification email
+    sendLoginSuccessEmail(user.email, user.name);
 
     res.json({
       success: true,
@@ -151,30 +155,15 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    const resetToken = crypto.randomBytes(20).toString("hex");
-    user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordToken = crypto.createHash("sha256").update(otp).digest("hex");
     user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
-
-    const message = `
-      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-        <h2>Password Reset Request</h2>
-        <p>You requested a password reset. Click the button below to reset your password. This link is valid for 10 minutes.</p>
-        <a href="${resetUrl}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;">Reset Password</a>
-        <p style="margin-top: 20px; font-size: 0.8rem; color: #777;">If you did not request this, please ignore this email.</p>
-      </div>
-    `;
-
     try {
-      await sendEmail({
-        email: user.email,
-        subject: "Book My Show - Password Reset",
-        html: message,
-      });
-      res.json({ success: true, message: "Email sent" });
+      await sendOtpEmail(user.email, user.name, otp);
+      res.json({ success: true, message: "OTP sent to your email" });
     } catch (err) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpire = undefined;

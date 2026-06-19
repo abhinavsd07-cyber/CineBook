@@ -73,7 +73,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/profile" element={<UserLayout><Profile /></UserLayout>} />
           <Route path="/movie/:id" element={<UserLayout><MovieDetails /></UserLayout>} />
           <Route path="/events/:id" element={<UserLayout><EventDetails /></UserLayout>} />

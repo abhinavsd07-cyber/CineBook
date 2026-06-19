@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { resetPassword } from "../config/allApis";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { toast } from "react-toastify";
 
 export default function ResetPassword() {
-  const { token } = useParams();
   const navigate = useNavigate();
+  const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,9 +27,21 @@ export default function ResetPassword() {
       });
       return;
     }
+    if (otp.length !== 6) {
+      toast.error("❌ OTP must be 6 digits", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+      });
+      return;
+    }
     setLoading(true);
     try {
-      await resetPassword(token, { password });
+      await resetPassword(otp, { password });
       toast.success("🎉 Password reset successful! Redirecting to login...", {
         position: "top-right",
         autoClose: 3000,
@@ -42,7 +54,7 @@ export default function ResetPassword() {
       });
       setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "❌ Invalid or expired token", {
+      toast.error(err.response?.data?.message || "❌ Invalid or expired OTP", {
         position: "top-right",
         autoClose: 5000,
         hideProgressBar: false,
@@ -62,10 +74,22 @@ export default function ResetPassword() {
         <div className="bg-bms-surface border border-bms-border p-8 rounded-2xl shadow-xl flex flex-col gap-6">
           <div className="text-center flex flex-col gap-1.5">
             <h2 className="text-2xl font-bold text-bms-text">Create New Password</h2>
-            <p className="text-xs text-bms-text-muted">Please enter a new strong password below.</p>
+            <p className="text-xs text-bms-text-muted">Enter the 6-digit OTP sent to your email and a new password.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-bms-text-muted">6-Digit OTP</label>
+              <input 
+                type="text" 
+                className="w-full px-3 py-2.5 text-sm bg-bms-bg border border-bms-border rounded-lg text-bms-text placeholder-bms-text-dim outline-none focus:border-bms-accent transition-colors duration-150 tracking-widest" 
+                value={otp} 
+                onChange={(e) => setOtp(e.target.value)} 
+                required 
+                maxLength="6"
+                placeholder="000000"
+              />
+            </div>
             <div className="flex flex-col gap-2">
               <label className="text-xs font-semibold text-bms-text-muted">New Password</label>
               <div className="relative">
