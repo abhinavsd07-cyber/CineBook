@@ -16,8 +16,8 @@ import {
   LuClock,
 } from "react-icons/lu";
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -40,54 +40,53 @@ const STATUS_COLORS = {
   Pending:   "#F59E0B",
 };
 
-/* ─── Stat card config ───────────────────────────────────────────────── */
 const makeStatCards = (stats) => [
   {
     label: "Total Revenue",
     value: `₹${(stats?.totalRevenue || 0).toLocaleString("en-IN")}`,
     icon: LuIndianRupee,
-    color: "#F84464",
-    bg: "#FFF1F4",
+    gradient: "from-pink-500 to-rose-500",
+    shadow: "shadow-rose-200",
     trend: "+12.4%",
   },
   {
     label: "Total Bookings",
     value: stats?.totalBookings || 0,
     icon: LuTicket,
-    color: "#6366F1",
-    bg: "#F0F0FF",
+    gradient: "from-indigo-500 to-purple-500",
+    shadow: "shadow-indigo-200",
     trend: "+8.1%",
   },
   {
     label: "Total Users",
     value: stats?.totalUsers || 0,
     icon: LuUsers,
-    color: "#0EA5E9",
-    bg: "#F0F9FF",
+    gradient: "from-sky-400 to-blue-500",
+    shadow: "shadow-blue-200",
     trend: "+5.3%",
   },
   {
     label: "Total Movies",
     value: stats?.totalMovies || 0,
     icon: LuClapperboard,
-    color: "#8B5CF6",
-    bg: "#F5F3FF",
+    gradient: "from-violet-500 to-fuchsia-500",
+    shadow: "shadow-violet-200",
     trend: "+2",
   },
   {
     label: "Theatres",
     value: stats?.totalTheatres || 0,
     icon: LuBuilding2,
-    color: "#F59E0B",
-    bg: "#FFFBEB",
+    gradient: "from-amber-400 to-orange-500",
+    shadow: "shadow-amber-200",
     trend: "Stable",
   },
   {
     label: "Active Shows",
     value: stats?.totalShows || 0,
     icon: LuCalendarDays,
-    color: "#10B981",
-    bg: "#F0FDF4",
+    gradient: "from-emerald-400 to-teal-500",
+    shadow: "shadow-emerald-200",
     trend: "+31",
   },
 ];
@@ -257,51 +256,55 @@ export default function Dashboard() {
       </div>
 
       {/* ── KPI stat cards ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-        {statCards.map(({ label, value, icon: Icon, color, bg, trend }) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
+        {statCards.map(({ label, value, icon: Icon, gradient, shadow, trend }) => (
           <div
             key={label}
-            className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col gap-3"
+            className={`bg-gradient-to-br ${gradient} rounded-2xl p-5 shadow-lg ${shadow} hover:-translate-y-1 transition-all duration-300 flex flex-col gap-4 text-white relative overflow-hidden group`}
           >
-            {/* Icon */}
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: bg }}
-            >
-              <Icon size={17} style={{ color }} />
+            {/* Background Decoration */}
+            <div className="absolute -right-4 -top-4 opacity-20 pointer-events-none group-hover:scale-110 transition-transform duration-500">
+              <Icon size={90} />
             </div>
 
-            {/* Value + label */}
-            <div>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{label}</p>
-              <p className="text-xl font-bold text-slate-900 mt-0.5 leading-none">{value}</p>
+            <div className="flex items-start justify-between relative z-10">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 backdrop-blur-sm shadow-inner">
+                <Icon size={20} className="text-white" />
+              </div>
+              <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold shadow-sm">
+                <LuArrowUpRight size={12} />
+                <span>{trend}</span>
+              </div>
             </div>
 
-            {/* Trend badge */}
-            <div className="flex items-center gap-1">
-              <LuArrowUpRight size={11} style={{ color }} />
-              <span className="text-[10px] font-semibold" style={{ color }}>{trend}</span>
+            <div className="relative z-10 mt-2">
+              <p className="text-3xl font-extrabold mb-1 drop-shadow-md">{value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-white/90">{label}</p>
             </div>
           </div>
         ))}
       </div>
 
       {/* ── Quick insights ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         {[
           {
             label: "Avg Transaction Value",
             value: `₹${avgTransaction.toLocaleString("en-IN")}`,
             icon: LuWallet,
             sub: "per booking",
-            color: "#F84464",
+            gradient: "from-rose-50 to-pink-50",
+            iconColor: "#e11d48",
+            iconBg: "bg-rose-100",
           },
           {
             label: "System Health",
             value: "Healthy",
             sub: "99.9% uptime",
             icon: LuActivity,
-            color: "#10B981",
+            gradient: "from-emerald-50 to-teal-50",
+            iconColor: "#059669",
+            iconBg: "bg-emerald-100",
             green: true,
           },
           {
@@ -309,34 +312,25 @@ export default function Dashboard() {
             value: `${bookingRatio}×`,
             sub: "bookings per user",
             icon: LuUsers,
-            color: "#6366F1",
+            gradient: "from-indigo-50 to-blue-50",
+            iconColor: "#4f46e5",
+            iconBg: "bg-indigo-100",
           },
-        ].map(({ label, value, sub, icon: Icon, color, green }) => (
+        ].map(({ label, value, sub, icon: Icon, gradient, iconColor, iconBg, green }) => (
           <div
             key={label}
-            className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-center justify-between gap-3"
+            className={`bg-gradient-to-br ${gradient} border border-white/60 rounded-2xl p-5 shadow-sm flex items-center justify-between gap-4 transition-transform hover:scale-[1.02]`}
           >
             <div>
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
-              <p
-                className="text-lg font-bold leading-tight"
-                style={{ color: green ? color : "inherit" }}
-              >
-                {green && (
-                  <span
-                    className="inline-block w-2 h-2 rounded-full mr-1.5 align-middle"
-                    style={{ backgroundColor: color }}
-                  />
-                )}
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{label}</p>
+              <p className="text-2xl font-extrabold text-slate-800 leading-tight flex items-center gap-2">
+                {green && <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />}
                 {value}
               </p>
-              <p className="text-xs text-slate-400 mt-0.5">{sub}</p>
+              <p className="text-xs text-slate-500 mt-1 font-medium">{sub}</p>
             </div>
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: `${color}15` }}
-            >
-              <Icon size={18} style={{ color }} />
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner ${iconBg}`}>
+              <Icon size={22} style={{ color: iconColor }} />
             </div>
           </div>
         ))}
@@ -369,42 +363,35 @@ export default function Dashboard() {
           <div className="h-[280px]">
             {revenue.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={revenue} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
-                  <defs>
-                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor={ACCENT} stopOpacity={0.15} />
-                      <stop offset="100%" stopColor={ACCENT} stopOpacity={0}    />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                <LineChart data={revenue} margin={{ top: 15, right: 15, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
                   <XAxis
                     dataKey="monthName"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "#94A3B8", fontWeight: 500 }}
+                    tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
                     dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "#94A3B8", fontWeight: 500 }}
+                    tick={{ fontSize: 12, fill: "#64748b", fontWeight: 600 }}
                     tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
-                    dx={-8}
+                    dx={-10}
                   />
                   <Tooltip
                     content={<RevenueTooltip />}
-                    cursor={{ stroke: ACCENT, strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.4 }}
+                    cursor={{ stroke: ACCENT, strokeWidth: 1, strokeDasharray: "4 4", opacity: 0.5 }}
                   />
-                  <Area
+                  <Line
                     type="monotone"
                     dataKey="revenue"
                     stroke={ACCENT}
-                    strokeWidth={2.5}
-                    fill="url(#revGrad)"
-                    dot={false}
-                    activeDot={{ r: 5, fill: ACCENT, strokeWidth: 2.5, stroke: "#fff" }}
+                    strokeWidth={4}
+                    dot={{ r: 5, fill: "#fff", strokeWidth: 3, stroke: ACCENT }}
+                    activeDot={{ r: 7, fill: ACCENT, strokeWidth: 3, stroke: "#fff" }}
                   />
-                </AreaChart>
+                </LineChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-full items-center justify-center text-slate-400 text-sm font-medium">
