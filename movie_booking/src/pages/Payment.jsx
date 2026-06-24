@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
@@ -95,6 +96,7 @@ function CheckoutForm({ show, premiereItem, selectedSeats, foodItems, grandTotal
 
   return (
     <form onSubmit={handleSubmit} className="mt-4">
+      <SEO title="Secure Payment | cineBook" description="Complete your booking securely." />
       <div className="mb-4">
         <label className="block text-[13px] font-medium text-[#333333] mb-2" htmlFor="cardholder-name">Cardholder Name</label>
         <input

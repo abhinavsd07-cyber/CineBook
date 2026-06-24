@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { loginUser, googleLoginUser } from "../config/allApis";
@@ -64,6 +65,7 @@ export default function Login() {
 
   return (
     <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-[#f2f5f9] text-[#333333] transition-colors duration-300">
+      <SEO title="Login | cineBook" description="Login to your cineBook account to book tickets." />
       <div className="w-full max-w-[440px] px-4">
         <div className="bg-white border border-slate-200 p-8 rounded-[8px] shadow-sm flex flex-col gap-6">
           <div className="text-center flex flex-col gap-1.5">

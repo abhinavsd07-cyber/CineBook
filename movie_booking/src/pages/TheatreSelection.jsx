@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getShowsByMovie, getMovieById } from "../config/allApis";
@@ -71,6 +72,7 @@ export default function TheatreSelection() {
 
   return (
     <div className="pt-[110px] md:pt-[125px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333]">
+      <SEO title="Select Theatre & Show | cineBook" description="Pick the best theatre and showtime." />
       {/* ── Movie Info Bar ── */}
       {movie && (
         <div className="bg-[#333545] py-8 text-white mb-6 border-b border-white/5">

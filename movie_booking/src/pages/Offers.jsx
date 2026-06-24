@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useState } from "react";
 import { LuSearch, LuCreditCard, LuSmartphone, LuWallet, LuClock, LuTicket, LuClapperboard } from "react-icons/lu";
 
@@ -152,6 +153,7 @@ export default function Offers() {
 
   return (
     <div className="pt-[105px] md:pt-[120px] pb-16 min-h-[calc(100vh-100px)] bg-[#f2f5f9] text-[#333333] font-sans">
+      <SEO title="Exclusive Offers | cineBook" description="Discover the best offers and discounts on movie tickets." />
       <div className="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row gap-6 items-start">
         
         {/* Left Sidebar */}

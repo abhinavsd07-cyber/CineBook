@@ -77,43 +77,64 @@ export default function AdminDashboard() {
 
         {/* KPI Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
-            <div className="w-12 h-12 rounded-xl bg-bms-accent/10 text-bms-accent flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-              <LuIndianRupee />
+          {/* Modern Stat Cards */}
+          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#FFE4E6] text-[#E11D48] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                <LuIndianRupee />
+              </div>
+              <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700">
+                <LuTrendingUp className="text-[10px]" /> +12.4%
+              </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Total Revenue</p>
-              <h3 className="text-2xl font-bold text-bms-text">₹{data.kpis.totalRevenue.toLocaleString("en-IN")}</h3>
+              <h3 className="text-3xl font-bold text-bms-text mb-1">₹{data.kpis.totalRevenue.toLocaleString("en-IN")}</h3>
+              <p className="text-sm font-medium text-bms-text-dim">Total Revenue</p>
             </div>
           </div>
 
-          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
-            <div className="w-12 h-12 rounded-xl bg-[#3b82f6]/10 text-[#3b82f6] flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-              <LuTicket />
+          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#E0E7FF] text-[#4F46E5] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                <LuTicket />
+              </div>
+              <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700">
+                <LuTrendingUp className="text-[10px]" /> +8.1%
+              </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Tickets Sold</p>
-              <h3 className="text-2xl font-bold text-bms-text">{data.kpis.totalTickets}</h3>
+              <h3 className="text-3xl font-bold text-bms-text mb-1">{data.kpis.totalTickets}</h3>
+              <p className="text-sm font-medium text-bms-text-dim">Tickets Sold</p>
             </div>
           </div>
 
-          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
-            <div className="w-12 h-12 rounded-xl bg-[#10b981]/10 text-[#10b981] flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-              <LuTrendingUp />
+          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                <LuTrendingUp />
+              </div>
+              <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700">
+                <LuTrendingUp className="text-[10px]" /> +18.2%
+              </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Total Bookings</p>
-              <h3 className="text-2xl font-bold text-bms-text">{data.kpis.totalBookings}</h3>
+              <h3 className="text-3xl font-bold text-bms-text mb-1">{data.kpis.totalBookings}</h3>
+              <p className="text-sm font-medium text-bms-text-dim">Total Bookings</p>
             </div>
           </div>
 
-          <div className="bg-bms-surface border border-bms-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center gap-5 group">
-            <div className="w-12 h-12 rounded-xl bg-[#8b5cf6]/10 text-[#8b5cf6] flex items-center justify-center text-xl group-hover:scale-110 transition-transform duration-300">
-              <LuUsers />
+          <div className="bg-bms-surface border border-bms-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-[#F3E8FF] text-[#9333EA] flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300">
+                <LuUsers />
+              </div>
+              <div className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 text-green-700">
+                <LuTrendingUp className="text-[10px]" /> +5.3%
+              </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-bms-text-dim uppercase tracking-wider mb-1">Active Users</p>
-              <h3 className="text-2xl font-bold text-bms-text">{data.kpis.totalUsers}</h3>
+              <h3 className="text-3xl font-bold text-bms-text mb-1">{data.kpis.totalUsers}</h3>
+              <p className="text-sm font-medium text-bms-text-dim">Active Users</p>
             </div>
           </div>
         </div>
@@ -232,7 +253,11 @@ export default function AdminDashboard() {
                       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
                     }} 
                   />
-                  <Bar dataKey="revenue" fill="url(#barGradient)" radius={[0, 6, 6, 0]} />
+                  <Bar dataKey="revenue" radius={[0, 6, 6, 0]}>
+                    {data.popularMovies.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={['#EF4444', '#A855F7', '#6366F1', '#3B82F6', '#8B5CF6'][index % 5]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getShowById } from "../config/allApis";
@@ -137,6 +138,7 @@ export default function SeatSelection() {
 
   if (loading) return (
     <div className="flex justify-center items-center py-48 bg-bms-bg min-h-[80vh]">
+      <SEO title="Select Seats | cineBook" description="Choose your preferred seats for the show." />
       <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
     </div>
   );

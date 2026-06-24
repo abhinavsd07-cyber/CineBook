@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useEffect, useState } from "react";
 import { getUserBookings, cancelBooking } from "../config/allApis";
 import { LuTicket, LuFilm, LuBuilding2, LuCalendar, LuClock, LuDownload, LuCalendarDays } from "react-icons/lu";
@@ -110,6 +111,7 @@ export default function MyBookings() {
 
   if (loading) return (
     <div className="flex justify-center items-center py-48 bg-bms-bg min-h-[80vh]">
+      <SEO title="My Bookings | cineBook" description="View your upcoming and past bookings on cineBook." />
       <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
     </div>
   );

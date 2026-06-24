@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
@@ -79,6 +80,7 @@ END:VCALENDAR`;
 
   return (
     <div className="pt-[68px] md:pt-[110px] pb-16 min-h-[calc(100vh-300px)] bg-bms-bg text-bms-text transition-colors duration-300">
+      <SEO title="Booking Confirmed | cineBook" description="Your movie tickets are confirmed!" />
       <div className="container max-w-[650px] mx-auto py-10 px-4 flex flex-col items-center">
         {/* Success Header */}
         <div className="text-center flex flex-col items-center gap-2.5 mb-8 animate-fade-in">

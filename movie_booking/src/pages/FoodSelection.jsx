@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAllFoodItems } from "../config/allApis";
@@ -64,6 +65,7 @@ export default function FoodSelection() {
 
   return (
     <div style={{ background: "#f0f2f5", minHeight: "100vh", fontFamily: "sans-serif" }}>
+      <SEO title="Grab a Bite | cineBook" description="Select your favorite snacks and beverages." />
 
       {/* ── Top bar ── */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e2e2", padding: "12px 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }} className="mt-5">

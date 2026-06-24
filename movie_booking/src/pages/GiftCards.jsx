@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import { useState } from "react";
 
 const FILTERS = ["All", "Entertaining Gifts", "Bestie Gifts", "Made with Love"];
@@ -23,6 +24,7 @@ export default function CineBookGiftCards() {
 
   return (
     <div style={{ fontFamily: "sans-serif", background: "#f2f2f2", minHeight: "100vh" }}>
+      <SEO title="Gift Cards | cineBook" description="Gift entertainment with cineBook gift cards." />
       {/* Top Nav */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e8e8e8", padding: "0 24px", display: "flex", alignItems: "center", height: 56, gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center" }}>

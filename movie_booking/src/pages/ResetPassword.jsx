@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { resetPassword } from "../config/allApis";
@@ -70,6 +71,7 @@ export default function ResetPassword() {
 
   return (
     <div className="flex items-center justify-center pt-24 pb-16 min-h-[100vh] bg-bms-bg text-bms-text transition-colors duration-300">
+      <SEO title="Reset Password | cineBook" description="Set a new password for your account." />
       <div className="w-full max-w-[440px] px-4">
         <div className="bg-bms-surface border border-bms-border p-8 rounded-2xl shadow-xl flex flex-col gap-6">
           <div className="text-center flex flex-col gap-1.5">

@@ -1,3 +1,4 @@
+import SEO from "../components/SEO";
 import React, { useState, useEffect } from "react";
 import HeroCarousel from "../components/HeroCarousel"
 // ─── SVG ICONS ───────────────────────────────────────────────────────────────
@@ -191,6 +192,7 @@ export default function ListYourShow() {
 
   return (
     <div className="font-['Inter',-apple-system,BlinkMacSystemFont,'Segoe_UI',sans-serif] bg-white text-[#1f253a] min-h-screen">
+      <SEO title="List Your Show | cineBook" description="Host your event or show with cineBook." />
       
       {/* ── NAVBAR ── */}
       <div className="bg-white border-b border-gray-200 px-10 flex items-center h-[62px] sticky top-0 z-[200] gap-6">
