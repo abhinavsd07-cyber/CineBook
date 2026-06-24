@@ -250,7 +250,7 @@ const getAllBookings = async (req, res) => {
     let bookings = await Booking.find(filter)
       .populate({ path: "show", populate: [{ path: "movie", select: "title poster" }, { path: "theatre", select: "name location" }] })
       .populate("item", "title poster itemType")
-      .populate("user", "name email phone")
+      .populate("user", "name email phone avatar")
       .sort({ createdAt: -1 });
 
     if (movieId) {
