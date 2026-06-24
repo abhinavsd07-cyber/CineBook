@@ -2,7 +2,7 @@ import SEO from "../components/SEO";
 import React, { useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas-pro";
+import * as htmlToImage from 'html-to-image';
 import { LuCircleCheck, LuFilm, LuDownload, LuTicket, LuHouse, LuCalendar } from "react-icons/lu";
 import { QRCodeCanvas } from 'qrcode.react';
 import BASE_URL from "../config/baseUrl";
@@ -59,11 +59,13 @@ export default function PaymentSuccess() {
     });
     await Promise.all(promises);
 
-    const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#12121E", useCORS: true });
-    const img = canvas.toDataURL("image/png");
+    const img = await htmlToImage.toPng(el, { pixelRatio: 2, backgroundColor: "#12121E" });
     const pdf = new jsPDF("p", "mm", "a5");
     const w = pdf.internal.pageSize.getWidth() - 20;
-    const h = (canvas.height * w) / canvas.width;
+    // Assuming aspect ratio of 580x420 roughly for the ticket
+    // To get the exact height, we can create an image object from the data URL, but html-to-image usually outputs exactly the dimensions of the element * pixelRatio
+    const imgProps = pdf.getImageProperties(img);
+    const h = (imgProps.height * w) / imgProps.width;
     pdf.addImage(img, "PNG", 10, 10, w, h);
     pdf.save(`cineBook_${booking.bookingId}.pdf`);
   };

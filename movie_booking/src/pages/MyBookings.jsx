@@ -2,7 +2,7 @@ import SEO from "../components/SEO";
 import React, { useEffect, useState } from "react";
 import { getUserBookings, cancelBooking } from "../config/allApis";
 import { LuTicket, LuFilm, LuBuilding2, LuCalendar, LuClock, LuDownload, LuCalendarDays } from "react-icons/lu";
-import html2canvas from "html2canvas-pro";
+import * as htmlToImage from 'html-to-image';
 import { jsPDF } from "jspdf";
 import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "react-toastify";
@@ -78,11 +78,11 @@ export default function MyBookings() {
       });
       await Promise.all(promises);
 
-      const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#12121E", useCORS: true });
-      const img = canvas.toDataURL("image/png");
+      const img = await htmlToImage.toPng(element, { pixelRatio: 2, backgroundColor: "#12121E" });
       const pdf = new jsPDF("p", "mm", "a5");
       const w = pdf.internal.pageSize.getWidth() - 20;
-      const h = (canvas.height * w) / canvas.width;
+      const imgProps = pdf.getImageProperties(img);
+      const h = (imgProps.height * w) / imgProps.width;
       pdf.addImage(img, "PNG", 10, 10, w, h);
       pdf.save(`cineBook_${bookingId}.pdf`);
     } catch (err) {
