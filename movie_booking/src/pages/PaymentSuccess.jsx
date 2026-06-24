@@ -345,7 +345,7 @@ END:VCALENDAR`;
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row flex-wrap gap-3.5 w-full justify-center mt-2 animate-fade-in">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3.5 w-full justify-center mt-2 animate-fade-in relative z-50">
           <button className="bg-bms-accent hover:bg-bms-accent-hover text-white px-6 py-2.5 text-xs font-bold rounded-lg shadow-md transition-all duration-200 cursor-pointer border-none flex items-center justify-center gap-1.5" onClick={downloadTicket} id="download-ticket-btn">
             <LuDownload /> Download Ticket PDF
           </button>
