@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import axios from "axios";
+import axiosInstance from "../config/axiosConfig";
 import SEO from "../components/SEO";
 
 export default function TicketScanner() {
@@ -23,15 +23,12 @@ export default function TicketScanner() {
       setMessage("Verifying ticket...");
 
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.post(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/admin/verify-ticket/${decodedText}`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await axiosInstance.post(`/admin/verify-ticket/${decodedText}`);
 
         setStatus("success");
-        setMessage(`✅ ${res.data.message}\nUser: ${res.data.data.user}\nSeats: ${res.data.data.seats.join(", ")}`);
+        const details = res.data.data;
+        const seatsStr = details.seats && details.seats.length > 0 ? details.seats.join(", ") : "No seats allocated";
+        setMessage(`✅ ${res.data.message}\n\nShow: ${details.title}\nUser: ${details.user}\nSeats: ${seatsStr}`);
         
         // Play success sound
         const audio = new Audio("https://actions.google.com/sounds/v1/ui/beep_short.ogg");

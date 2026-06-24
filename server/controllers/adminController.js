@@ -219,7 +219,13 @@ exports.getAllBookings = async (req, res) => {
 exports.verifyTicket = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    const booking = await Booking.findById(bookingId).populate("user", "name email").populate("show");
+    const booking = await Booking.findById(bookingId)
+      .populate("user", "name email")
+      .populate("item", "title itemType")
+      .populate({
+        path: "show",
+        populate: { path: "movie", select: "title" }
+      });
 
     if (!booking) {
       return res.status(404).json({ success: false, message: "Ticket not found" });
@@ -237,13 +243,16 @@ exports.verifyTicket = async (req, res) => {
     booking.isScanned = true;
     await booking.save();
 
+    const title = booking.show?.movie?.title || booking.item?.title || "Unknown Show";
+
     res.status(200).json({
       success: true,
       message: "Ticket Verified Successfully! Admit guest.",
       data: {
         bookingId: booking._id,
         user: booking.user.name,
-        seats: booking.seats,
+        title,
+        seats: booking.seats.map(s => s.seatNumber),
         foodItems: booking.foodItems
       }
     });
