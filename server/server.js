@@ -21,9 +21,16 @@ const app = express();
 const server = http.createServer(app);
 
 // Setup Socket.io
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", process.env.CLIENT_URL],
+    origin: allowedOrigins,
     credentials: true
   }
 });
@@ -74,7 +81,7 @@ io.on("connection", (socket) => {
 });
 
 // Middleware
-app.use(cors({ origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", process.env.CLIENT_URL], credentials: true }));
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
