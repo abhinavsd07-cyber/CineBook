@@ -28,24 +28,48 @@ const io = new Server(server, {
   }
 });
 
+app.set("socketio", io);
+
+// In-memory store for active temporary locks: { [showId]: { [seatId]: socketId } }
+const lockedSeats = {};
+
 io.on("connection", (socket) => {
   // console.log(`Socket connected: ${socket.id}`);
   
   socket.on("joinShow", (showId) => {
     socket.join(showId);
+    // Send currently locked seats in this show room to the joining client
+    const currentLocks = lockedSeats[showId] ? Object.keys(lockedSeats[showId]) : [];
+    socket.emit("currentLocks", currentLocks);
   });
 
   socket.on("lockSeat", ({ showId, seatId }) => {
+    if (!lockedSeats[showId]) {
+      lockedSeats[showId] = {};
+    }
+    lockedSeats[showId][seatId] = socket.id;
     // Broadcast to others in the same show room
     socket.to(showId).emit("seatLocked", { seatId, by: socket.id });
   });
 
   socket.on("unlockSeat", ({ showId, seatId }) => {
+    if (lockedSeats[showId] && lockedSeats[showId][seatId] === socket.id) {
+      delete lockedSeats[showId][seatId];
+    }
+    // Broadcast to others in the same show room
     socket.to(showId).emit("seatUnlocked", { seatId, by: socket.id });
   });
 
   socket.on("disconnect", () => {
-    // console.log(`Socket disconnected: ${socket.id}`);
+    // Find all seats locked by this socket ID across all shows and unlock them
+    for (const showId in lockedSeats) {
+      for (const seatId in lockedSeats[showId]) {
+        if (lockedSeats[showId][seatId] === socket.id) {
+          delete lockedSeats[showId][seatId];
+          io.to(showId).emit("seatUnlocked", { seatId, by: socket.id });
+        }
+      }
+    }
   });
 });
 

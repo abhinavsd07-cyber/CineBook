@@ -69,12 +69,65 @@ export default function SeatSelection() {
 
     socket.emit("joinShow", showId);
 
+    socket.on("currentLocks", (locks) => {
+      setLockedByOthers(locks);
+    });
+
     socket.on("seatLocked", ({ seatId }) => {
       setLockedByOthers((prev) => [...new Set([...prev, seatId])]);
     });
 
     socket.on("seatUnlocked", ({ seatId }) => {
       setLockedByOthers((prev) => prev.filter(id => id !== seatId));
+    });
+
+    socket.on("seatsBooked", ({ seats }) => {
+      // Update show's booked seats list
+      setShow((prevShow) => {
+        if (!prevShow) return prevShow;
+        const newSeats = { ...prevShow.seats };
+        seats.forEach(({ type, seatNumber }) => {
+          if (newSeats[type]) {
+            newSeats[type] = {
+              ...newSeats[type],
+              bookedSeats: [...new Set([...(newSeats[type].bookedSeats || []), seatNumber])],
+            };
+          }
+        });
+        return { ...prevShow, seats: newSeats };
+      });
+
+      // Clear from lockedByOthers if present
+      const seatIds = seats.map(s => s.seatNumber);
+      setLockedByOthers((prev) => prev.filter(id => !seatIds.includes(id)));
+
+      // Deselect and notify user if they had selected any of these seats
+      setSelected((prevSelected) => {
+        const stillAvailable = prevSelected.filter(sel => !seatIds.includes(sel.id));
+        if (stillAvailable.length < prevSelected.length) {
+          toast.error("⚠️ One or more of your selected seats were just booked by another customer.", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }
+        return stillAvailable;
+      });
+    });
+
+    socket.on("seatsReleased", ({ seats }) => {
+      setShow((prevShow) => {
+        if (!prevShow) return prevShow;
+        const newSeats = { ...prevShow.seats };
+        seats.forEach(({ type, seatNumber }) => {
+          if (newSeats[type]) {
+            newSeats[type] = {
+              ...newSeats[type],
+              bookedSeats: (newSeats[type].bookedSeats || []).filter(s => s !== seatNumber),
+            };
+          }
+        });
+        return { ...prevShow, seats: newSeats };
+      });
     });
 
     return () => {
@@ -327,6 +380,7 @@ export default function SeatSelection() {
                   <div className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 border border-[#F5A623] bg-[#FEF9E7] rounded-sm" /> Bestseller <span className="w-3 h-3 text-[10px] rounded-full border border-slate-400 text-slate-400 inline-flex items-center justify-center ml-0.5">i</span></div>
                   <div className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 bg-white border border-[#1ea83c] rounded-sm" /> Available</div>
                   <div className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 bg-[#1ea83c] rounded-sm" /> Selected</div>
+                  <div className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 bg-amber-50 border border-amber-300 rounded-sm animate-pulse" /> Selected by others</div>
                   <div className="flex items-center gap-1.5"><div className="w-3.5 h-3.5 bg-[#E2E8F0] rounded-sm" /> Sold</div>
                 </div>
 
@@ -361,19 +415,21 @@ export default function SeatSelection() {
                                         <button
                                           key={seatId}
                                           className={`w-6 h-6 md:w-7 md:h-7 rounded-sm text-[9px] md:text-[10px] font-bold flex items-center justify-center transition-colors duration-150 focus:outline-none cursor-pointer ${
-                                            (booked || locked) 
+                                            booked 
                                               ? "bg-[#E2E8F0] border border-[#E2E8F0] text-transparent cursor-not-allowed" 
-                                              : sel 
-                                                ? "bg-[#1ea83c] border border-[#1ea83c] text-white hover:bg-[#168a2f]" 
-                                                : isBestseller
-                                                  ? "border border-[#F5A623] text-[#F5A623] bg-[#FEF9E7] hover:bg-[#F5A623] hover:text-white"
-                                                  : "border border-[#1ea83c] text-[#1ea83c] bg-white hover:bg-[#1ea83c] hover:text-white"
+                                              : locked
+                                                ? "bg-amber-50 border border-amber-300 text-amber-500 cursor-not-allowed animate-pulse"
+                                                : sel 
+                                                  ? "bg-[#1ea83c] border border-[#1ea83c] text-white hover:bg-[#168a2f]" 
+                                                  : isBestseller
+                                                    ? "border border-[#F5A623] text-[#F5A623] bg-[#FEF9E7] hover:bg-[#F5A623] hover:text-white"
+                                                    : "border border-[#1ea83c] text-[#1ea83c] bg-white hover:bg-[#1ea83c] hover:text-white"
                                           }`}
                                           onClick={() => toggleSeat(seatId, key)}
                                           disabled={booked || locked}
-                                          title={booked ? "Booked" : locked ? "Locked by another user" : seatId}
+                                          title={booked ? "Sold" : locked ? "Selected by another customer" : seatId}
                                         >
-                                          {!(booked || locked) && seatId.replace(/[A-Z]/, "")}
+                                          {!booked && seatId.replace(/[A-Z]/, "")}
                                         </button>
                                       );
                                     })}

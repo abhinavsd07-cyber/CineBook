@@ -68,6 +68,12 @@ const createBooking = async (req, res) => {
       }
       await show.save();
 
+      // Broadcast seatsBooked event via WebSockets
+      const io = req.app.get("socketio");
+      if (io) {
+        io.to(showId.toString()).emit("seatsBooked", { seats: seatList });
+      }
+
       if (isConfirmed) {
         user.cineCoins = user.cineCoins - coinsUsed + coinsEarned;
         await user.save();
@@ -227,6 +233,12 @@ const cancelBooking = async (req, res) => {
         }
       }
       await show.save();
+
+      // Broadcast seatsReleased event via WebSockets
+      const io = req.app.get("socketio");
+      if (io) {
+        io.to(booking.show._id.toString()).emit("seatsReleased", { seats: booking.seats });
+      }
     }
 
     booking.status = "cancelled";
