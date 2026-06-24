@@ -76,7 +76,7 @@ const testimonials = [
   {
     logo:    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbTzUJPSAvoEo0UZiszCqfd_jM4OgA0F5HEGxRedsxk-OCWt6G3NMeN0Oi&s=10",
     logoAlt: "Club Mahindra",
-    quote:   "\"As a token of our appreciation to the prospects who visit our Holiday World, we offer them BMS vouchers. These vouchers help us further reinforce our core thought of creating Magical Moments for them and instantly put a smile on their faces\"",
+    quote:   "\"As a token of our appreciation to the prospects who visit our Holiday World, we offer them cineBook vouchers. These vouchers help us further reinforce our core thought of creating Magical Moments for them and instantly put a smile on their faces\"",
     name:    "Abhijeet Ghosh,",
     role:    "Regional Marketing Manager",
     company: "Mahindra Holidays and Resorts India Ltd",
@@ -84,7 +84,7 @@ const testimonials = [
   {
     logo:    "https://upload.wikimedia.org/wikipedia/commons/a/ad/HP_logo_2012.svg",
     logoAlt: "HP",
-    quote:   "\"BookMyShow vouchers have proven to be a fantastic tool for our employee engagement program. The variety of experiences available ensures everyone finds something they enjoy.\"",
+    quote:   "\"cineBook vouchers have proven to be a fantastic tool for our employee engagement program. The variety of experiences available ensures everyone finds something they enjoy.\"",
     name:    "Priya Sharma,",
     role:    "HR Director",
     company: "HP India Pvt Ltd",
@@ -92,7 +92,7 @@ const testimonials = [
   {
     logo:    "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
     logoAlt: "ICICI Bank",
-    quote:   "\"Our customers love the flexibility of BookMyShow gift vouchers. It has become our go-to reward for premium cardholders and has significantly boosted customer loyalty.\"",
+    quote:   "\"Our customers love the flexibility of cineBook gift vouchers. It has become our go-to reward for premium cardholders and has significantly boosted customer loyalty.\"",
     name:    "Rahul Mehta,",
     role:    "VP Marketing",
     company: "ICICI Bank",
@@ -100,8 +100,8 @@ const testimonials = [
 ];
 
 const faqGeneral = [
-  "How will BookMyShow help grow my business?",
-  "Whom should I use the BookMyShow vouchers for?",
+  "How will cineBook help grow my business?",
+  "Whom should I use the cineBook vouchers for?",
   "Why are Incentives Important?",
   "Where can the customers redeem the vouchers?",
   "What are the flexibility options for your service?",
@@ -231,7 +231,7 @@ export default function Corporates() {
   return (
     <div className="corp-page">
       <SEO
-        title="Corporate Gifting and Vouchers | BookMyShow Clone"
+        title="Corporate Gifting and Vouchers | cineBook Clone"
         description="Entertainment gifting, brand promotions, employee recognition and rewards for corporates."
       />
 
@@ -339,7 +339,7 @@ export default function Corporates() {
         <div className="corp-bulk-content">
           <div className="corp-bulk-left">
             <p className="corp-bulk-tag">Bulk Booking</p>
-            <h2 className="corp-bulk-title">Exclusive corporate experiences from BookMyShow</h2>
+            <h2 className="corp-bulk-title">Exclusive corporate experiences from cineBook</h2>
           </div>
           <button className="corp-bulk-btn">Explore now</button>
         </div>
@@ -374,12 +374,12 @@ export default function Corporates() {
       <section className="corp-section corp-privacy-section">
         <p className="corp-privacy-label">Privacy Note</p>
         <p className="corp-privacy-text">
-          By using www.bookmyshow.com (our website), you are fully accepting the Privacy Policy available at{" "}
-          <a href="#!" style={{ color: "#E8334A" }}>https://bookmyshow.com/privacy</a>{" "}
-          governing your access to Bookmyshow and provision of services by Bookmyshow to you.
+          By using www.cinebook.com (our website), you are fully accepting the Privacy Policy available at{" "}
+          <a href="#!" style={{ color: "#E8334A" }}>https://cinebook.com/privacy</a>{" "}
+          governing your access to cineBook and provision of services by cineBook to you.
           If you do not accept terms mentioned in the{" "}
           <a href="#!" style={{ color: "#E8334A" }}>Privacy Policy</a>,
-          you must not share any of your personal information and immediately exit Bookmyshow.
+          you must not share any of your personal information and immediately exit cineBook.
         </p>
         <div className="corp-breadcrumb">
           <a href="/" style={{ color: "#555" }}>Home</a>

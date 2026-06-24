@@ -4,7 +4,7 @@ import { LuSearch, LuCreditCard, LuSmartphone, LuWallet, LuClock, LuTicket, LuCl
 const CATEGORIES = [
   { name: "Credit Card", icon: LuCreditCard },
   { name: "Debit Card", icon: LuCreditCard },
-  { name: "BookMyShow", icon: LuTicket },
+  { name: "cineBook", icon: LuTicket },
   { name: "UPI", icon: LuSmartphone },
   { name: "Cinema", icon: LuClapperboard },
   { name: "Wallet", icon: LuWallet },
@@ -84,19 +84,19 @@ const OFFERS_DATA = [
     category: "Debit Card",
     logo: "https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg",
   },
-  // BookMyShow
+  // cineBook
   {
     id: 11,
-    bankName: "BookMyShow Blockbuster",
+    bankName: "cineBook Blockbuster",
     description: "Flat ₹100 off on your first movie ticket booking.",
-    category: "BookMyShow",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/BookMyShow_Logo.png",
+    category: "cineBook",
+    logo: "/logo.svg",
   },
   // UPI
   {
     id: 12,
     bankName: "Google Pay Offer",
-    description: "Win a scratch card worth up to ₹150 on your first UPI transaction on BookMyShow.",
+    description: "Win a scratch card worth up to ₹150 on your first UPI transaction on cineBook.",
     category: "UPI",
     logo: "https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg",
   },
@@ -136,7 +136,7 @@ const OFFERS_DATA = [
     bankName: "Simpl Pay Later",
     description: "Get 10% cashback up to ₹150 on your first Simpl transaction.",
     category: "Pay Later",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/BookMyShow_Logo.png",
+    logo: "/logo.svg",
   },
 ];
 

@@ -13,7 +13,7 @@ const GIFT_CARDS = [
   { id: 8, label: ["Just", "for You!"], bg: "linear-gradient(135deg,#e44d26,#f5a623)", category: "Made with Love", image: "https://in.bmscdn.com/gv/gift_my_show_09272025102721_480x295.jpg" },
 ];
 
-export default function BookMyShowGiftCards() {
+export default function CineBookGiftCards() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeTab, setActiveTab] = useState("egift");
 
@@ -25,8 +25,39 @@ export default function BookMyShowGiftCards() {
     <div style={{ fontFamily: "sans-serif", background: "#f2f2f2", minHeight: "100vh" }}>
       {/* Top Nav */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e8e8e8", padding: "0 24px", display: "flex", alignItems: "center", height: 56, gap: 16 }}>
-        <div style={{ fontSize: 22, fontWeight: 700 }}>
-          book<span style={{ color: "#e5373a", fontStyle: "italic" }}>my</span>show
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <svg
+            viewBox="0 0 250 80"
+            className="h-8 w-auto text-[#1f253a]"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <text
+              x="10"
+              y="55"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+              fontWeight="bold"
+              fontSize="44"
+              fill="currentColor"
+              letterSpacing="-1"
+            >
+              cine
+            </text>
+            <path
+              d="M 105 20 L 240 20 A 5 5 0 0 0 240 30 A 5 5 0 0 1 240 50 A 5 5 0 0 0 240 60 L 105 60 A 5 5 0 0 0 105 50 A 5 5 0 0 1 105 30 A 5 5 0 0 0 105 20 Z"
+              fill="#E2202C"
+            />
+            <text
+              x="125"
+              y="52"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+              fontWeight="bold"
+              fontSize="34"
+              fill="#ffffff"
+            >
+              Book
+            </text>
+          </svg>
         </div>
         <input
           placeholder="Search for Movies, Events, Plays, Sports and Activities"

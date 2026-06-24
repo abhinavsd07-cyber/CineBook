@@ -27,7 +27,7 @@ export default function PaymentSuccess() {
     const w = pdf.internal.pageSize.getWidth() - 20;
     const h = (canvas.height * w) / canvas.width;
     pdf.addImage(img, "PNG", 10, 10, w, h);
-    pdf.save(`BookMyShow_${booking.bookingId}.pdf`);
+    pdf.save(`cineBook_${booking.bookingId}.pdf`);
   };
 
   const addToCalendar = () => {
@@ -55,13 +55,13 @@ export default function PaymentSuccess() {
 
     const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//BookMyShow//BookMyShow Calendar//EN
+PRODID:-//cineBook//cineBook Calendar//EN
 BEGIN:VEVENT
-UID:${booking.bookingId}@bookmyshow.com
+UID:${booking.bookingId}@cinebook.com
 DTSTAMP:${nowStr}
 DTSTART:${startDateStr}
 DTEND:${endDateStr}
-SUMMARY:BookMyShow: ${movie.title}
+SUMMARY:cineBook: ${movie.title}
 DESCRIPTION:Booking ID: ${booking.bookingId}\\nSeats: ${seatsStr}\\nTheatre: ${theatre?.name}\\nScreen: ${show?.screen || '1'}\\nAmount Paid: Rs. ${booking.grandTotal}
 LOCATION:${theatre?.name}, ${theatre?.location || ''}
 END:VEVENT
@@ -71,7 +71,7 @@ END:VCALENDAR`;
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `BookMyShow_${booking.bookingId}.ics`);
+    link.setAttribute("download", `cineBook_${booking.bookingId}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -93,7 +93,7 @@ END:VCALENDAR`;
           <div className="flex bg-[#12121E] text-white rounded-2xl overflow-hidden shadow-2xl border border-white/5">
             {/* Ticket Left (Movie Info) */}
             <div className="w-[45%] p-5 border-r border-dashed border-white/10 flex flex-col gap-4 relative">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-bms-accent flex items-center gap-1"><LuFilm /> BookMyShow</div>
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-bms-accent flex items-center gap-1"><LuFilm /> cineBook</div>
 
               <img src={movie?.poster} alt={movie?.title} className="w-full aspect-[2/3] object-cover rounded-lg shadow-md" />
 

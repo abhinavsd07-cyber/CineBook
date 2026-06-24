@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 /**
- * AdCarousel — BookMyShow-style infinite peek carousel.
+ * AdCarousel — cineBook-style infinite peek carousel.
  *
  * Uses a clone-based infinite loop so slides ALWAYS scroll forward (left).
  * Never reverses direction, even when wrapping last→first or first→last.
@@ -125,7 +125,7 @@ export default function AdCarousel({
   if (!slides || total === 0) return null;
 
   const { slideWidth, peek } = dims;
-  const GAP = 10; /* gap between slides, matches BMS */
+  const GAP = 10; /* gap between slides, matches cineBook */
 
   /*
    * trackOffset = peek − extIndex × (slideWidth + GAP)

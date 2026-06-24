@@ -211,14 +211,14 @@ body {
 }
 
 /* ════════════════════════════════════════════════════════
-   PEEK CAROUSEL  (AdCarousel — BookMyShow-style)
+   PEEK CAROUSEL  (AdCarousel — cineBook-style)
    Navigation arrow buttons — sizing/positioning done in JS
    ════════════════════════════════════════════════════════ */
 
 .bms-carousel-arrow {
   position: absolute;
   top: 50%;
-  transform: translateY(-58%); /* slightly above center, like BMS */
+  transform: translateY(-58%); /* slightly above center, like cineBook */
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -371,7 +371,7 @@ body {
   margin-right: 4px;
 }
 
-/* Full-border box input matching BMS */
+/* Full-border box input matching cineBook */
 .corp-input {
   border: 1px solid #ccc;
   border-radius: 6px;

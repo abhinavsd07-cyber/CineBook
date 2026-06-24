@@ -240,7 +240,7 @@ export default function Explore() {
                     {m.itemType === "event" && <div className="absolute top-2 left-2 bg-[#1A1A1A] text-white text-[10px] font-bold py-1 px-2 rounded-[4px] shadow-sm uppercase tracking-wide">Event</div>}
                     {m.releaseDate && new Date(m.releaseDate) > new Date(new Date().setHours(0,0,0,0)) && <div className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold py-1 px-2 rounded-[4px] shadow-sm uppercase tracking-wide">Upcoming</div>}
                     
-                    {/* BookMyShow Rating Tag (Mocked) */}
+                    {/* cineBook Rating Tag (Mocked) */}
                     <div className="absolute bottom-0 left-0 right-0 bg-[#000000e6] text-white p-2 flex justify-between items-center z-10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                       <div className="flex items-center gap-1.5 text-[13px] font-bold">
                         <span className="text-[#F84464]">♥</span> {Math.floor(Math.random() * 30 + 70)}%

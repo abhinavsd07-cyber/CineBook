@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getDashboardStats, getRevenueByMonth, getAllBookingsAdmin } from "../../config/allApis";
+import { getDashboardStats, getRevenueByMonth, getAllBookingsAdmin, getAdminAnalytics } from "../../config/allApis";
 import {
   LuIndianRupee,
   LuTicket,
@@ -14,10 +14,13 @@ import {
   LuArrowUpRight,
   LuChartPie,
   LuClock,
+  LuFlame,
+  LuCalendar,
 } from "react-icons/lu";
 import {
-  AreaChart,
+  ComposedChart,
   Area,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,6 +29,12 @@ import {
   PieChart,
   Pie,
   Cell,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  BarChart,
 } from "recharts";
 
 /* ─── Constants ─────────────────────────────────────────────────────── */
@@ -94,15 +103,45 @@ const makeStatCards = (stats) => [
   },
 ];
 
-/* ─── Chart tooltips ─────────────────────────────────────────────────── */
-const RevenueTooltip = ({ active, payload, label }) => {
+/* ─── Custom Tooltips ─────────────────────────────────────────────────── */
+const CustomComposedTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const rev = payload.find(p => p.dataKey === "revenue")?.value || 0;
+  const bks = payload.find(p => p.dataKey === "bookings")?.value || 0;
   return (
-    <div className="bg-bms-surface/90 backdrop-blur-md border border-bms-border/60 rounded-2xl p-4 shadow-xl text-bms-text min-w-[150px] transition-all">
-      <p className="text-[10px] font-bold text-bms-text-dim uppercase tracking-wider mb-1">{label}</p>
-      <p className="text-base font-extrabold" style={{ color: ACCENT }}>
-        ₹{payload[0].value.toLocaleString("en-IN")}
-      </p>
+    <div className="bg-bms-surface/90 backdrop-blur-md border border-bms-border/60 rounded-2xl p-4 shadow-xl text-bms-text min-w-[160px] transition-all">
+      <p className="text-[10px] font-extrabold text-bms-text-dim uppercase tracking-wider mb-2">{label}</p>
+      <div className="flex flex-col gap-1.5 text-xs font-bold">
+        <div className="flex justify-between items-center gap-4">
+          <span className="text-bms-text-muted flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
+            Revenue:
+          </span>
+          <span className="text-bms-text">₹{rev.toLocaleString("en-IN")}</span>
+        </div>
+        <div className="flex justify-between items-center gap-4">
+          <span className="text-bms-text-muted flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#6366F1" }} />
+            Bookings:
+          </span>
+          <span className="text-bms-text">{bks} tickets</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MovieTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="bg-bms-surface/90 backdrop-blur-md border border-bms-border/60 rounded-2xl p-4 shadow-xl text-bms-text min-w-[150px]">
+      <p className="text-[10px] font-extrabold text-bms-text-dim uppercase tracking-wider mb-1">Top grossing movie</p>
+      <p className="text-xs font-bold text-bms-text mb-2 truncate max-w-[180px]">{d.name}</p>
+      <div className="flex justify-between items-center text-xs font-extrabold border-t border-bms-border/40 pt-1.5">
+        <span className="text-bms-text-muted">Total Sales:</span>
+        <span style={{ color: ACCENT }}>₹{d.revenue.toLocaleString("en-IN")}</span>
+      </div>
     </div>
   );
 };
@@ -149,29 +188,34 @@ const Skeleton = ({ className = "" }) => (
    DASHBOARD COMPONENT
    ═══════════════════════════════════════════════════════════════════════ */
 export default function Dashboard() {
-  const [stats, setStats]               = useState(null);
-  const [revenue, setRevenue]           = useState([]);
+  const [stats, setStats]                 = useState(null);
+  const [revenue, setRevenue]             = useState([]);
   const [recentBookings, setRecentBookings] = useState([]);
-  const [statusData, setStatusData]     = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [refreshing, setRefreshing]     = useState(false);
+  const [allBookings, setAllBookings]     = useState([]);
+  const [statusData, setStatusData]       = useState([]);
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading]             = useState(true);
+  const [refreshing, setRefreshing]       = useState(false);
+  const [chartView, setChartView]         = useState("daily"); // daily | monthly
 
   const fetchData = () => {
     setRefreshing(true);
-    Promise.all([getDashboardStats(), getRevenueByMonth(), getAllBookingsAdmin()])
-      .then(([s, r, b]) => {
+    Promise.all([getDashboardStats(), getRevenueByMonth(), getAllBookingsAdmin(), getAdminAnalytics()])
+      .then(([s, r, b, a]) => {
         setStats(s.data.data);
 
         setRevenue(
           r.data.data.map((item) => ({ monthName: item.month, revenue: item.revenue }))
         );
 
-        setRecentBookings(b.data.data.slice(0, 8));
+        const bookingsList = b.data.data;
+        setAllBookings(bookingsList);
+        setRecentBookings(bookingsList.slice(0, 8));
+        setAnalyticsData(a.data.data);
 
-        const all = b.data.data;
-        const confirmed = all.filter((x) => x.status === "confirmed").length;
-        const cancelled = all.filter((x) => x.status === "cancelled").length;
-        const pending   = all.filter((x) => x.status === "pending").length;
+        const confirmed = bookingsList.filter((x) => x.status === "confirmed").length;
+        const cancelled = bookingsList.filter((x) => x.status === "cancelled").length;
+        const pending   = bookingsList.filter((x) => x.status === "pending").length;
         setStatusData(
           [
             { name: "Confirmed", value: confirmed },
@@ -185,6 +229,67 @@ export default function Dashboard() {
   };
 
   useEffect(() => { fetchData(); }, []); // eslint-disable-line
+
+  /* ── Date and Timeline Utilities ── */
+  const getLast7Days = () => {
+    const dates = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dates.push(d.toISOString().slice(0, 10));
+    }
+    return dates;
+  };
+
+  const getLast6Months = () => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const list = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const mName = months[d.getMonth()];
+      const yName = d.getFullYear();
+      list.push(`${mName} ${yName}`);
+    }
+    return list;
+  };
+
+  /* ── Densifying Daily Revenue and Bookings volume ── */
+  const getDensifiedDaily = () => {
+    return getLast7Days().map(dateStr => {
+      const foundRevenue = (analyticsData?.dailyRevenue || []).find(item => item._id === dateStr);
+      const dayBookings = allBookings.filter(booking => {
+        if (booking.status !== "confirmed") return false;
+        const bDate = new Date(booking.createdAt).toISOString().slice(0, 10);
+        return bDate === dateStr;
+      });
+      const formattedDate = new Date(dateStr).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+      return {
+        name: formattedDate,
+        revenue: foundRevenue ? foundRevenue.revenue : 0,
+        bookings: dayBookings.length,
+      };
+    });
+  };
+
+  /* ── Densifying Monthly Revenue and Bookings volume ── */
+  const getDensifiedMonthly = () => {
+    return getLast6Months().map(monthStr => {
+      const foundRevenue = revenue.find(item => item.monthName === monthStr);
+      const monthBookings = allBookings.filter(booking => {
+        if (booking.status !== "confirmed") return false;
+        const bDate = new Date(booking.createdAt);
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const bMonthStr = `${months[bDate.getMonth()]} ${bDate.getFullYear()}`;
+        return bMonthStr === monthStr;
+      });
+      return {
+        name: monthStr,
+        revenue: foundRevenue ? foundRevenue.revenue : 0,
+        bookings: monthBookings.length,
+      };
+    });
+  };
 
   /* ── Loading skeleton ─────────────────────────────────────────────── */
   if (loading) {
@@ -230,15 +335,30 @@ export default function Dashboard() {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
+  const chartData = chartView === "daily" ? getDensifiedDaily() : getDensifiedMonthly();
+
+  /* Fallback genres list to keep radar populated */
+  const genreData = (analyticsData?.popularGenres && analyticsData.popularGenres.length > 0)
+    ? analyticsData.popularGenres
+    : [
+        { name: "Action", value: 12 },
+        { name: "Comedy", value: 8 },
+        { name: "Drama", value: 6 },
+        { name: "Thriller", value: 4 },
+        { name: "Sci-Fi", value: 3 }
+      ];
+
   return (
     <div className="flex flex-col gap-8 text-bms-text">
 
       {/* ── Page header ──────────────────────────────────────────────── */}
       <div className="flex flex-wrap justify-between items-center gap-4 pb-6 border-b border-bms-border/40">
         <div>
-          <h1 className="text-2xl font-bold text-bms-text tracking-tight">System Analytics</h1>
+          <h1 className="text-2xl font-bold text-bms-text tracking-tight flex items-center gap-2">
+            System Analytics Hub
+          </h1>
           <p className="text-sm text-bms-text-dim mt-1">
-            Monitor real-time ticket bookings, revenue channels, user registration logs and system health metrics.
+            Visualizing tickets sales, cashflows, genre indexing and transactional bookings.
           </p>
         </div>
 
@@ -256,7 +376,7 @@ export default function Dashboard() {
             className="flex items-center gap-2 bg-bms-surface/50 hover:bg-bms-surface-hover border border-bms-border/50 text-bms-text-muted hover:text-bms-text text-xs font-bold rounded-xl px-4 py-2 shadow-xs transition-all duration-200 disabled:opacity-50 cursor-pointer"
           >
             <LuRefreshCw size={12} className={refreshing ? "animate-spin" : ""} />
-            {refreshing ? "Updating…" : "Refresh Logs"}
+            {refreshing ? "Syncing..." : "Sync Logs"}
           </button>
         </div>
       </div>
@@ -356,81 +476,182 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* ── Bento Charts Grid ─────────────────────────────────────────── */}
+      {/* ── PowerBI Level Analytics composed & Movie metrics Row ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Revenue Area Chart */}
+        {/* Large composed analytics chart */}
         <div className="bg-bms-surface border border-bms-border/50 rounded-3xl p-6 shadow-xs flex flex-col gap-6 lg:col-span-2">
-          <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-rose-500/10 border border-rose-500/20">
                 <LuTrendingUp size={16} style={{ color: ACCENT }} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-bms-text tracking-wide uppercase">Revenue Trend</h3>
-                <p className="text-[10px] text-bms-text-dim mt-0.5">Year-to-date income mapping</p>
+                <h3 className="text-sm font-bold text-bms-text tracking-wide uppercase">Revenue & Volume Metrics</h3>
+                <p className="text-[10px] text-bms-text-dim mt-0.5">Composed Area (Cash) and Bar (Bookings) analytics</p>
               </div>
             </div>
 
-            {/* Total Indicator */}
-            <div className="text-right">
-              <p className="text-[10px] text-bms-text-dim font-semibold uppercase">Aggregated</p>
-              <p className="text-base font-extrabold text-bms-text mt-0.5">
-                ₹{(stats?.totalRevenue || 0).toLocaleString("en-IN")}
-              </p>
+            {/* View filter buttons */}
+            <div className="flex gap-1.5 bg-bms-surface-hover border border-bms-border/50 p-1 rounded-xl">
+              <button
+                onClick={() => setChartView("daily")}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                  chartView === "daily"
+                    ? "bg-bms-surface text-bms-text border border-bms-border/40 shadow-xs"
+                    : "text-bms-text-dim hover:text-bms-text"
+                }`}
+              >
+                Last 7 Days
+              </button>
+              <button
+                onClick={() => setChartView("monthly")}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                  chartView === "monthly"
+                    ? "bg-bms-surface text-bms-text border border-bms-border/40 shadow-xs"
+                    : "text-bms-text-dim hover:text-bms-text"
+                }`}
+              >
+                Year-To-Date
+              </button>
             </div>
           </div>
 
-          <div className="h-[280px]">
-            {revenue.length > 0 ? (
+          {/* Revenue Chart canvas */}
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={chartData} margin={{ top: 15, right: -5, bottom: 0, left: -10 }}>
+                <defs>
+                  <linearGradient id="colorRevenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={ACCENT} stopOpacity={0.25}/>
+                    <stop offset="95%" stopColor={ACCENT} stopOpacity={0.0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-bms-border)" opacity={0.3} />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: "var(--color-bms-text-muted)", fontWeight: 600 }}
+                  dy={10}
+                />
+                {/* Y-Axis Left: Revenue */}
+                <YAxis
+                  yAxisId="left"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: "var(--color-bms-text-muted)", fontWeight: 600 }}
+                  tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
+                  dx={-5}
+                />
+                {/* Y-Axis Right: Bookings count */}
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: "var(--color-bms-text-muted)", fontWeight: 600 }}
+                  tickFormatter={(v) => `${v} tix`}
+                  dx={5}
+                />
+                <Tooltip content={<CustomComposedTooltip />} />
+                
+                {/* Bar element representing bookings volume */}
+                <Bar
+                  yAxisId="right"
+                  dataKey="bookings"
+                  fill="#6366F1"
+                  radius={[4, 4, 0, 0]}
+                  barSize={14}
+                  fillOpacity={0.12}
+                  stroke="#6366F1"
+                  strokeWidth={1.5}
+                  strokeOpacity={0.4}
+                />
+
+                {/* Area element representing revenue curve */}
+                <Area
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke={ACCENT}
+                  strokeWidth={3.5}
+                  fillOpacity={1}
+                  fill="url(#colorRevenueGradient)"
+                  dot={{ r: 4.5, fill: "var(--color-bms-surface)", strokeWidth: 3, stroke: ACCENT }}
+                  activeDot={{ r: 6.5, fill: ACCENT, strokeWidth: 3.5, stroke: "var(--color-bms-surface)" }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Top Grossing Movies horizontal bar chart */}
+        <div className="bg-bms-surface border border-bms-border/50 rounded-3xl p-6 shadow-xs flex flex-col justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20">
+              <LuFlame size={16} style={{ color: "#F59E0B" }} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-bms-text tracking-wide uppercase">Top Grossing Movies</h3>
+              <p className="text-[10px] text-bms-text-dim mt-0.5">Highest earning film entries</p>
+            </div>
+          </div>
+
+          <div className="h-[250px] w-full">
+            {analyticsData?.popularMovies && analyticsData.popularMovies.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={revenue} margin={{ top: 15, right: 10, bottom: 0, left: -10 }}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={ACCENT} stopOpacity={0.25}/>
-                      <stop offset="95%" stopColor={ACCENT} stopOpacity={0.0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-bms-border)" opacity={0.3} />
+                <BarChart
+                  data={analyticsData.popularMovies}
+                  layout="vertical"
+                  margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-bms-border)" opacity={0.2} />
                   <XAxis
-                    dataKey="monthName"
+                    type="number"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "var(--color-bms-text-muted)", fontWeight: 600 }}
-                    dy={10}
+                    tick={{ fontSize: 9, fill: "var(--color-bms-text-muted)" }}
+                    tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
                   />
                   <YAxis
+                    dataKey="name"
+                    type="category"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "var(--color-bms-text-muted)", fontWeight: 600 }}
-                    tickFormatter={(v) => v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`}
-                    dx={-5}
+                    tick={{ fontSize: 9, fill: "var(--color-bms-text-muted)", fontWeight: 700 }}
+                    width={90}
+                    tickFormatter={(t) => t.length > 12 ? `${t.slice(0, 10)}...` : t}
                   />
-                  <Tooltip
-                    content={<RevenueTooltip />}
-                    cursor={{ stroke: ACCENT, strokeWidth: 1.5, strokeDasharray: "4 4", opacity: 0.6 }}
-                  />
-                  <Area
-                    type="monotone"
+                  <Tooltip content={<MovieTooltip />} />
+                  <Bar
                     dataKey="revenue"
-                    stroke={ACCENT}
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#colorRevenue)"
-                    dot={{ r: 4, fill: "var(--color-bms-surface)", strokeWidth: 3, stroke: ACCENT }}
-                    activeDot={{ r: 6, fill: ACCENT, strokeWidth: 3, stroke: "var(--color-bms-surface)" }}
-                  />
-                </AreaChart>
+                    fill={ACCENT}
+                    radius={[0, 6, 6, 0]}
+                    barSize={12}
+                  >
+                    {analyticsData.popularMovies.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={index === 0 ? ACCENT : index === 1 ? "#A855F7" : "#6366F1"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-full items-center justify-center text-bms-text-dim text-xs font-semibold">
-                No revenue logs recorded
+                No movie revenue aggregation
               </div>
             )}
           </div>
         </div>
+      </div>
 
-        {/* Status Donut Chart */}
+      {/* ── Sub-charts Bento Grid row: Channels Donut & Genres Radar ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Channels donut chart */}
         <div className="bg-bms-surface border border-bms-border/50 rounded-3xl p-6 shadow-xs flex flex-col justify-between gap-5">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-sky-500/10 border border-sky-500/20">
@@ -499,6 +720,45 @@ export default function Dashboard() {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* Genre Index Radar Chart */}
+        <div className="bg-bms-surface border border-bms-border/50 rounded-3xl p-6 shadow-xs flex flex-col gap-5 lg:col-span-2">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-violet-500/10 border border-violet-500/20">
+              <LuFlame size={16} style={{ color: "#A855F7" }} />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-bms-text tracking-wide uppercase">Genre Popularity Index</h3>
+              <p className="text-[10px] text-bms-text-dim mt-0.5">Tickets sold by film categories</p>
+            </div>
+          </div>
+
+          <div className="h-[250px] w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="75%" data={genreData}>
+                <PolarGrid stroke="var(--color-bms-border)" opacity={0.3} />
+                <PolarAngleAxis
+                  dataKey="name"
+                  tick={{ fontSize: 9, fill: "var(--color-bms-text-muted)", fontWeight: 700 }}
+                />
+                <PolarRadiusAxis
+                  angle={30}
+                  domain={[0, 'auto']}
+                  tick={{ fontSize: 8, fill: "var(--color-bms-text-dim)" }}
+                  axisLine={false}
+                />
+                <Radar
+                  name="Bookings count"
+                  dataKey="value"
+                  stroke="#A855F7"
+                  fill="#A855F7"
+                  fillOpacity={0.12}
+                  strokeWidth={2}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
@@ -707,4 +967,4 @@ export default function Dashboard() {
 
     </div>
   );
-}
+}

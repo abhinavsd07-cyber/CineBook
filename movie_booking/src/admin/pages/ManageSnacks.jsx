@@ -186,7 +186,7 @@ export default function ManageSnacks() {
         </div>
       </div>
 
-      {/* ── Grid of Cards (BookMyShow style) ── */}
+      {/* ── Grid of Cards (cineBook style) ── */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />

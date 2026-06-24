@@ -21,7 +21,7 @@ const slides = [
   },
   {
     title: "Empower the artist within you",
-    description: "List your own performances, gigs and more with BookMyShow",
+    description: "List your own performances, gigs and more with cineBook",
     image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200",
     bg: "bg-[#355D32]",
   },

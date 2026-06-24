@@ -29,7 +29,38 @@ const Footer = () => (
       <div className="flex items-center justify-between mb-8 gap-4">
         <div className="flex-1 h-[1px] bg-bms-border/10"></div>
         <div className="mx-auto px-6 bg-[#31353B] dark:bg-[#121620]" style={{ display: "flex", justifyContent: "center" }}>
-           <img src="/logo.svg" alt="cineBook" className="h-10 w-auto" />
+          <svg
+            viewBox="0 0 250 80"
+            className="h-10 w-auto text-slate-100"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <text
+              x="10"
+              y="55"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+              fontWeight="bold"
+              fontSize="44"
+              fill="currentColor"
+              letterSpacing="-1"
+            >
+              cine
+            </text>
+            <path
+              d="M 105 20 L 240 20 A 5 5 0 0 0 240 30 A 5 5 0 0 1 240 50 A 5 5 0 0 0 240 60 L 105 60 A 5 5 0 0 0 105 50 A 5 5 0 0 1 105 30 A 5 5 0 0 0 105 20 Z"
+              fill="#E2202C"
+            />
+            <text
+              x="125"
+              y="52"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+              fontWeight="bold"
+              fontSize="34"
+              fill="#ffffff"
+            >
+              Book
+            </text>
+          </svg>
         </div>
         <div className="flex-1 h-[1px] bg-bms-border/10"></div>
       </div>

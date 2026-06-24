@@ -147,7 +147,7 @@ export default function MovieDetails() {
         image={movie.poster}
         url={`/movie/${movie._id}`}
       />
-      {/* ── BMS Style Top Banner ── */}
+      {/* ── cineBook Style Top Banner ── */}
       <div 
         className="relative min-h-[480px] w-full flex items-center bg-cover bg-center overflow-hidden py-10 bg-slate-900" 
         style={{ backgroundImage: `url(${movie.backdrop || movie.poster})` }}

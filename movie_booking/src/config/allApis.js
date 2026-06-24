@@ -69,6 +69,7 @@ export const createPaymentIntent = (data) => axiosInstance.post("/payment/intent
 // ─────────────────────────────────────────────
 export const getDashboardStats = () => axiosInstance.get("/admin/stats");
 export const getRevenueByMonth = () => axiosInstance.get("/admin/revenue");
+export const getAdminAnalytics = () => axiosInstance.get("/admin/analytics");
 export const getAllUsers = () => axiosInstance.get("/admin/users");
 export const getAllBookingsAdmin = (params) => axiosInstance.get("/admin/bookings", { params });
 

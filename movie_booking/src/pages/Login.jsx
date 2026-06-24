@@ -135,7 +135,7 @@ export default function Login() {
           </div>
 
           <p className="text-[13px] text-[#666666] text-center mt-2">
-            New to BookMyShow? <Link to="/register" className="text-[#F84464] hover:underline font-medium transition-colors">Register here</Link>
+            New to cineBook? <Link to="/register" className="text-[#F84464] hover:underline font-medium transition-colors">Register here</Link>
           </p>
 
           <div className="text-[11px] text-[#999999] text-center border-t border-slate-200 pt-4 mt-2">

@@ -31,7 +31,7 @@ export default function Stream() {
       <section className="relative min-h-[220px] bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 py-12 mb-10 flex items-center">
         <div className="absolute inset-0 bg-black/40" />
         <div className="container relative z-10 flex flex-col justify-center">
-          <h1 className="text-2xl md:text-4xl font-bold text-white tracking-tight">BMS Stream</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-white tracking-tight">cineBook Stream</h1>
           <p className="text-xs md:text-sm text-slate-300 mt-2 font-medium">Brand new releases every Friday. Rent or Buy.</p>
         </div>
       </section>

@@ -195,12 +195,39 @@ export default function ListYourShow() {
       {/* ── NAVBAR ── */}
       <div className="bg-white border-b border-gray-200 px-10 flex items-center h-[62px] sticky top-0 z-[200] gap-6">
         {/* Logo */}
-        <div className="flex items-center text-[22px] font-black tracking-[-1px] shrink-0">
-          <span className="text-[#1f253a]">book</span>
-          <span className="bg-[#e8293c] text-white px-[3px] rounded-[3px] italic mx-0.5">
-            my
-          </span>
-          <span className="text-[#1f253a]">show</span>
+        <div className="flex items-center text-[#1f253a] shrink-0">
+          <svg
+            viewBox="0 0 250 80"
+            className="h-8 w-auto"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <text
+              x="10"
+              y="55"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+              fontWeight="bold"
+              fontSize="44"
+              fill="currentColor"
+              letterSpacing="-1"
+            >
+              cine
+            </text>
+            <path
+              d="M 105 20 L 240 20 A 5 5 0 0 0 240 30 A 5 5 0 0 1 240 50 A 5 5 0 0 0 240 60 L 105 60 A 5 5 0 0 0 105 50 A 5 5 0 0 1 105 30 A 5 5 0 0 0 105 20 Z"
+              fill="#E2202C"
+            />
+            <text
+              x="125"
+              y="52"
+              fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+              fontWeight="bold"
+              fontSize="34"
+              fill="#ffffff"
+            >
+              Book
+            </text>
+          </svg>
         </div>
         {/* Search */}
         <div className="flex-1 max-w-[460px] mx-4">
@@ -272,7 +299,7 @@ export default function ListYourShow() {
       <div className="max-w-[1100px] mx-auto pt-[72px] px-10 text-center">
         <h2 className="text-[38px] font-extrabold mb-3.5">What can you host???</h2>
         <p className="text-[15px] text-gray-500 max-w-[700px] mx-auto mb-11 leading-relaxed">
-          As the purveyor of entertainment, BookMyShow enables your event with
+          As the purveyor of entertainment, cineBook enables your event with
           end to end solutions from the time you register to the completion of
           the event. Let's look at what you can host.
         </p>
@@ -344,10 +371,10 @@ export default function ListYourShow() {
               "
             </div>
             <p className="text-[15px] text-gray-700 leading-[1.85]">
-              The NCPA shares a cherished 13 year bond with BMS, its online
+              The NCPA shares a cherished 13 year bond with cineBook, its online
               ticketing partner that has helped art lovers book their seats for
               their favourite shows in a seamless manner. The presence of a team
-              from Bookmyshow in the NCPA premises on the day of the event
+              from cineBook in the NCPA premises on the day of the event
               further ensures the smooth-functioning of ticket-related
               formalities."
             </p>
@@ -422,18 +449,18 @@ export default function ListYourShow() {
           Privacy Note
         </p>
         <p className="text-[13px] text-gray-500 leading-[1.7]">
-          By using www.bookmyshow.com(our website), you are fully accepting the
+          By using www.cinebook.com(our website), you are fully accepting the
           Privacy Policy available at{" "}
           <a href="#" className="text-[#e8293c]">
-            https://bookmyshow.com/privacy
+            https://cinebook.com/privacy
           </a>{" "}
-          governing your access to Bookmyshow and provision of services by
-          Bookmyshow to you. If you do not accept terms mentioned in the{" "}
+          governing your access to cineBook and provision of services by
+          cineBook to you. If you do not accept terms mentioned in the{" "}
           <a href="#" className="text-[#e8293c]">
             Privacy Policy
           </a>
           , you must not share any of your personal information and immediately
-          exit Bookmyshow.
+          exit cineBook.
         </p>
       </div>
 
@@ -450,7 +477,7 @@ export default function ListYourShow() {
           </div>
           <div className="text-[13px] text-slate-400">
             Got a show, event, activity or a great experience? Partner with us
-            &amp; get listed on BookMyShow
+            &amp; get listed on cineBook
           </div>
         </div>
         <button className="bg-[#e8293c] text-white py-3 px-6 rounded-lg font-bold text-sm border-none cursor-pointer shrink-0 hover:bg-[#d41c2f] transition-colors">

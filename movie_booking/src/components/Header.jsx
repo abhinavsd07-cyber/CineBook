@@ -91,8 +91,39 @@ const Header = () => {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
               </button>
               
-              <Link to="/" className="flex items-center text-bms-text hover:text-bms-accent transition-colors duration-200">
-                 <img src="/logo.svg" alt="cineBook" className="h-7 md:h-10 w-auto" />
+              <Link to="/" className="flex items-center text-bms-text hover:text-bms-accent transition-colors duration-200" id="brand-logo-link">
+                <svg
+                  viewBox="0 0 250 80"
+                  className="h-7 md:h-10 w-auto animate-fade-in"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <text
+                    x="10"
+                    y="55"
+                    fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                    fontWeight="bold"
+                    fontSize="44"
+                    fill="currentColor"
+                    letterSpacing="-1"
+                  >
+                    cine
+                  </text>
+                  <path
+                    d="M 105 20 L 240 20 A 5 5 0 0 0 240 30 A 5 5 0 0 1 240 50 A 5 5 0 0 0 240 60 L 105 60 A 5 5 0 0 0 105 50 A 5 5 0 0 1 105 30 A 5 5 0 0 0 105 20 Z"
+                    fill="#E2202C"
+                  />
+                  <text
+                    x="125"
+                    y="52"
+                    fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif"
+                    fontWeight="bold"
+                    fontSize="34"
+                    fill="#ffffff"
+                  >
+                    Book
+                  </text>
+                </svg>
               </Link>
             </div>
             
