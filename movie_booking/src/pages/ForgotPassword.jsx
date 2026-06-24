@@ -23,8 +23,8 @@ export default function ForgotPassword() {
         draggable: true,
         theme: "light",
       });
+      navigate("/reset-password", { state: { email } });
       setEmail("");
-      navigate("/reset-password");
     } catch (err) {
       toast.error(err.response?.data?.message || "❌ Failed to send reset link", {
         position: "top-right",

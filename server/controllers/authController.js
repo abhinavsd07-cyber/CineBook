@@ -163,7 +163,7 @@ const forgotPassword = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetPasswordToken = crypto.createHash("sha256").update(otp).digest("hex");
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.resetPasswordExpire = Date.now() + 60 * 1000; // 60 seconds (better than 30s for email delivery delays)
 
     await user.save({ validateBeforeSave: false });
 
