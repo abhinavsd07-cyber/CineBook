@@ -136,7 +136,7 @@ END:VCALENDAR`;
                 <LuTicket size={16} className="fill-[#F84464]/20" /> CINEBOOK
               </div>
 
-              <img src={movie?.poster} alt={movie?.title} className="w-full aspect-[2/3] object-cover rounded-xl shadow-md border border-slate-800/40" crossOrigin="anonymous" />
+              <img src={movie?.poster} alt={movie?.title} className="w-full aspect-[2/3] object-cover rounded-xl shadow-md border border-slate-800/40" />
 
               <div className="flex flex-col gap-2">
                 <h2 className="text-sm font-extrabold text-white line-clamp-2 leading-snug tracking-wide">{movie?.title}</h2>
