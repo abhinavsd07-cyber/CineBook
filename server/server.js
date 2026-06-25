@@ -87,7 +87,15 @@ io.on("connection", (socket) => {
 app.use(cors({ origin: true, credentials: true })); // MUST BE FIRST
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(compression());
-app.use(mongoSanitize());
+// express-mongo-sanitize middleware wrapper for Express 5 compatibility
+app.use((req, res, next) => {
+  ['body', 'params', 'headers', 'query'].forEach((key) => {
+    if (req[key]) {
+      mongoSanitize.sanitize(req[key]);
+    }
+  });
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
