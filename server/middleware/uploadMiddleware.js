@@ -12,22 +12,12 @@ const s3 = new S3Client({
   },
 });
 
-// Configure multer-s3 storage
+// Export S3 client so controller can use it for manual upload
+const s3Client = s3;
+
+// Configure multer memory storage
 const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.AWS_S3_BUCKET_NAME || "abhinav-images-2026",
-    // Remove acl since it requires explicit bucket config and might block public access depending on user setting
-    // acl: "public-read", 
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      // Create a unique filename with timestamp
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      cb(null, `movie-images/${uniqueSuffix}${path.extname(file.originalname)}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     // Only accept image files
     if (file.mimetype.startsWith("image/")) {
@@ -41,4 +31,4 @@ const upload = multer({
   },
 });
 
-module.exports = upload;
+module.exports = { upload, s3Client };

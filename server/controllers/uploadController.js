@@ -1,6 +1,10 @@
 const asyncHandler = require("express-async-handler");
 const fetch = require("node-fetch");
 
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { s3Client } = require("../middleware/uploadMiddleware");
+const sharp = require("sharp");
+
 // @desc    Upload an image to S3
 // @route   POST /api/upload
 // @access  Private/Admin
@@ -10,11 +14,31 @@ const uploadImage = asyncHandler(async (req, res) => {
     throw new Error("Please upload a file");
   }
 
-  // multer-s3 attaches the S3 URL to req.file.location
+  // Compress and convert to WebP using sharp
+  const compressedBuffer = await sharp(req.file.buffer)
+    .webp({ quality: 80 })
+    .toBuffer();
+
+  const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+  const key = `movie-images/${uniqueSuffix}.webp`;
+  const bucketName = process.env.AWS_S3_BUCKET_NAME || "abhinav-images-2026";
+
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+    Body: compressedBuffer,
+    ContentType: "image/webp",
+  });
+
+  await s3Client.send(command);
+
+  const region = process.env.AWS_REGION || "ap-south-1";
+  const s3Url = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+
   res.status(200).json({
     success: true,
     message: "Image uploaded successfully",
-    url: req.file.location, // Public S3 URL
+    url: s3Url, // Public S3 URL
   });
 });
 

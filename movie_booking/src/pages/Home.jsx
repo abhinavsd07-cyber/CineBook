@@ -8,6 +8,7 @@ import SEO from "../components/SEO";
 import AdCarousel from "../components/AdCarousel";
 import { MovieCardSkeleton } from "../components/Skeleton";
 import ScrollContainer from "../components/ScrollContainer";
+import ImageWithSkeleton from "../components/ImageWithSkeleton";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -91,11 +92,10 @@ export default function Home() {
                   onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}
                 >
                   <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl shadow-premium bg-slate-200 dark:bg-slate-800">
-                    <img 
+                    <ImageWithSkeleton 
                       src={m.poster} 
                       alt={m.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
-                      loading="lazy" 
                     />
                     {m.rating > 0 && (
                       <div className="absolute bottom-0 left-0 w-full bg-black/90 text-white text-[11px] md:text-[12px] font-medium py-1.5 px-2.5 flex items-center justify-between z-10">

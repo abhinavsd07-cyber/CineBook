@@ -17,7 +17,7 @@ const { getBanners, getAllAdminBanners, createBanner, updateBanner, deleteBanner
 const { getMovieReviews, createReview, voteReview } = require("../controllers/reviewController");
 const { validateCoupon } = require("../controllers/couponController");
 const { getAllFoodItems, getFoodItemById, createFoodItem, updateFoodItem, deleteFoodItem } = require("../controllers/foodItemController");
-const upload = require("../middleware/uploadMiddleware");
+const { upload } = require("../middleware/uploadMiddleware");
 const validate = require("../middleware/validateMiddleware");
 const { registerSchema, loginSchema } = require("../utils/validators");
 
