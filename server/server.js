@@ -31,33 +31,11 @@ const app = express();
 const server = http.createServer(app);
 
 // Setup Socket.io
-const clientUrl = process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : null;
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:5175",
-  clientUrl,
-].filter(Boolean);
-
-// Forgiving CORS function for deployment
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    // If clientUrl is not set, allow any origin to prevent strict blockage during initial deployment testing
-    if (!clientUrl) return callback(null, true);
-    
-    // Otherwise check against allowed list
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('vercel.app')) {
-      callback(null, true);
-    } else {
-      callback(null, true); // Fallback: allow all to ensure API works
-    }
-  },
-  credentials: true
-};
-
 const io = new Server(server, {
-  cors: corsOptions
+  cors: {
+    origin: true, // Dynamically allow any origin (reflects request origin)
+    credentials: true
+  }
 });
 
 app.set("socketio", io);
@@ -106,10 +84,10 @@ io.on("connection", (socket) => {
 });
 
 // Middleware
+app.use(cors({ origin: true, credentials: true })); // MUST BE FIRST
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(compression());
 app.use(mongoSanitize());
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
