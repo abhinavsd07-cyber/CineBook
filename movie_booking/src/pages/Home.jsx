@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from '@tanstack/react-query';
 import { getNowShowing, getUpcoming, getPremieres, getEvents, getBanners } from "../config/allApis";
 import { useLocationContext } from "../context/LocationContext";
 import SEO from "../components/SEO";
@@ -9,149 +10,121 @@ import { MovieCardSkeleton } from "../components/Skeleton";
 import ScrollContainer from "../components/ScrollContainer";
 
 export default function Home() {
-  const [movies, setMovies] = useState([]);
-  const [upcoming, setUpcoming] = useState([]);
-  const [premieres, setPremieres] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [heroBanners, setHeroBanners] = useState([]);
-  const [middleBanners, setMiddleBanners] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { location } = useLocationContext();
 
-  useEffect(() => {
-    let active = true;
-    const fetchHomeData = () => {
-      setLoading(true);
-      Promise.all([getNowShowing({ location }), getUpcoming(), getPremieres(), getEvents({ location }), getBanners()])
-        .then(([m, u, p, e, b]) => { 
-          if(active) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+  const { data: homeData, isLoading } = useQuery({
+    queryKey: ['homeData', location],
+    queryFn: async () => {
+      const [m, u, p, e, b] = await Promise.all([
+        getNowShowing({ location }),
+        getUpcoming(),
+        getPremieres(),
+        getEvents({ location }),
+        getBanners()
+      ]);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-            // strictly enforce chronological logic regardless of admin flags
-            const validNowShowing = m.data.data.filter(movie => {
-              if (!movie.releaseDate) return true;
-              return new Date(movie.releaseDate) <= today;
-            });
-            const validUpcoming = u.data.data.filter(movie => {
-              if (!movie.releaseDate) return true;
-              return new Date(movie.releaseDate) > today;
-            });
+      const validNowShowing = m.data.data.filter(movie => {
+        if (!movie.releaseDate) return true;
+        return new Date(movie.releaseDate) <= today;
+      });
+      const validUpcoming = u.data.data.filter(movie => {
+        if (!movie.releaseDate) return true;
+        return new Date(movie.releaseDate) > today;
+      });
 
-            setMovies(validNowShowing); 
-            setUpcoming(validUpcoming);
-            setPremieres(p.data.data); 
-            setEvents(e.data.data); 
-            
-            const allBanners = b.data.data || [];
-            setHeroBanners(allBanners.filter(x => x.type === 'hero').map(x => ({ bg: x.imageUrl, link: x.targetLink })));
-            setMiddleBanners(allBanners.filter(x => x.type === 'middle').map(x => ({ bg: x.imageUrl, link: x.targetLink })));
-          }
-        })
-        .catch(console.error)
-        .finally(() => { if(active) setLoading(false); });
-    };
-    fetchHomeData();
-    return () => { active = false; };
-  }, [location]);
+      const allBanners = b.data.data || [];
+      return {
+        movies: validNowShowing,
+        upcoming: validUpcoming,
+        premieres: p.data.data,
+        events: e.data.data,
+        heroBanners: allBanners.filter(x => x.type === 'hero').map(x => ({ bg: x.imageUrl, link: x.targetLink })),
+        middleBanners: allBanners.filter(x => x.type === 'middle').map(x => ({ bg: x.imageUrl, link: x.targetLink }))
+      };
+    }
+  });
+
+  const { movies, upcoming, premieres, events, heroBanners, middleBanners } = homeData || {};
 
   return (
-    <div className="pt-[110px] md:pt-[125px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333]">
+    <div className="pt-[110px] md:pt-[125px] pb-16 min-h-[calc(100vh-300px)] bg-slate-50 text-slate-800 transition-colors duration-300 dark:bg-[#0B0E14] dark:text-slate-100">
       <SEO />
-      {/* ── Top Hero Banner Carousel — full viewport width, no max-w constraint ── */}
-      {heroBanners.length > 0 && (
-        <section className="mb-8 pt-4">
+      
+      {/* Hero Banner Section */}
+      {heroBanners?.length > 0 && (
+        <section className="mb-12 pt-4">
           <AdCarousel slides={heroBanners} />
         </section>
       )}
 
-
-      <div className="max-w-[1200px] mx-auto px-4">
-        {/* ── RECOMMENDED MOVIES ── */}
-        <section id="now-showing" className="mb-12">
-          <div className="flex items-center justify-between mb-4 px-1">
-            <h2 className="text-[20px] md:text-[24px] font-bold text-[#333333]">Recommended Movies</h2>
-            <button className="text-[#F84464] hover:text-[#e03a58] text-[13px] md:text-[14px] font-medium flex items-center transition-colors" onClick={() => navigate('/explore')}>See All &rsaquo;</button>
+      <div className="container mx-auto px-4 max-w-[1240px]">
+        {/* Recommended Movies */}
+        <section id="now-showing" className="mb-14">
+          <div className="flex items-center justify-between mb-6 px-1">
+            <h2 className="text-[22px] md:text-[28px] font-bold tracking-tight">Recommended Movies</h2>
+            <button 
+              className="text-[#F84464] hover:text-[#e03a58] text-[14px] md:text-[15px] font-semibold flex items-center transition-colors group" 
+              onClick={() => navigate('/explore')}
+            >
+              See All <span className="ml-1 group-hover:translate-x-1 transition-transform">&rsaquo;</span>
+            </button>
           </div>
-          {loading ? (
-            <ScrollContainer className="py-2">
+          
+          {isLoading ? (
+            <ScrollContainer className="py-2 gap-6">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="w-[140px] sm:w-[170px] md:w-[220px] flex-shrink-0">
+                <div key={i} className="w-[150px] sm:w-[180px] md:w-[240px] flex-shrink-0">
                   <MovieCardSkeleton />
                 </div>
               ))}
             </ScrollContainer>
           ) : (
-            <ScrollContainer className="py-2">
-              {movies.length > 0 ? movies.map((m) => (
-                <div key={m._id} className="w-[140px] sm:w-[170px] md:w-[224px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
-                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-[8px] bg-slate-200">
-                    <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" loading="lazy" />
+            <ScrollContainer className="py-4 gap-6">
+              {movies?.length > 0 ? movies.map((m) => (
+                <div 
+                  key={m._id} 
+                  className="w-[150px] sm:w-[180px] md:w-[240px] flex-shrink-0 cursor-pointer group" 
+                  onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}
+                >
+                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl shadow-premium bg-slate-200 dark:bg-slate-800">
+                    <img 
+                      src={m.poster} 
+                      alt={m.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" 
+                      loading="lazy" 
+                    />
                     {m.rating > 0 && (
-                      <div className="absolute bottom-0 left-0 w-full bg-black/80 text-white text-[11px] md:text-[13px] font-medium py-2 px-3 flex items-center gap-1 rounded-b-[8px]">
-                        <span className="text-[#F84464]">★</span> 
+                      <div className="absolute bottom-0 left-0 w-full glass text-white text-[12px] md:text-[14px] font-semibold py-2 px-3 flex items-center gap-1">
+                        <span className="text-[#F84464] text-lg leading-none">★</span> 
                         <span>{m.rating.toFixed(1)}/10</span>
-                        <span className="text-gray-300 font-normal text-[10px] md:text-[11px] ml-auto">50K+ Votes</span>
+                        <span className="text-white/80 font-normal text-[11px] ml-auto">50K+ Votes</span>
                       </div>
                     )}
                   </div>
-                  <h4 className="text-[14px] md:text-[18px] font-medium text-[#333333] mt-3 truncate">{m.title}</h4>
-                  <p className="text-[12px] md:text-[14px] text-[#666666] mt-1 truncate">{m.genre?.join("/")}</p>
+                  <h4 className="text-[16px] md:text-[19px] font-semibold mt-4 truncate transition-colors group-hover:text-[#F84464]">{m.title}</h4>
+                  <p className="text-[13px] md:text-[15px] text-slate-500 dark:text-slate-400 mt-1 truncate">{m.genre?.join(" • ")}</p>
                 </div>
               )) : (
-                <div className="w-full text-center py-12 text-slate-500 border border-dashed border-slate-300 rounded-xl bg-slate-50">
-                  <p>No movies currently playing in your region.</p>
+                <div className="w-full text-center py-16 text-slate-500 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800/50">
+                  <p className="text-lg">No movies currently playing in your region.</p>
                 </div>
               )}
             </ScrollContainer>
           )}
         </section>
 
-        {/* ── UPCOMING MOVIES ── */}
-        {upcoming.length > 0 && (
-          <section id="upcoming" className="mb-12">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-[20px] md:text-[24px] font-bold text-[#333333]">Coming Soon</h2>
-              <button className="text-[#F84464] hover:text-[#e03a58] text-[13px] md:text-[14px] font-medium flex items-center transition-colors" onClick={() => navigate('/explore')}>Explore Upcoming &rsaquo;</button>
-            </div>
-            <ScrollContainer className="py-2">
-              {upcoming.map((m) => (
-                <div key={m._id} className="w-[140px] sm:w-[170px] md:w-[224px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(`/movie/${m._id}`)}>
-                  <div className="relative w-full overflow-hidden rounded-[8px] bg-[#222222]">
-                    <div className="w-full aspect-[2/3] overflow-hidden">
-                      <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" loading="lazy" />
-                    </div>
-                    <div className="w-full bg-[#222222] text-white text-[11px] md:text-[12px] font-medium py-[6px] px-3 flex items-center tracking-wide">
-                      {m.releaseDate ? (() => {
-                        const d = new Date(m.releaseDate);
-                        return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })} ${d.getFullYear()}`;
-                      })() : "Release TBA"}
-                    </div>
-                  </div>
-                  <h4 className="text-[14px] md:text-[18px] font-medium text-[#333333] mt-3 truncate">{m.title}</h4>
-                  <p className="text-[12px] md:text-[14px] text-[#666666] mt-1 truncate">{m.genre?.join("/")}</p>
-                </div>
-              ))}
-            </ScrollContainer>
-          </section>
-        )}
-
-        {/* ── STREAM AD BANNER ── */}
-        <section className="mb-12 cursor-pointer hover:opacity-95 transition-opacity duration-200 px-1" onClick={() => navigate('/explore')}>
-          <img src="https://assets-in.bmscdn.com/discovery-catalog/collections/tr:w-1440,h-120:q-80/stream-leadin-web-collection-202210241242.png" alt="Stream" className="w-full rounded-xl shadow-sm" />
-        </section>
-
-        {/* ── THE BEST OF LIVE EVENTS (Middle Banners) ── */}
-        {middleBanners.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-[20px] md:text-[24px] font-bold text-[#333333]">The Best Of Live Events</h2>
-            </div>
-            <ScrollContainer className="py-2 gap-4 md:gap-8">
+        {/* The Best Of Live Events (Middle Banners) */}
+        {middleBanners?.length > 0 && (
+          <section className="mb-14">
+            <h2 className="text-[22px] md:text-[28px] font-bold tracking-tight mb-6 px-1">The Best Of Live Events</h2>
+            <ScrollContainer className="py-2 gap-5 md:gap-8">
               {middleBanners.map((b, idx) => (
-                <div key={idx} className="w-[150px] sm:w-[180px] md:w-[224px] flex-shrink-0 cursor-pointer group" onClick={() => b.link && window.open(b.link, "_blank")}>
-                  <img src={b.bg} alt={`Event Category ${idx}`} className="w-full aspect-square rounded-[8px] object-cover shadow-sm group-hover:shadow-md transition-all duration-300" />
+                <div key={idx} className="w-[160px] sm:w-[200px] md:w-[250px] flex-shrink-0 cursor-pointer group" onClick={() => b.link && window.open(b.link, "_blank")}>
+                  <img src={b.bg} alt={`Event Category ${idx}`} className="w-full aspect-square rounded-2xl object-cover shadow-premium group-hover:shadow-2xl transition-all duration-300" />
                 </div>
               ))}
             </ScrollContainer>
@@ -159,28 +132,34 @@ export default function Home() {
         )}
       </div>
 
-      {/* ── PREMIERES (Full Width Section) ── */}
-      {premieres.length > 0 && (
-        <section id="premieres" className="bg-[#2b3149] py-14 my-12 text-white">
-          <div className="max-w-[1200px] mx-auto px-4">
-            <div className="mb-8 px-1">
-              <h2 className="text-[20px] md:text-[24px] font-bold tracking-tight text-white">Premieres</h2>
-              <p className="text-[13px] md:text-[14px] text-white/80 mt-1">Brand new releases every Friday</p>
+      {/* Premieres Section (Full Width Dark Theme) */}
+      {premieres?.length > 0 && (
+        <section id="premieres" className="bg-slate-900 dark:bg-black py-16 my-16 text-white relative overflow-hidden">
+          {/* Subtle gradient overlay for premium feel */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#F84464]/10 to-transparent opacity-50"></div>
+          <div className="container mx-auto px-4 max-w-[1240px] relative z-10">
+            <div className="mb-10 px-1 flex flex-col">
+              <h2 className="text-[24px] md:text-[32px] font-bold tracking-tight text-white flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-[#F84464] flex items-center justify-center text-sm">▶</span>
+                Premieres
+              </h2>
+              <p className="text-[14px] md:text-[16px] text-white/70 mt-2 font-medium">Brand new releases every Friday</p>
             </div>
-            <ScrollContainer className="py-2">
+            
+            <ScrollContainer className="py-4 gap-6">
               {premieres.map((m) => (
-                <div key={m._id} className="w-[140px] sm:w-[170px] md:w-[224px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
-                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-[8px] bg-slate-800 shadow-md">
-                    <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" loading="lazy" />
-                    <div className="absolute top-0 left-0 w-full bg-[#D42A45] text-white text-[10px] md:text-[11px] font-medium py-1 text-center rounded-t-[8px]">PREMIERE</div>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/50">
-                        <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 ml-1"><path d="M5 3l14 9-14 9V3z"/></svg>
+                <div key={m._id} className="w-[150px] sm:w-[180px] md:w-[240px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
+                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl bg-slate-800 shadow-premium">
+                    <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" loading="lazy" />
+                    <div className="absolute top-0 left-0 w-full bg-gradient-to-r from-[#D42A45] to-[#F84464] text-white text-[11px] md:text-[12px] font-bold tracking-wider py-1.5 text-center shadow-md">PREMIERE</div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 backdrop-blur-[2px]">
+                      <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center border border-white/50 backdrop-blur-md hover:bg-[#F84464]/80 hover:border-[#F84464] transition-colors">
+                        <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6 ml-1"><path d="M5 3l14 9-14 9V3z"/></svg>
                       </div>
                     </div>
                   </div>
-                  <h4 className="text-[14px] md:text-[18px] font-medium text-white mt-3 truncate">{m.title}</h4>
-                  <p className="text-[12px] md:text-[14px] text-white/70 mt-1 truncate">{Array.isArray(m.language) ? m.language.join(", ") : m.language}</p>
+                  <h4 className="text-[16px] md:text-[19px] font-semibold text-white mt-4 truncate">{m.title}</h4>
+                  <p className="text-[13px] md:text-[14px] text-white/60 mt-1 truncate">{Array.isArray(m.language) ? m.language.join(" • ") : m.language}</p>
                 </div>
               ))}
             </ScrollContainer>
@@ -188,22 +167,27 @@ export default function Home() {
         </section>
       )}
 
-      <div className="max-w-[1200px] mx-auto px-4">
-        {/* ── EVENTS ── */}
-        {events.length > 0 && (
-          <section id="events" className="mb-12">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <h2 className="text-[20px] md:text-[24px] font-bold text-[#333333]">Upcoming Events & Activities</h2>
-              <button className="text-[#F84464] hover:text-[#e03a58] text-[13px] md:text-[14px] font-medium flex items-center transition-colors" onClick={() => navigate('/explore')}>See All &rsaquo;</button>
+      {/* Events Section */}
+      <div className="container mx-auto px-4 max-w-[1240px]">
+        {events?.length > 0 && (
+          <section id="events" className="mb-14">
+            <div className="flex items-center justify-between mb-6 px-1">
+              <h2 className="text-[22px] md:text-[28px] font-bold tracking-tight">Upcoming Events & Activities</h2>
+              <button 
+                className="text-[#F84464] hover:text-[#e03a58] text-[14px] md:text-[15px] font-semibold flex items-center transition-colors group" 
+                onClick={() => navigate('/explore')}
+              >
+                See All <span className="ml-1 group-hover:translate-x-1 transition-transform">&rsaquo;</span>
+              </button>
             </div>
-            <ScrollContainer className="py-2">
+            <ScrollContainer className="py-4 gap-6">
               {events.map((m) => (
-                <div key={m._id} className="w-[140px] sm:w-[170px] md:w-[224px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
-                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-[8px] bg-slate-200">
-                    <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300" loading="lazy" />
+                <div key={m._id} className="w-[150px] sm:w-[180px] md:w-[240px] flex-shrink-0 cursor-pointer group" onClick={() => navigate(m.itemType === 'event' ? `/events/${m._id}` : `/movie/${m._id}`)}>
+                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl bg-slate-200 dark:bg-slate-800 shadow-premium">
+                    <img src={m.poster} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" loading="lazy" />
                   </div>
-                  <h4 className="text-[14px] md:text-[18px] font-medium text-[#333333] mt-3 truncate">{m.title}</h4>
-                  <p className="text-[12px] md:text-[14px] text-[#666666] mt-1 truncate">{m.genre?.join("/")}</p>
+                  <h4 className="text-[16px] md:text-[19px] font-semibold mt-4 truncate transition-colors group-hover:text-[#F84464]">{m.title}</h4>
+                  <p className="text-[13px] md:text-[15px] text-slate-500 dark:text-slate-400 mt-1 truncate">{m.genre?.join(" • ")}</p>
                 </div>
               ))}
             </ScrollContainer>

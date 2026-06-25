@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMovieById, getMovieReviews, createReview, voteReview, getMovieRecommendations, toggleMovieInterest } from "../config/allApis";
 import { useAuth } from "../context/AuthContext";
 import SEO from "../components/SEO";
@@ -11,51 +12,83 @@ export default function MovieDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
-  const [movie, setMovie] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Review form state
   const [reviewForm, setReviewForm] = useState({ rating: 10, comment: "" });
-  const [submittingReview, setSubmittingReview] = useState(false);
 
-  const fetchMovieData = React.useCallback(() => {
-    setLoading(true);
-    Promise.all([
-      getMovieById(id),
-      getMovieReviews(id).catch(() => ({ data: { data: [] } })),
-      getMovieRecommendations(id).catch(() => ({ data: { data: [] } }))
-    ])
-      .then(([movieRes, reviewsRes, recRes]) => {
-        setMovie(movieRes.data.data);
-        setReviews(reviewsRes.data.data);
-        setRecommendations(recRes.data.data);
-      })
-      .catch(() => navigate("/"))
-      .finally(() => setLoading(false));
-  }, [id, navigate]);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['movieDetails', id],
+    queryFn: async () => {
+      const [movieRes, reviewsRes, recRes] = await Promise.all([
+        getMovieById(id),
+        getMovieReviews(id).catch(() => ({ data: { data: [] } })),
+        getMovieRecommendations(id).catch(() => ({ data: { data: [] } }))
+      ]);
+      return {
+        movie: movieRes.data.data,
+        reviews: reviewsRes.data.data,
+        recommendations: recRes.data.data
+      };
+    },
+    retry: 1
+  });
 
-  useEffect(() => {
-    fetchMovieData();
-  }, [fetchMovieData]);
+  const { movie, reviews, recommendations } = data || {};
 
-  const handleInterestClick = async () => {
+  const toggleInterestMutation = useMutation({
+    mutationFn: () => toggleMovieInterest(movie._id),
+    onSuccess: (res) => {
+      if (res.data.success) {
+        queryClient.invalidateQueries(['movieDetails', id]);
+        toast.success(res.data.message);
+      }
+    },
+    onError: () => toast.error("Failed to update interest")
+  });
+
+  const createReviewMutation = useMutation({
+    mutationFn: (newReview) => createReview(newReview),
+    onSuccess: () => {
+      setReviewForm({ rating: 10, comment: "" });
+      queryClient.invalidateQueries(['movieDetails', id]);
+      toast.success("✅ Review posted successfully!");
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "❌ Error posting review");
+    }
+  });
+
+  const voteReviewMutation = useMutation({
+    mutationFn: ({ reviewId, type }) => voteReview(reviewId, { type }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['movieDetails', id]);
+    }
+  });
+
+  const handleInterestClick = () => {
     if (!user) {
       toast.error("Please login to mark interest");
       navigate("/login");
       return;
     }
-    try {
-      const res = await toggleMovieInterest(movie._id);
-      if (res.data.success) {
-        setMovie({ ...movie, interestCount: res.data.interestCount, interestedUsers: res.data.isInterested ? [...(movie.interestedUsers || []), user._id] : (movie.interestedUsers || []).filter(id => id !== user._id) });
-        toast.success(res.data.message);
-      }
-    } catch {
-      toast.error("Failed to update interest");
+    toggleInterestMutation.mutate();
+  };
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!user) {
+      toast.warning("⚠️ Please log in to post a review.");
+      return;
     }
+    createReviewMutation.mutate({ movie: id, rating: reviewForm.rating, comment: reviewForm.comment });
+  };
+
+  const handleVote = (reviewId, type) => {
+    if (!user) {
+      toast.warning("⚠️ Please log in to vote.");
+      return;
+    }
+    voteReviewMutation.mutate({ reviewId, type });
   };
 
   const formatCount = (count) => {
@@ -64,231 +97,177 @@ export default function MovieDetails() {
     return count;
   };
 
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) {
-      toast.warning("⚠️ Please log in to post a review.", {
-        position: "top-right", autoClose: 4000, hideProgressBar: false,
-        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
-      });
-      return;
-    }
-    setSubmittingReview(true);
-    try {
-      await createReview({ movie: id, rating: reviewForm.rating, comment: reviewForm.comment });
-      setReviewForm({ rating: 10, comment: "" });
-      toast.success("✅ Review posted successfully!", {
-        position: "top-right", autoClose: 3000, hideProgressBar: false,
-        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
-      });
-      fetchMovieData();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "❌ Error posting review", {
-        position: "top-right", autoClose: 5000, hideProgressBar: false,
-        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
-      });
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
-  const handleVote = async (reviewId, type) => {
-    if (!user) {
-      toast.warning("⚠️ Please log in to vote.", {
-        position: "top-right", autoClose: 3000, hideProgressBar: false,
-        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
-      });
-      return;
-    }
-    try {
-      await voteReview(reviewId, { type });
-      fetchMovieData();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const handleShare = async () => {
     const shareData = {
       title: movie.title,
       text: `Check out ${movie.title} on cineBook!`,
       url: window.location.href,
     };
-
     if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error("Error sharing:", err);
-      }
+      try { await navigator.share(shareData); } catch (err) { console.error(err); }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success("🔗 Link copied to clipboard!", {
-        position: "top-right", autoClose: 3000, hideProgressBar: false,
-        closeOnClick: false, pauseOnHover: true, draggable: true, theme: "light",
-      });
+      toast.success("🔗 Link copied to clipboard!");
     }
   };
 
-  if (loading) return (
-    <div className="flex justify-center items-center py-48 bg-bms-bg min-h-[80vh]">
-      <div className="w-10 h-10 border-3 border-bms-surface-hover border-t-bms-accent rounded-full animate-spin" />
+  if (isLoading) return (
+    <div className="flex justify-center items-center py-48 bg-slate-50 dark:bg-[#0B0E14] min-h-[80vh]">
+      <div className="w-12 h-12 border-4 border-slate-200 dark:border-slate-800 border-t-[#F84464] rounded-full animate-spin" />
     </div>
   );
-  if (!movie) return null;
 
-  const hasReviewed = reviews.some(r => r.user?._id === user?._id);
+  if (isError || !movie) {
+    navigate("/");
+    return null;
+  }
+
+  const hasReviewed = reviews?.some(r => r.user?._id === user?._id);
 
   return (
-    <div className="pt-[100px] md:pt-[96px] pb-16 min-h-[calc(100vh-300px)] bg-[#f2f5f9] text-[#333333] transition-colors duration-300">
+    <div className="pt-[100px] md:pt-[96px] pb-16 min-h-[calc(100vh-300px)] bg-slate-50 dark:bg-[#0B0E14] text-slate-800 dark:text-slate-100 transition-colors duration-300">
       <SEO 
         title={movie.title}
         description={movie.description?.substring(0, 160) || "Book tickets now on cineBook"}
         image={movie.poster}
         url={`/movie/${movie._id}`}
       />
-      {/* ── cineBook Style Top Banner ── */}
+      
+      {/* Premium Hero Banner */}
       <div 
         className="relative min-h-[480px] w-full flex items-center bg-cover bg-center overflow-hidden py-10 bg-slate-900" 
         style={{ backgroundImage: `url(${movie.backdrop || movie.poster})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
         
-        <div className="max-w-[1200px] mx-auto px-4 w-full relative z-10 flex flex-col md:flex-row gap-6 md:gap-10 items-center text-white">
+        <div className="container mx-auto px-4 max-w-[1240px] relative z-10 flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-stretch text-white">
           <div 
-            className={`relative w-[180px] sm:w-[240px] md:w-[260px] aspect-[2/3] rounded-[10px] overflow-hidden shadow-2xl flex-shrink-0 ${movie.trailer ? 'cursor-pointer group' : ''}`}
+            className={`relative w-[180px] sm:w-[240px] md:w-[280px] aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl flex-shrink-0 ${movie.trailer ? 'cursor-pointer group' : ''}`}
             onClick={() => movie.trailer && window.open(movie.trailer, '_blank')}
           >
-            <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
             
             {movie.trailer && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 backdrop-blur-sm text-white text-[12px] md:text-[13px] font-medium px-4 py-1.5 rounded-full flex items-center gap-2 border border-white/20 shadow-lg group-hover:bg-black/80 transition-colors">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 glass text-white text-[12px] md:text-[14px] font-semibold px-5 py-2 rounded-full flex items-center gap-2 border border-white/20 shadow-premium group-hover:bg-[#F84464] transition-all duration-300">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
-                Trailers
+                Watch Trailer
               </div>
             )}
 
             {movie.isNowShowing ? (
-              <div className="absolute bottom-0 left-0 w-full bg-black/90 backdrop-blur px-4 py-1.5 text-[11px] font-semibold uppercase text-center tracking-widest text-white z-10">In cinemas</div>
+              <div className="absolute bottom-0 left-0 w-full glass text-[12px] font-bold uppercase text-center tracking-[0.2em] text-white py-2 z-10">In cinemas</div>
             ) : movie.isUpcoming ? (
-              <div className="absolute bottom-0 left-0 w-full bg-black px-4 py-2 text-[12px] font-semibold text-center text-white z-10 rounded-b-[8px]">
+              <div className="absolute bottom-0 left-0 w-full bg-black/80 px-4 py-3 text-[13px] font-semibold text-center text-white z-10">
                 Releasing on {movie.releaseDate ? new Date(movie.releaseDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "TBA"}
               </div>
             ) : null}
           </div>
           
-          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 md:gap-5 w-full">
-            <h1 className="text-3xl sm:text-4xl md:text-[38px] font-bold text-white leading-tight">{movie.title}</h1>
+          <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left justify-center w-full">
+            <h1 className="text-3xl sm:text-4xl md:text-[42px] font-extrabold text-white leading-tight drop-shadow-lg">{movie.title}</h1>
             
             {movie.isUpcoming ? (
-              <div className="bg-black border border-white/20 rounded-xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-6 w-full max-w-[450px]">
+              <div className="glass rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-6 w-full max-w-[500px] mt-6">
                 <div className="flex items-start gap-3">
-                  <span className="text-[#4caf50] text-xl mt-0.5"><LuThumbsUp className="fill-current" /></span>
+                  <span className="text-[#4caf50] text-2xl mt-0.5"><LuThumbsUp className="fill-current" /></span>
                   <div className="flex flex-col text-left">
-                    <span className="text-white font-bold text-[15px]">{formatCount(movie.interestCount)} are interested</span>
-                    <span className="text-slate-300 text-[12px] font-medium mt-0.5">Mark interested to know when bookings open</span>
+                    <span className="text-white font-bold text-[16px]">{formatCount(movie.interestCount)} are interested</span>
+                    <span className="text-slate-200 text-[13px] font-medium mt-1">Mark interested to know when bookings open</span>
                   </div>
                 </div>
                 <button
-                  className="bg-transparent hover:bg-white/10 border border-white/50 text-white px-5 py-2 text-[14px] font-semibold rounded-lg transition-all whitespace-nowrap"
+                  className="bg-transparent hover:bg-white/20 border-2 border-white text-white px-6 py-2.5 text-[14px] font-bold rounded-xl transition-all whitespace-nowrap shadow-sm"
                   onClick={handleInterestClick}
+                  disabled={toggleInterestMutation.isLoading}
                 >
                   {user && movie.interestedUsers?.includes(user._id) ? "Interested ✅" : "I'm interested"}
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3 bg-[#333333] p-3 rounded-[8px] w-fit flex-wrap justify-center shadow-lg">
-                <span className="text-[#F84464] text-xl">★</span>
-                <span className="text-[18px] md:text-[22px] font-bold text-white">{movie.rating?.toFixed(1) || 0}/10</span>
-                <span className="text-[13px] text-slate-300 font-medium ml-2">{reviews.length} Ratings &rsaquo;</span>
-                <button className="bg-white text-[#333333] hover:bg-slate-100 font-semibold px-4 py-2 text-[12px] rounded-[6px] transition-colors ml-4 shadow-sm" onClick={() => document.getElementById("review-section").scrollIntoView({ behavior: "smooth" })}>Rate now</button>
+              <div className="flex items-center gap-4 glass px-5 py-3 rounded-2xl w-fit flex-wrap justify-center shadow-premium mt-6">
+                <span className="text-[#F84464] text-2xl drop-shadow-md">★</span>
+                <span className="text-[20px] md:text-[24px] font-extrabold text-white">{movie.rating?.toFixed(1) || 0}/10</span>
+                <span className="text-[14px] text-slate-200 font-semibold ml-2">{reviews?.length || 0} Ratings &rsaquo;</span>
+                <button className="bg-white text-[#F84464] hover:bg-slate-100 font-bold px-5 py-2.5 text-[13px] rounded-xl transition-colors ml-4 shadow-sm" onClick={() => document.getElementById("review-section").scrollIntoView({ behavior: "smooth" })}>Rate now</button>
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-1">
-              <span className="bg-white/90 text-[#333333] hover:bg-white px-3 py-1.5 text-[12px] font-semibold rounded-[4px] cursor-pointer">2D, 3D, IMAX</span>
+            <div className="flex flex-wrap gap-3 justify-center md:justify-start mt-6">
+              <span className="bg-white text-slate-900 px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">2D, 3D, IMAX</span>
               {Array.isArray(movie.language) ? (
-                 movie.language.map((lang, idx) => <span key={idx} className="bg-white/90 text-[#333333] hover:bg-white px-3 py-1.5 text-[12px] font-semibold rounded-[4px] cursor-pointer">{lang}</span>)
+                 movie.language.map((lang, idx) => <span key={idx} className="glass text-white px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">{lang}</span>)
               ) : (
-                <span className="bg-white/90 text-[#333333] hover:bg-white px-3 py-1.5 text-[12px] font-semibold rounded-[4px] cursor-pointer">{movie.language}</span>
+                <span className="glass text-white px-3 py-1.5 text-[13px] font-bold rounded shadow-sm">{movie.language}</span>
               )}
             </div>
 
-            <div className="text-[14px] md:text-[15px] text-slate-200 font-medium tracking-wide">
+            <div className="text-[14px] md:text-[16px] text-slate-200 font-medium tracking-wide mt-4">
               {movie.duration} • {movie.genre?.join(", ")} • UA • {movie.releaseDate ? new Date(movie.releaseDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "TBA"}
             </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-4 mt-4 items-center justify-center md:justify-start">
+            <div className="flex flex-col sm:flex-row flex-wrap w-full md:w-auto gap-4 mt-8 items-center justify-center md:justify-start">
               {movie.itemType === "premiere" ? (
-                <div className="fixed bottom-0 left-0 w-full p-4 bg-bms-surface border-t border-bms-border z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto flex flex-col sm:flex-row gap-3">
+                <div className="fixed bottom-0 left-0 w-full p-4 glass z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto flex flex-col sm:flex-row gap-3">
                   <button
-                    className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-10 py-3.5 text-[15px] font-semibold rounded-[8px] shadow-lg transition-all duration-200"
+                    className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-10 py-3.5 text-[16px] font-bold rounded-xl shadow-premium transition-transform hover:scale-105"
                     onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: movie.basePrice || 149 } })}
                   >
-                    Rent for Rs. {movie.basePrice || 149}
+                    Rent for ₹ {movie.basePrice || 149}
                   </button>
                   <button
-                    className="w-full sm:w-auto bg-slate-800 sm:bg-transparent border border-slate-700 sm:border-white/40 hover:bg-slate-700 sm:hover:bg-white/10 text-white px-10 py-3.5 text-[15px] font-semibold rounded-[8px] transition-colors"
+                    className="w-full sm:w-auto glass hover:bg-white/20 text-white px-10 py-3.5 text-[16px] font-bold rounded-xl transition-all shadow-sm"
                     onClick={() => navigate(`/payment`, { state: { itemId: movie._id, isPremiere: true, totalAmount: (movie.basePrice || 149) + 400 } })}
                   >
-                    Buy for Rs. {(movie.basePrice || 149) + 400}
+                    Buy for ₹ {(movie.basePrice || 149) + 400}
                   </button>
                 </div>
               ) : movie.isNowShowing ? (
-                <div className="fixed bottom-0 left-0 w-full p-3 bg-bms-surface border-t border-bms-border z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto">
+                <div className="fixed bottom-0 left-0 w-full p-4 glass z-[1000] sm:static sm:bg-transparent sm:border-none sm:p-0 sm:w-auto sm:z-auto">
                   <button
-                    className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-12 py-3.5 text-[16px] font-semibold rounded-[8px] shadow-lg transition-all"
+                    className="w-full sm:w-auto bg-[#F84464] hover:bg-[#e03a58] text-white px-14 py-4 text-[16px] font-bold rounded-xl shadow-premium transition-transform hover:scale-105"
                     onClick={() => navigate(`/select-theatre/${movie._id}`)}
                   >
-                    Book tickets
+                    Book Tickets
                   </button>
                 </div>
               ) : null}
 
-              {movie.trailer && (
-                <button
-                  className="w-full sm:w-auto bg-transparent border border-white/40 hover:bg-white/10 text-white px-8 py-3.5 text-[15px] font-semibold rounded-[8px] transition-colors"
-                  onClick={() => window.open(movie.trailer, '_blank')}
-                >
-                  Watch Trailer
-                </button>
-              )}
-
               <button
-                className="w-full sm:w-auto bg-transparent text-white px-4 py-3.5 text-[15px] font-semibold hover:opacity-80 transition-opacity flex items-center justify-center gap-2"
+                className="w-full sm:w-auto glass hover:bg-white/20 text-white px-5 py-4 text-[16px] font-bold transition-all flex items-center justify-center gap-2 rounded-xl shadow-sm"
                 onClick={handleShare}
                 title="Share"
               >
-                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="1.2em" width="1.2em" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="1.2em" width="1.2em"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                Share
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Bottom Content Section ── */}
-      <div className="max-w-[1000px] mx-auto px-4 py-8 md:py-10 flex flex-col gap-8">
+      {/* Main Content Sections */}
+      <div className="container mx-auto max-w-[1000px] px-4 py-12 flex flex-col gap-12">
         <section className="w-full">
-          <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-4">About the movie</h3>
-          <p className="text-[14px] md:text-[16px] leading-[1.6] text-[#333333]">{movie.description}</p>
+          <h3 className="text-[22px] md:text-[26px] font-extrabold mb-4">About the movie</h3>
+          <p className="text-[15px] md:text-[17px] leading-relaxed text-slate-600 dark:text-slate-300">{movie.description}</p>
         </section>
 
-        <div className="h-[1px] bg-slate-200" />
+        <div className="h-px bg-slate-200 dark:bg-slate-800" />
 
         {movie.cast?.length > 0 && (
           <section className="w-full">
-            <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-4">Cast</h3>
-            <div className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none">
+            <h3 className="text-[22px] md:text-[26px] font-extrabold mb-6">Cast</h3>
+            <div className="flex gap-4 md:gap-8 overflow-x-auto py-2 scrollbar-none">
               {movie.cast.map((c, idx) => (
-                <div key={idx} className="w-[90px] md:w-[110px] flex-shrink-0 flex flex-col items-start text-left group cursor-pointer">
-                  <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-2 shadow-sm group-hover:shadow-md transition-shadow">
-                    {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" /> : <span>{c.name.charAt(0)}</span>}
+                <div key={idx} className="w-[100px] md:w-[130px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer">
+                  <div className="w-[100px] h-[100px] md:w-[130px] md:h-[130px] rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-2xl text-slate-400 mb-4 shadow-sm group-hover:shadow-premium transition-all duration-300">
+                    {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> : <span>{c.name.charAt(0)}</span>}
                   </div>
-                  <span className="text-[13px] md:text-[14px] font-medium text-[#333333] w-full block leading-tight truncate">{c.name}</span>
-                  <span className="text-[12px] text-slate-500 mt-0.5 w-full block truncate">Actor</span>
+                  <span className="text-[14px] md:text-[16px] font-bold w-full block truncate group-hover:text-[#F84464] transition-colors">{c.name}</span>
+                  <span className="text-[13px] text-slate-500 mt-1 block w-full truncate">Actor</span>
                 </div>
               ))}
             </div>
@@ -297,26 +276,26 @@ export default function MovieDetails() {
 
         {(movie.crew?.length > 0 || movie.director) && (
           <>
-            <div className="h-[1px] bg-slate-200" />
+            <div className="h-px bg-slate-200 dark:bg-slate-800" />
             <section className="w-full">
-              <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333] mb-4">Crew</h3>
-              <div className="flex gap-4 md:gap-6 overflow-x-auto py-2 scrollbar-none">
+              <h3 className="text-[22px] md:text-[26px] font-extrabold mb-6">Crew</h3>
+              <div className="flex gap-4 md:gap-8 overflow-x-auto py-2 scrollbar-none">
                 {movie.director && !movie.crew?.some(c => c.name === movie.director) && (
-                  <div className="w-[90px] md:w-[110px] flex-shrink-0 flex flex-col items-start text-left group cursor-pointer">
-                    <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-2 shadow-sm group-hover:shadow-md transition-shadow">
+                  <div className="w-[100px] md:w-[130px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer">
+                    <div className="w-[100px] h-[100px] md:w-[130px] md:h-[130px] rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-2xl text-slate-400 mb-4 shadow-sm group-hover:shadow-premium transition-all duration-300">
                       <span>{movie.director.charAt(0)}</span>
                     </div>
-                    <span className="text-[13px] md:text-[14px] font-medium text-[#333333] w-full block leading-tight truncate">{movie.director}</span>
-                    <span className="text-[12px] text-slate-500 mt-0.5 w-full block truncate tracking-normal">Director</span>
+                    <span className="text-[14px] md:text-[16px] font-bold w-full block truncate group-hover:text-[#F84464] transition-colors">{movie.director}</span>
+                    <span className="text-[13px] text-slate-500 mt-1 block w-full truncate">Director</span>
                   </div>
                 )}
                 {movie.crew?.map((c, idx) => (
-                  <div key={idx} className="w-[90px] md:w-[110px] flex-shrink-0 flex flex-col items-start text-left group cursor-pointer">
-                    <div className="w-[90px] h-[90px] md:w-[110px] md:h-[110px] rounded-xl md:rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center font-bold text-lg text-slate-500 mb-2 shadow-sm group-hover:shadow-md transition-shadow">
-                      {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover" /> : <span>{c.name.charAt(0)}</span>}
+                  <div key={idx} className="w-[100px] md:w-[130px] flex-shrink-0 flex flex-col items-center text-center group cursor-pointer">
+                    <div className="w-[100px] h-[100px] md:w-[130px] md:h-[130px] rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-2xl text-slate-400 mb-4 shadow-sm group-hover:shadow-premium transition-all duration-300">
+                      {c.image ? <img src={c.image} alt={c.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" /> : <span>{c.name.charAt(0)}</span>}
                     </div>
-                    <span className="text-[13px] md:text-[14px] font-medium text-[#333333] w-full block leading-tight truncate">{c.name}</span>
-                    <span className="text-[12px] text-slate-500 mt-0.5 w-full block truncate">{c.role}</span>
+                    <span className="text-[14px] md:text-[16px] font-bold w-full block truncate group-hover:text-[#F84464] transition-colors">{c.name}</span>
+                    <span className="text-[13px] text-slate-500 mt-1 block w-full truncate">{c.role}</span>
                   </div>
                 ))}
               </div>
@@ -324,37 +303,36 @@ export default function MovieDetails() {
           </>
         )}
 
-        <div className="h-[1px] bg-slate-200" />
+        <div className="h-px bg-slate-200 dark:bg-slate-800" />
         
-        {/* REVIEWS SECTION */}
+        {/* Reviews Section */}
         <section className="w-full" id="review-section">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-[20px] md:text-[24px] font-bold text-[#333333]">Top reviews</h3>
-            <span className="text-[13px] md:text-[14px] text-slate-500 font-medium">{reviews.length} reviews &rsaquo;</span>
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-[22px] md:text-[26px] font-extrabold">Top Reviews</h3>
+            <span className="text-[14px] md:text-[15px] font-semibold text-[#F84464]">{reviews?.length || 0} reviews &rsaquo;</span>
           </div>
 
-          {/* Review Form */}
           {user ? (
             !hasReviewed ? (
-              <form onSubmit={handleReviewSubmit} className="bg-white border border-slate-200 p-6 rounded-xl mb-8 max-w-[700px] shadow-sm">
-                <h4 className="text-[15px] font-bold text-[#333333] mb-4">Write a Review</h4>
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="w-full md:w-[120px] flex-shrink-0">
-                    <label className="block text-[12px] font-semibold text-slate-500 mb-2">Rating (1-10)</label>
+              <form onSubmit={handleReviewSubmit} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-2xl mb-10 max-w-[800px] shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="text-[18px] font-bold mb-6">Write a Review</h4>
+                <div className="flex flex-col md:flex-row gap-6">
+                  <div className="w-full md:w-[140px] flex-shrink-0">
+                    <label className="block text-[14px] font-bold text-slate-500 dark:text-slate-400 mb-3">Rating (1-10)</label>
                     <input 
                       type="number" 
                       min="1" max="10" 
-                      className="w-full px-3 py-2 text-sm bg-bms-bg border border-bms-border rounded-lg text-bms-text outline-none focus:border-bms-accent" 
+                      className="w-full px-4 py-3 text-base bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl outline-none focus:border-[#F84464] focus:ring-1 focus:ring-[#F84464] transition-all" 
                       value={reviewForm.rating} 
                       onChange={e => setReviewForm({ ...reviewForm, rating: e.target.value })} 
                       required 
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-xs font-semibold text-bms-text-muted mb-2">Your thoughts</label>
+                    <label className="block text-[14px] font-bold text-slate-500 dark:text-slate-400 mb-3">Your thoughts</label>
                     <input 
                       type="text" 
-                      className="w-full px-3 py-2 text-sm bg-bms-bg border border-bms-border rounded-lg text-bms-text outline-none focus:border-bms-accent" 
+                      className="w-full px-4 py-3 text-base bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl outline-none focus:border-[#F84464] focus:ring-1 focus:ring-[#F84464] transition-all" 
                       placeholder="What did you think of the movie?" 
                       value={reviewForm.comment} 
                       onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })} 
@@ -362,29 +340,30 @@ export default function MovieDetails() {
                     />
                   </div>
                 </div>
-                <div className="mt-4 flex justify-end">
-                  <button type="submit" className="bg-bms-accent hover:bg-bms-accent-hover text-white px-5 py-2 text-xs font-bold rounded shadow-md transition-all duration-200 cursor-pointer" disabled={submittingReview}>Post Review</button>
+                <div className="mt-6 flex justify-end">
+                  <button type="submit" className="bg-[#F84464] hover:bg-[#e03a58] text-white px-8 py-3 text-sm font-bold rounded-xl shadow-md transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed" disabled={createReviewMutation.isLoading}>
+                    Post Review
+                  </button>
                 </div>
               </form>
             ) : (
-              <div className="bg-bms-surface border border-bms-border py-4 px-6 rounded-xl text-center text-sm text-bms-text-muted mb-8 max-w-[700px]">
-                You have already reviewed this movie.
+              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-6 px-8 rounded-2xl text-center text-sm font-medium text-slate-500 mb-10 max-w-[800px]">
+                You have already reviewed this movie. Thank you!
               </div>
             )
           ) : (
-             <div className="bg-bms-surface border border-bms-border py-4 px-6 rounded-xl text-center text-sm text-bms-text-muted mb-8 max-w-[700px]">
+             <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-6 px-8 rounded-2xl text-center text-sm font-medium text-slate-500 mb-10 max-w-[800px]">
                 Please log in to write a review.
              </div>
           )}
 
-          {/* Review List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {reviews.map((r) => (
-              <div key={r._id} className="bg-bms-surface border border-bms-border rounded-2xl p-5 shadow-sm flex flex-col justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {reviews?.map((r) => (
+              <div key={r._id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-premium transition-shadow flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex gap-3 items-center">
-                      <div className="w-9 h-9 rounded-full bg-bms-accent text-white flex items-center justify-center font-bold text-sm overflow-hidden border border-bms-border">
+                  <div className="flex justify-between items-start mb-5">
+                    <div className="flex gap-4 items-center">
+                      <div className="w-12 h-12 rounded-full bg-[#F84464] text-white flex items-center justify-center font-bold text-lg overflow-hidden shadow-sm">
                         {r.user?.avatar ? (
                           <img src={r.user.avatar} alt={r.user.name} className="w-full h-full object-cover" />
                         ) : (
@@ -392,66 +371,66 @@ export default function MovieDetails() {
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-sm text-bms-text">{r.user?.name || "Anonymous"}</div>
-                        <div className="text-[10px] text-bms-text-dim">Booked on cineBook</div>
+                        <div className="font-bold text-base">{r.user?.name || "Anonymous"}</div>
+                        <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Booked on cineBook</div>
                       </div>
                     </div>
-                    <div className="text-bms-accent font-bold text-sm bg-bms-accent-glow px-2.5 py-1 rounded-full border border-bms-accent/10">
-                      ⭐ {r.rating}/10
+                    <div className="text-[#F84464] font-bold text-sm bg-[#F84464]/10 px-3 py-1.5 rounded-full flex items-center gap-1">
+                      <span className="text-lg leading-none">★</span> {r.rating}/10
                     </div>
                   </div>
-                  <p className="text-sm text-bms-text-muted leading-relaxed mb-4">
-                    {r.comment}
+                  <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6 font-medium">
+                    "{r.comment}"
                   </p>
                 </div>
-                <div className="flex justify-between items-center text-xs text-bms-text-dim border-t border-bms-border/50 pt-3 mt-auto">
-                  <div className="flex gap-4">
+                <div className="flex justify-between items-center text-sm font-semibold text-slate-500 border-t border-slate-100 dark:border-slate-800 pt-4 mt-auto">
+                  <div className="flex gap-6">
                     <button 
                       onClick={() => handleVote(r._id, "like")} 
-                      className={`bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-bms-accent transition-colors duration-150 ${r.likedBy?.includes(user?._id) ? "text-bms-accent" : ""}`}
+                      className={`bg-transparent border-none cursor-pointer flex items-center gap-2 hover:text-[#F84464] transition-colors duration-150 ${r.likedBy?.includes(user?._id) ? "text-[#F84464]" : ""}`}
                     >
                       👍 {r.likes}
                     </button>
                     <button 
                       onClick={() => handleVote(r._id, "dislike")}
-                      className={`bg-transparent border-none cursor-pointer flex items-center gap-1 hover:text-bms-accent transition-colors duration-150 ${r.dislikedBy?.includes(user?._id) ? "text-bms-accent" : ""}`}
+                      className={`bg-transparent border-none cursor-pointer flex items-center gap-2 hover:text-[#F84464] transition-colors duration-150 ${r.dislikedBy?.includes(user?._id) ? "text-[#F84464]" : ""}`}
                     >
                       👎 {r.dislikes}
                     </button>
                   </div>
-                  <div>
+                  <div className="text-[12px] opacity-70">
                     {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
                   </div>
                 </div>
               </div>
             ))}
-            {reviews.length === 0 && (
-              <div className="col-span-full text-center py-12 text-bms-text-muted bg-bms-surface/50 border border-dashed border-bms-border rounded-xl">
+            {(!reviews || reviews.length === 0) && (
+              <div className="col-span-full text-center py-16 text-slate-500 bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-3xl text-lg font-medium">
                 No reviews yet. Be the first to review!
               </div>
             )}
           </div>
         </section>
 
-        {/* ── You Might Also Like Section ── */}
-        {recommendations.length > 0 && (
+        {/* Recommendations */}
+        {recommendations?.length > 0 && (
           <>
-            <div className="h-[1px] bg-bms-border/50" />
+            <div className="h-px bg-slate-200 dark:bg-slate-800" />
             <section className="w-full">
-              <h3 className="text-xl md:text-2xl font-bold text-bms-text mb-4">You Might Also Like</h3>
-              <ScrollContainer className="py-3">
+              <h3 className="text-[22px] md:text-[26px] font-extrabold mb-6">You Might Also Like</h3>
+              <ScrollContainer className="py-4 gap-6">
                 {recommendations.map(rec => (
                   <Link 
                     to={`/movie/${rec._id}`} 
                     key={rec._id} 
-                    className="w-40 flex-shrink-0 group"
-                    onClick={() => window.scrollTo(0, 0)}
+                    className="w-[140px] sm:w-[160px] md:w-[200px] flex-shrink-0 group"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   >
-                    <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-sm hover:shadow-md bg-bms-surface border border-bms-border transition-all duration-300">
-                      <img src={rec.poster} alt={rec.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-sm group-hover:shadow-premium transition-all duration-300 bg-slate-100 dark:bg-slate-800">
+                      <img src={rec.poster} alt={rec.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out" />
                     </div>
-                    <h4 className="text-sm font-bold text-bms-text mt-3 truncate group-hover:text-bms-accent transition-colors duration-150">{rec.title}</h4>
-                    <p className="text-xs text-bms-text-muted mt-0.5 truncate">{rec.genre?.join(", ")}</p>
+                    <h4 className="text-[15px] md:text-[17px] font-bold mt-4 truncate group-hover:text-[#F84464] transition-colors">{rec.title}</h4>
+                    <p className="text-[13px] text-slate-500 mt-1 truncate">{rec.genre?.join(" • ")}</p>
                   </Link>
                 ))}
               </ScrollContainer>
@@ -459,7 +438,6 @@ export default function MovieDetails() {
           </>
         )}
       </div>
-
     </div>
   );
 }

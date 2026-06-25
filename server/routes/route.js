@@ -18,6 +18,8 @@ const { getMovieReviews, createReview, voteReview } = require("../controllers/re
 const { validateCoupon } = require("../controllers/couponController");
 const { getAllFoodItems, getFoodItemById, createFoodItem, updateFoodItem, deleteFoodItem } = require("../controllers/foodItemController");
 const upload = require("../middleware/uploadMiddleware");
+const validate = require("../middleware/validateMiddleware");
+const { registerSchema, loginSchema } = require("../utils/validators");
 
 // ─────────────────────────────────────────────
 //  UPLOAD ROUTES
@@ -28,8 +30,8 @@ router.get("/proxy-image", proxyImage);
 // ─────────────────────────────────────────────
 //  AUTH ROUTES
 // ─────────────────────────────────────────────
-router.post("/auth/register", register);
-router.post("/auth/login", login);
+router.post("/auth/register", validate(registerSchema), register);
+router.post("/auth/login", validate(loginSchema), login);
 router.post("/auth/google", googleLogin);
 router.get("/auth/profile", protect, getProfile);
 router.put("/auth/profile", protect, updateProfile);
