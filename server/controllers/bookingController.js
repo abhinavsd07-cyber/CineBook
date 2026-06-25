@@ -101,7 +101,7 @@ const createBooking = async (req, res) => {
         .populate("user", "name email");
 
       if (populated.status === "confirmed") {
-        await sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
+        sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
           isPremiere: false,
           bookingId: populated._id,
           poster: populated.show.movie.poster,
@@ -167,7 +167,7 @@ const createBooking = async (req, res) => {
         .populate("user", "name email");
 
       if (populated.status === "confirmed") {
-        await sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
+        sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
           isPremiere: true,
           bookingId: populated._id,
           poster: populated.item.poster,
