@@ -18,7 +18,7 @@ class AuthService {
     }
 
     const user = await User.create({ name, email, password, phone });
-    sendLoginSuccessEmail(user.email, user.name).catch((err) => console.error('Email error:', err));
+    await sendLoginSuccessEmail(user.email, user.name).catch((err) => console.error('Email error:', err));
     return user;
   }
 
@@ -32,7 +32,7 @@ class AuthService {
       throw new AppError('Invalid credentials', 401);
     }
 
-    sendLoginSuccessEmail(user.email, user.name).catch((err) => console.error('Email error:', err));
+    await sendLoginSuccessEmail(user.email, user.name).catch((err) => console.error('Email error:', err));
     return user;
   }
 

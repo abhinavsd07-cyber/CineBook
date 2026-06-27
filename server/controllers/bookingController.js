@@ -101,7 +101,7 @@ const createBooking = async (req, res) => {
         .populate("user", "name email");
 
       if (populated.status === "confirmed") {
-        sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
+        await sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
           isPremiere: false,
           bookingId: populated.bookingId,
           poster: populated.show.movie.poster,
@@ -109,9 +109,9 @@ const createBooking = async (req, res) => {
           theatre: populated.show.theatre.name + " - " + populated.show.theatre.location,
           date: new Date(populated.show.date).toLocaleDateString(),
           time: populated.show.time,
-          seats: populated.seats.map(s => s.seatNumber).join(", "),
-          totalAmount: populated.grandTotal
-        });
+          seats: seatList.map(s => s.seatNumber).join(", "),
+          amount: grandTotal,
+        }).catch(err => console.log("Booking email error:", err));
       }
 
       return res.status(201).json({ success: true, message: "Booking confirmed!", data: populated });
@@ -167,13 +167,15 @@ const createBooking = async (req, res) => {
         .populate("user", "name email");
 
       if (populated.status === "confirmed") {
-        sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
+        await sendBookingConfirmationEmail(populated.user.email, populated.user.name, {
           isPremiere: true,
           bookingId: populated.bookingId,
           poster: populated.item.poster,
           title: populated.item.title,
-          totalAmount: populated.grandTotal
-        });
+          date: new Date().toLocaleDateString(),
+          time: new Date().toLocaleTimeString(),
+          amount: grandTotal,
+        }).catch(err => console.log("Premiere email error:", err));
       }
 
       return res.status(201).json({ success: true, message: "Rent/Buy confirmed!", data: populated });
