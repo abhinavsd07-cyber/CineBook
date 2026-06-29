@@ -23,9 +23,26 @@ const connectDB = require("./dbConfig/db");
 const route = require("./routes/route");
 const adminRoutes = require("./routes/adminRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const User = require("./models/User");
 
 // Connect Database
-connectDB();
+connectDB().then(async () => {
+  try {
+    const adminExists = await User.findOne({ email: "admin@example.com" });
+    if (!adminExists) {
+      await User.create({
+        name: "Demo Admin",
+        email: "admin@example.com",
+        password: "admin123",
+        phone: "1234567890",
+        role: "admin",
+      });
+      console.log("✅ Default admin account created (admin@example.com)!");
+    }
+  } catch (error) {
+    console.error("❌ Error seeding admin:", error.message);
+  }
+});
 
 const app = express();
 const server = http.createServer(app);
